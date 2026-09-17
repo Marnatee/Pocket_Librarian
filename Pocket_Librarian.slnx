@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="pocket_librarian.client/pocket_librarian.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="Pocket_Librarian.Server/Pocket_Librarian.Server.csproj" />
+</Solution>
