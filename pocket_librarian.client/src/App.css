@@ -1,11 +1,88 @@
-﻿#root {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
-    text-align: center;
+﻿/* Controls the entire pipeline-test page. */
+.pipeline-page {
+    width: 90%;
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 24px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #222222;
 }
 
-th, td {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    /* Main page heading. */
+    .pipeline-page h1 {
+        margin-bottom: 8px;
+        color: #1f3a5f;
+    }
+
+    /* Description underneath the heading. */
+    .pipeline-page > p {
+        margin-bottom: 24px;
+        color: #555555;
+    }
+
+    /* Pipeline test button. */
+    .pipeline-page button {
+        padding: 12px 20px;
+        margin-bottom: 24px;
+        border: none;
+        border-radius: 5px;
+        background-color: #1f6feb;
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+        /* Change the button color when the mouse is over it. */
+        .pipeline-page button:hover {
+            background-color: #1557b0;
+        }
+
+        /* Keyboard-accessibility indicator. */
+        .pipeline-page button:focus-visible {
+            outline: 3px solid #ffbf47;
+            outline-offset: 3px;
+        }
+
+/* Container holding all the status fields. */
+.status-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+    background-color: #f7f7f7;
 }
+
+    /* Status section heading. */
+    .status-section h2 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        color: #1f3a5f;
+    }
+
+    /* Labels displayed above each field. */
+    .status-section label {
+        margin-top: 12px;
+        font-weight: bold;
+    }
+
+    /* Status text fields and backend-steps area. */
+    .status-section input,
+    .status-section textarea {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #999999;
+        border-radius: 4px;
+        background-color: white;
+        color: #222222;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 1rem;
+    }
+
+    /* Keep each backend step on its own line. */
+    .status-section textarea {
+        resize: vertical;
+        line-height: 1.5;
+    }

@@ -1,8 +1,13 @@
+using Pocket_Librarian.Server.Repositories;
+using Pocket_Librarian.Server.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddScoped<PipelineRepository>();
+builder.Services.AddScoped<PipelineService>();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
