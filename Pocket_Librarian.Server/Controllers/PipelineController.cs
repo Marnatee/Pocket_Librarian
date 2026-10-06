@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// API entry point
+// Receives the HTTP request from React and sends the HTTP/JSON
+// response back.
+
+using Microsoft.AspNetCore.Mvc;
 using Pocket_Librarian.Server.Models;
 using Pocket_Librarian.Server.Services;
 

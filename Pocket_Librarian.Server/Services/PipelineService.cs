@@ -1,4 +1,8 @@
-﻿using Pocket_Librarian.Server.Models;
+﻿// Business Logic Layer.
+// Controls what the application should do and calls the DAL
+// when data access is needed.
+
+using Pocket_Librarian.Server.Models;
 using Pocket_Librarian.Server.Repositories;
 
 namespace Pocket_Librarian.Server.Services

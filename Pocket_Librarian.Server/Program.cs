@@ -1,3 +1,6 @@
+// Backend configuration.
+// Starts and configures ASP.NET Core and registers the service and repository.
+
 using Pocket_Librarian.Server.Repositories;
 using Pocket_Librarian.Server.Services;
 

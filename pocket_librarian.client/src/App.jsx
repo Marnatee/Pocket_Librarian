@@ -1,4 +1,8 @@
-﻿import { useState } from "react";
+﻿//Presentation layer / UI
+//Displays the button and status fields
+//--Currently-- Calls the backend API and displays the response
+
+import { useState } from "react";
 import "./App.css";
 
 function App() {

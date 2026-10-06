@@ -1,4 +1,10 @@
-﻿namespace Pocket_Librarian.Server.Repositories
+﻿//Data access layer (SQL Database)
+//This would communicate with the SQL Database.
+//SQL Database is made in SQL Server Management Studio (SSMS).
+
+
+
+namespace Pocket_Librarian.Server.Repositories
 {
     public class PipelineRepository
     {

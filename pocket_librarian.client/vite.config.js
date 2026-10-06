@@ -1,3 +1,6 @@
+// Development configuration
+// Forwards API requests from the React development server to ASP.net core
+
 import { fileURLToPath, URL } from 'node:url';
 
 import { defineConfig } from 'vite';

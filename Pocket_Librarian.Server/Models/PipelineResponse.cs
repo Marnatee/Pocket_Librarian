@@ -1,4 +1,8 @@
-﻿namespace Pocket_Librarian.Server.Models
+﻿// Data-transfermodel
+// Defines the response informaton that travels
+// back to React as JSON
+
+namespace Pocket_Librarian.Server.Models
 {
     public class PipelineResponse
     {

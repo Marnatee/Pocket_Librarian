@@ -1,4 +1,7 @@
-﻿/* Controls the entire pipeline-test page. */
+﻿/* Controls how the React page looks.
+ Purely page styling, no processing. */
+
+/* Controls the entire pipeline-test page. */
 .pipeline-page {
     width: 90%;
     max-width: 700px;
