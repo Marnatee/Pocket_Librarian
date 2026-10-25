@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "Pocket Librarian",
+    "Projects": [
+      {
+        "Path": "Pocket_Librarian.Server\\Pocket_Librarian.Server.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "pocket_librarian.client\\pocket_librarian.client.esproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
