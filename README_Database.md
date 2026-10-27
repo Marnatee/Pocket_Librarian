@@ -28,6 +28,8 @@ This document records the database design shown in `pocket_librarian.client/Docu
 
 The React frontend must call the ASP.NET Core API. It must not connect directly to SQL Server. The API's business-logic layer calls the data-access repository, and the repository performs the SQL query.
 
-The current pipeline health check queries `dbo.Books` and returns a separate database status. If the database is unavailable, the API still returns a safe health-check response so the frontend can show the database as unavailable without crashing.
+The current pipeline health check queries `dbo.Books` and returns a separate database status. If the database is unavailable, the local API still returns a safe health-check response so the frontend can show the database as unavailable without crashing.
 
-The database connection configuration in Jack's supplied branch targets a local SQL Server Express instance named `LEMON-DESKTOP\SQLEXPRESS` and database `Pocket-Librarian-DB`. The connection-status dashboard intentionally masks this target when it displays connection details.
+The backend always runs locally through ASP.NET Core. The database connection may target local SQL Server or Azure SQL. The repository reads `ConnectionStrings:PocketLibrarianDatabase`; an environment variable named `ConnectionStrings__PocketLibrarianDatabase` can override the local development value without changing source code. The connection-status dashboard intentionally masks the server and database names when it displays connection details.
+
+The dashboard also includes a demo-only manual connection form. It sends a supplied connection string to the local API over the running HTTPS connection, tests `dbo.Books`, and keeps a successful manual target in server memory for the current process only. It is not written to source code, browser storage, or the repository. The user must supply the full connection information required by the chosen local or Azure SQL authentication method.

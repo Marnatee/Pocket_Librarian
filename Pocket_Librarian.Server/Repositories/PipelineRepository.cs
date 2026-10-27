@@ -8,25 +8,49 @@ namespace Pocket_Librarian.Server.Repositories
 {
     public class PipelineRepository
     {
-        private const string MaskedConnectionDetails =
-            @"Server=LEMON-••••••\SQLEXPRESS; Database=Pocket-••••••••-DB";
-
-        private readonly string _connectionString;
+        private readonly string _configuredConnectionString;
+        private string? _manualConnectionString;
 
         public PipelineRepository(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("PocketLibrarianDatabase")
+            _configuredConnectionString = configuration.GetConnectionString("PocketLibrarianDatabase")
                 ?? string.Empty;
         }
 
         public (bool Connected, string Message, string Details) TestDataAccess()
         {
-            if (string.IsNullOrWhiteSpace(_connectionString))
+            string activeConnectionString =
+                _manualConnectionString ?? _configuredConnectionString;
+
+            string connectionSource =
+                _manualConnectionString is null ? "Configured" : "Manual";
+
+            return TestConnection(activeConnectionString, connectionSource);
+        }
+
+        public (bool Connected, string Message, string Details) TestManualDataAccess(
+            string connectionString)
+        {
+            var result = TestConnection(connectionString, "Manual");
+
+            if (result.Connected)
+            {
+                _manualConnectionString = connectionString;
+            }
+
+            return result;
+        }
+
+        private static (bool Connected, string Message, string Details) TestConnection(
+            string connectionString,
+            string connectionSource)
+        {
+            if (string.IsNullOrWhiteSpace(connectionString))
             {
                 return (
                     false,
                     "Database connection failed. No database connection string is configured.",
-                    MaskedConnectionDetails
+                    GetMaskedConnectionDetails(connectionString, connectionSource)
                 );
             }
 
@@ -34,7 +58,7 @@ namespace Pocket_Librarian.Server.Repositories
             {
                 List<string> bookTitles = new List<string>();
 
-                using SqlConnection connection = new SqlConnection(_connectionString);
+                using SqlConnection connection = new SqlConnection(connectionString);
 
                 string query = "SELECT Title FROM dbo.Books;";
 
@@ -52,7 +76,7 @@ namespace Pocket_Librarian.Server.Repositories
                 return (
                     true,
                     "Books found: " + string.Join(", ", bookTitles),
-                    MaskedConnectionDetails
+                    GetMaskedConnectionDetails(connectionString, connectionSource)
                 );
             }
             catch (SqlException)
@@ -60,7 +84,7 @@ namespace Pocket_Librarian.Server.Repositories
                 return (
                     false,
                     "Database connection failed. The database could not be reached.",
-                    MaskedConnectionDetails
+                    GetMaskedConnectionDetails(connectionString, connectionSource)
                 );
             }
             catch (Exception)
@@ -68,7 +92,7 @@ namespace Pocket_Librarian.Server.Repositories
                 return (
                     false,
                     "Database connection failed. An unexpected database error occurred.",
-                    MaskedConnectionDetails
+                    GetMaskedConnectionDetails(connectionString, connectionSource)
                 );
             }
 
@@ -78,6 +102,46 @@ namespace Pocket_Librarian.Server.Repositories
             return "Data-access layer received the request successfully.";
             //Replace this line later with Entity Framework or SQL operation
             */
+        }
+
+        private static string GetMaskedConnectionDetails(
+            string connectionString,
+            string connectionSource)
+        {
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                return "Database connection is not configured.";
+            }
+
+            try
+            {
+                SqlConnectionStringBuilder connectionBuilder =
+                    new SqlConnectionStringBuilder(connectionString);
+
+                return $"{connectionSource} target: "
+                    + $"Server={MaskConnectionPart(connectionBuilder.DataSource)}; "
+                    + $"Database={MaskConnectionPart(connectionBuilder.InitialCatalog)}";
+            }
+            catch (ArgumentException)
+            {
+                return "Database connection is configured; target details are masked.";
+            }
+        }
+
+        private static string MaskConnectionPart(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return "not specified";
+            }
+
+            if (value.Length <= 4)
+            {
+                return "••••";
+            }
+
+            int visiblePrefixLength = Math.Min(3, value.Length - 2);
+            return $"{value[..visiblePrefixLength]}•••{value[^2..]}";
         }
     }
 }

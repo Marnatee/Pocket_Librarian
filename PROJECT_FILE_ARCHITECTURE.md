@@ -32,6 +32,8 @@ The runtime flow is: **React frontend → ASP.NET Core controller → business s
 | `pocket_librarian.client/src/components/AppBanner.jsx` | Persistent banner, page navigation, and intentionally empty login buttons; presentation layer / client tier |
 | `pocket_librarian.client/src/components/ConnectionStatusDashboard.jsx` | Frontend status dashboard and masked detail toggles; presentation layer / client tier |
 | `pocket_librarian.client/src/components/FeaturePlaceholder.jsx` | Reusable under-construction feature card; presentation layer / client tier |
+| `pocket_librarian.client/src/components/FeaturedBookCarousel.jsx` | Restored rotating Featured Book demonstration; presentation layer / client tier |
+| `pocket_librarian.client/src/components/PipelineTest.jsx` | Restored three-layer API pipeline demonstration; presentation layer / client tier |
 | `pocket_librarian.client/src/pages/HomePage.jsx` | Home-page feature sections; presentation layer / client tier |
 | `pocket_librarian.client/src/pages/MemberPage.jsx` | Member-page feature sections; presentation layer / client tier |
 | `pocket_librarian.client/src/pages/StaffPage.jsx` | Staff-page feature sections; presentation layer / client tier |
@@ -56,6 +58,7 @@ The runtime flow is: **React frontend → ASP.NET Core controller → business s
 | `Pocket_Librarian.Server/Program.cs` | API host setup and dependency registration; application/business layer / server tier |
 | `Pocket_Librarian.Server/Controllers/PipelineController.cs` | HTTP API boundary for the health-check request; application layer / server tier |
 | `Pocket_Librarian.Server/Controllers/WeatherForecastController.cs` | Template API controller; application layer / server tier |
+| `Pocket_Librarian.Server/Models/ManualDatabaseConnectionRequest.cs` | Temporary manual database connection request model; application layer / server tier |
 | `Pocket_Librarian.Server/Models/PipelineResponse.cs` | API response model crossing the server/frontend boundary; application layer / server tier |
 | `Pocket_Librarian.Server/Services/PipelineService.cs` | Business-logic orchestration between controller and repository; business-logic layer / server tier |
 | `Pocket_Librarian.Server/WeatherForecast.cs` | Template server model; application layer / server tier |

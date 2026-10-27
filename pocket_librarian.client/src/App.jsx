@@ -30,8 +30,8 @@ const initialStatuses = {
         name: "Database",
         state: "checking",
         details: [
-            "Database target is masked for safety.",
-            "Source: Jack's database pipeline configuration.",
+            "Checked through the local ASP.NET Core backend.",
+            "Target may be local SQL Server or Azure SQL.",
         ],
     },
 };
@@ -71,7 +71,33 @@ function App() {
 
             // Treat non-successful HTTP responses as backend errors.
             if (!response.ok) {
-                throw new Error(`The server returned HTTP ${response.status}`);
+                setStatuses({
+                    frontend: {
+                        name: "Frontend",
+                        state: "online",
+                        details: [
+                            "React/Vite client is running.",
+                            "Client URL: https://localhost:62•••",
+                        ],
+                    },
+                    backend: {
+                        name: "Backend",
+                        state: "error",
+                        details: [
+                            `Local API responded with HTTP ${response.status}.`,
+                            "API URL: https://localhost:70•••",
+                        ],
+                    },
+                    database: {
+                        name: "Database",
+                        state: "offline",
+                        details: [
+                            "Database status is unavailable because the API returned an error.",
+                            "Database target may be local SQL Server or Azure SQL.",
+                        ],
+                    },
+                });
+                return;
             }
 
             // Convert the JSON response into a JavaScript object.
@@ -91,7 +117,7 @@ function App() {
                     name: "Backend",
                     state: "online",
                     details: [
-                        "API responded to /api/pipeline/test.",
+                        "Local ASP.NET Core API responded to /api/pipeline/test.",
                         "API URL: https://localhost:70•••",
                     ],
                 },
@@ -131,12 +157,95 @@ function App() {
                     state: "offline",
                     details: [
                         "Database status is unavailable because the API did not respond.",
-                        "Database target is masked for safety.",
+                        "Database target may be local SQL Server or Azure SQL.",
                     ],
                 },
             });
         } finally {
             window.clearTimeout(timeoutId);
+            setLastChecked(new Date().toLocaleTimeString());
+            setIsRefreshing(false);
+        }
+    }, []);
+
+    const connectManualDatabase = useCallback(async (connectionString) => {
+        setIsRefreshing(true);
+        setStatuses((currentStatuses) => ({
+            ...currentStatuses,
+            backend: {
+                ...currentStatuses.backend,
+                state: "checking",
+            },
+            database: {
+                ...currentStatuses.database,
+                state: "checking",
+                details: [
+                    "Testing the manually supplied database connection.",
+                    "The connection string is not saved by the frontend.",
+                ],
+            },
+        }));
+
+        try {
+            const response = await fetch("/api/pipeline/database/connect", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ connectionString }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`The server returned HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            const databaseConnected = data.databaseConnected === true;
+
+            setStatuses((currentStatuses) => ({
+                ...currentStatuses,
+                backend: {
+                    name: "Backend",
+                    state: "online",
+                    details: [
+                        "Local ASP.NET Core API responded to the manual database request.",
+                        "API URL: https://localhost:70•••",
+                    ],
+                },
+                database: {
+                    name: "Database",
+                    state: databaseConnected ? "online" : "offline",
+                    details: [
+                        data.databaseDetails || "Database target is masked for safety.",
+                        data.databaseMessage || "No database message was returned.",
+                    ],
+                },
+            }));
+
+            return databaseConnected;
+        } catch (error) {
+            setStatuses((currentStatuses) => ({
+                ...currentStatuses,
+                backend: {
+                    name: "Backend",
+                    state: "offline",
+                    details: [
+                        "The local ASP.NET Core API could not be reached.",
+                        "API URL: https://localhost:70•••",
+                    ],
+                },
+                database: {
+                    name: "Database",
+                    state: "offline",
+                    details: [
+                        error.message,
+                        "Database target may be local SQL Server or Azure SQL.",
+                    ],
+                },
+            }));
+
+            return false;
+        } finally {
             setLastChecked(new Date().toLocaleTimeString());
             setIsRefreshing(false);
         }
@@ -171,6 +280,7 @@ function App() {
                 isRefreshing={isRefreshing}
                 lastChecked={lastChecked}
                 onRefresh={refreshConnectionStatus}
+                onManualDatabaseConnect={connectManualDatabase}
             />
             <main className="page-container">{renderCurrentPage()}</main>
         </div>

@@ -18,6 +18,23 @@ namespace Pocket_Librarian.Server.Services
 
         public PipelineResponse RunPipelineTest ()
         {
+            var repositoryResult =
+                _repository.TestDataAccess();
+
+            return BuildPipelineResponse(repositoryResult);
+        }
+
+        public PipelineResponse ConnectManualDatabase(string connectionString)
+        {
+            var repositoryResult =
+                _repository.TestManualDataAccess(connectionString);
+
+            return BuildPipelineResponse(repositoryResult);
+        }
+
+        private static PipelineResponse BuildPipelineResponse(
+            (bool Connected, string Message, string Details) repositoryResult)
+        {
             PipelineResponse response = new PipelineResponse();
 
             response.Steps.Add(
@@ -27,9 +44,6 @@ namespace Pocket_Librarian.Server.Services
             response.Steps.Add(
                 "Business layer is calling the data-access layer."
                 );
-
-            var repositoryResult =
-                _repository.TestDataAccess();
 
             response.DatabaseConnected = repositoryResult.Connected;
             response.DatabaseMessage = repositoryResult.Message;

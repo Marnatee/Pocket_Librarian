@@ -10,6 +10,7 @@ function AppBanner({
     isRefreshing,
     lastChecked,
     onRefresh,
+    onManualDatabaseConnect,
 }) {
     return (
         <header className="app-banner">
@@ -42,15 +43,28 @@ function AppBanner({
                 </button>
             </nav>
 
-            <div className="banner-actions">
-                {/* OWEN HANDOFF: Add member authentication behavior here when that feature is implemented. */}
-                <button className="login-button" type="button">
-                    Member login
-                </button>
-                {/* OWEN HANDOFF: Add staff authentication behavior here when that feature is implemented. */}
-                <button className="login-button" type="button">
-                    Staff login
-                </button>
+            <div className="login-panel">
+                <p className="login-panel-title">Staff / member login</p>
+                <div className="login-fields">
+                    <label htmlFor="account-name">
+                        Account name
+                        <input id="account-name" type="text" />
+                    </label>
+                    <label htmlFor="account-password">
+                        Password
+                        <input id="account-password" type="password" />
+                    </label>
+                </div>
+                <div className="login-actions">
+                    {/* OWEN HANDOFF: Add sign-in behavior for staff and members here. */}
+                    <button className="login-button" type="button">
+                        Sign in
+                    </button>
+                    {/* OWEN HANDOFF: Add account-registration behavior for staff and members here. */}
+                    <button className="login-button" type="button">
+                        Sign up
+                    </button>
+                </div>
             </div>
 
             <ConnectionStatusDashboard
@@ -58,6 +72,7 @@ function AppBanner({
                 isRefreshing={isRefreshing}
                 lastChecked={lastChecked}
                 onRefresh={onRefresh}
+                onManualDatabaseConnect={onManualDatabaseConnect}
             />
         </header>
     );

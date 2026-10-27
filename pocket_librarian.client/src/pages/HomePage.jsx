@@ -2,6 +2,8 @@
 // Home page feature placeholders.
 
 import FeaturePlaceholder from "../components/FeaturePlaceholder";
+import FeaturedBookCarousel from "../components/FeaturedBookCarousel";
+import PipelineTest from "../components/PipelineTest";
 
 function HomePage() {
     return (
@@ -12,10 +14,12 @@ function HomePage() {
                 <p>Choose a page above to explore the member and staff workflows.</p>
             </div>
 
-            <div className="feature-grid">
-                <FeaturePlaceholder title="Featured book" />
+            <div className="home-feature-layout">
+                <FeaturedBookCarousel />
                 <FeaturePlaceholder title="Search Catalogue" />
             </div>
+
+            <PipelineTest />
         </section>
     );
 }

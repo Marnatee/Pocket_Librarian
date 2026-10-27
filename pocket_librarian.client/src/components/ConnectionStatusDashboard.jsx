@@ -15,14 +15,37 @@ function ConnectionStatusDashboard({
     isRefreshing,
     lastChecked,
     onRefresh,
+    onManualDatabaseConnect,
 }) {
     const [openDetails, setOpenDetails] = useState({});
+    const [isManualFormOpen, setIsManualFormOpen] = useState(false);
+    const [manualConnectionString, setManualConnectionString] = useState("");
+    const [manualConnectionMessage, setManualConnectionMessage] = useState("");
 
     function toggleDetails(key) {
         setOpenDetails((currentDetails) => ({
             ...currentDetails,
             [key]: !currentDetails[key],
         }));
+    }
+
+    async function submitManualConnection(event) {
+        event.preventDefault();
+
+        if (!manualConnectionString.trim()) {
+            setManualConnectionMessage("Enter a connection string to test.");
+            return;
+        }
+
+        const connected = await onManualDatabaseConnect(
+            manualConnectionString.trim()
+        );
+
+        setManualConnectionMessage(
+            connected
+                ? "Manual database connection accepted for this running session."
+                : "Manual database connection failed."
+        );
     }
 
     return (
@@ -57,14 +80,27 @@ function ConnectionStatusDashboard({
                             </span>
                         </div>
 
-                        <button
-                            className="status-details-button"
-                            type="button"
-                            onClick={() => toggleDetails(key)}
-                            aria-expanded={Boolean(openDetails[key])}
-                        >
-                            {openDetails[key] ? "Hide details" : "Details"}
-                        </button>
+                        <div className="status-button-row">
+                            <button
+                                className="status-details-button"
+                                type="button"
+                                onClick={() => toggleDetails(key)}
+                                aria-expanded={Boolean(openDetails[key])}
+                            >
+                                {openDetails[key] ? "Hide details" : "Details"}
+                            </button>
+
+                            {key === "database" && (
+                                <button
+                                    className="status-details-button"
+                                    type="button"
+                                    onClick={() => setIsManualFormOpen((isOpen) => !isOpen)}
+                                    aria-expanded={isManualFormOpen}
+                                >
+                                    {isManualFormOpen ? "Hide manual" : "Manual connect"}
+                                </button>
+                            )}
+                        </div>
 
                         {openDetails[key] && (
                             <div className="status-details">
@@ -72,6 +108,40 @@ function ConnectionStatusDashboard({
                                     <p key={detail}>{detail}</p>
                                 ))}
                             </div>
+                        )}
+
+                        {key === "database" && isManualFormOpen && (
+                            <form
+                                className="manual-database-form"
+                                onSubmit={submitManualConnection}
+                            >
+                                <label htmlFor="manual-database-connection">
+                                    Connection string
+                                </label>
+                                <input
+                                    id="manual-database-connection"
+                                    type="password"
+                                    value={manualConnectionString}
+                                    onChange={(event) => setManualConnectionString(event.target.value)}
+                                    placeholder="Server=...;Database=..."
+                                    autoComplete="off"
+                                />
+                                <button
+                                    className="manual-database-submit"
+                                    type="submit"
+                                    disabled={isRefreshing}
+                                >
+                                    {isRefreshing ? "Testing..." : "Test connection"}
+                                </button>
+                                <p className="manual-database-note">
+                                    Demo only. This is not saved to source code or browser storage.
+                                </p>
+                                {manualConnectionMessage && (
+                                    <p className="manual-database-message">
+                                        {manualConnectionMessage}
+                                    </p>
+                                )}
+                            </form>
                         )}
                     </article>
                 ))}

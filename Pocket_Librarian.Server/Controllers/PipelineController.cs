@@ -35,5 +35,29 @@ namespace Pocket_Librarian.Server.Controllers
 
             return Ok(response);
         }
+
+        [HttpPost("database/connect")]
+        public ActionResult<PipelineResponse> ConnectManualDatabase(
+            [FromBody] ManualDatabaseConnectionRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.ConnectionString))
+            {
+                return BadRequest("A database connection string is required.");
+            }
+
+            PipelineResponse response =
+                _pipelineService.ConnectManualDatabase(request.ConnectionString);
+
+            response.Steps.Insert(
+                0,
+                "API controller received the manual database connection request."
+                );
+
+            response.Steps.Add(
+                "API controller is sending the manual database connection result."
+                );
+
+            return Ok(response);
+        }
     }
 }

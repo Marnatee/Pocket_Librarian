@@ -50,7 +50,8 @@
 }
 
 .page-navigation,
-.banner-actions {
+.banner-actions,
+.login-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
@@ -88,8 +89,55 @@
     color: #ffffff;
 }
 
-.banner-actions {
+.login-panel {
+    min-width: 260px;
+    padding: 10px;
+    border: 1px solid #45677a;
+    border-radius: 9px;
+    background: rgba(9, 28, 41, 0.45);
+}
+
+.login-panel-title {
+    margin: 0 0 7px;
+    color: #f6d48d;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.login-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+}
+
+.login-fields label,
+.manual-database-form label {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 3px;
+    color: #d7e6ec;
+    font-size: 0.68rem;
+}
+
+.login-fields input,
+.manual-database-form input {
+    min-width: 0;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 6px 7px;
+    border: 1px solid #7893a2;
+    border-radius: 5px;
+    background: #f4f8fa;
+    color: #17384d;
+    font-size: 0.75rem;
+}
+
+.login-actions {
     justify-content: flex-end;
+    margin-top: 8px;
 }
 
 .login-button {
@@ -121,6 +169,12 @@
     justify-content: space-between;
     gap: 10px;
     align-items: center;
+}
+
+.status-card-topline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
 }
 
 .dashboard-eyebrow {
@@ -183,7 +237,9 @@
     color: #d7e6ec;
     font-size: 0.65rem;
     font-weight: 700;
-    white-space: nowrap;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 .status-dot {
@@ -221,6 +277,12 @@
     color: #f6d48d;
 }
 
+.status-button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
 .status-details {
     margin-top: 6px;
     padding-top: 6px;
@@ -237,6 +299,49 @@
 
 .status-details p:last-child {
     margin-bottom: 0;
+}
+
+.manual-database-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #45677a;
+}
+
+.manual-database-submit {
+    align-self: flex-start;
+    padding: 5px 8px;
+    border: 1px solid #7893a2;
+    border-radius: 5px;
+    background: #f1f6f8;
+    color: #17384d;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+.manual-database-submit:hover:not(:disabled) {
+    background: #f6d48d;
+}
+
+.manual-database-submit:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+.manual-database-note,
+.manual-database-message {
+    margin: 0;
+    color: #b7d9e8;
+    font-size: 0.62rem;
+    line-height: 1.3;
+}
+
+.manual-database-message {
+    color: #f6d48d;
 }
 
 .last-checked {
@@ -321,6 +426,220 @@
     object-fit: cover;
 }
 
+.home-feature-layout {
+    display: grid;
+    gap: 20px;
+}
+
+/* Featured Book display-case section restored from the master branch. */
+.featured-book {
+    padding: 28px;
+    border: 1px solid #d8c29d;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #fffaf0, #f4e4c1);
+    box-shadow: 0 14px 30px rgba(91, 61, 26, 0.16);
+}
+
+.featured-book-heading-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.featured-book h1 {
+    margin: 0 0 4px;
+    color: #4e2f16;
+    font-size: clamp(2rem, 5vw, 3.25rem);
+}
+
+.eyebrow,
+.display-case-label {
+    margin: 0 0 8px;
+    color: #8b5e34;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.featured-book-pause {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 9px 13px;
+    border: 1px solid #a87945;
+    border-radius: 999px;
+    background: #fffdf8;
+    color: #4e2f16;
+    font-size: 0.85rem;
+}
+
+.display-case {
+    display: grid;
+    grid-template-columns: minmax(220px, 300px) 1fr;
+    gap: 34px;
+    align-items: center;
+    max-width: 760px;
+    margin: 26px auto 18px;
+    padding: 22px;
+    border: 10px solid #8b5e34;
+    border-radius: 12px;
+    background: #5b3b24;
+    box-shadow: inset 0 0 0 4px #d2a866, inset 0 0 22px rgba(0, 0, 0, 0.45);
+}
+
+.display-case-window {
+    display: grid;
+    place-items: center;
+    min-height: 330px;
+    padding: 18px;
+    border: 5px solid #d2a866;
+    border-radius: 6px;
+    background: linear-gradient(145deg, #fffdf8, #ead5a9);
+    box-shadow: inset 0 0 16px rgba(91, 61, 26, 0.28);
+}
+
+.featured-book-cover {
+    display: block;
+    width: 100%;
+    max-width: 210px;
+    height: 300px;
+    object-fit: contain;
+    filter: drop-shadow(8px 10px 7px rgba(0, 0, 0, 0.32));
+    animation: book-cover-in 400ms ease-out;
+}
+
+@keyframes book-cover-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.display-case-details {
+    color: #fff8eb;
+    text-align: left;
+}
+
+.display-case-details h2 {
+    margin: 0 0 8px;
+    color: #fff8eb;
+    font-size: clamp(1.5rem, 3vw, 2.3rem);
+}
+
+.display-case-details > p:not(.display-case-label):not(.display-case-count) {
+    margin: 0;
+    color: #f0d9b0;
+    font-size: 1.05rem;
+}
+
+.display-case-count {
+    margin: 28px 0 0;
+    color: #d2a866;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.featured-book-dots {
+    display: flex;
+    justify-content: center;
+    gap: 9px;
+}
+
+.featured-book-dots button {
+    width: 11px;
+    height: 11px;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #8b5e34;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+}
+
+.featured-book-dots button.active {
+    background: #8b5e34;
+    box-shadow: 0 0 0 3px rgba(139, 94, 52, 0.2);
+}
+
+.featured-book button:focus-visible,
+.featured-book-dots button:focus-visible {
+    outline: 3px solid #1f6feb;
+    outline-offset: 3px;
+}
+
+/* Keeps the existing API demonstration separate from the frontpage feature. */
+.pipeline-test {
+    margin-top: 42px;
+}
+
+.pipeline-test h2 {
+    margin-bottom: 8px;
+    color: #1f3a5f;
+}
+
+.pipeline-test > p {
+    margin-bottom: 24px;
+    color: #555555;
+}
+
+.pipeline-test > button {
+    padding: 12px 20px;
+    margin-bottom: 24px;
+    border: none;
+    border-radius: 5px;
+    background-color: #1f6feb;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.pipeline-test > button:hover {
+    background-color: #1557b0;
+}
+
+.pipeline-test > button:focus-visible {
+    outline: 3px solid #ffbf47;
+    outline-offset: 3px;
+}
+
+.status-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+    background-color: #f7f7f7;
+}
+
+.status-section h2 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: #1f3a5f;
+}
+
+.status-section label {
+    margin-top: 12px;
+    font-weight: bold;
+}
+
+.status-section input,
+.status-section textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #999999;
+    border-radius: 4px;
+    background-color: white;
+    color: #222222;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1rem;
+}
+
+.status-section textarea {
+    resize: vertical;
+    line-height: 1.5;
+}
+
 button:focus-visible {
     outline: 3px solid #f6b957;
     outline-offset: 3px;
@@ -334,6 +653,10 @@ button:focus-visible {
     .connection-dashboard {
         grid-column: 1 / -1;
     }
+
+    .login-panel {
+        grid-column: 1 / -1;
+    }
 }
 
 @media (max-width: 680px) {
@@ -343,7 +666,8 @@ button:focus-visible {
     }
 
     .page-navigation,
-    .banner-actions {
+    .banner-actions,
+    .login-actions {
         justify-content: flex-start;
     }
 
@@ -354,5 +678,41 @@ button:focus-visible {
 
     .connection-dashboard-heading-row {
         align-items: flex-start;
+    }
+
+    .login-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .featured-book {
+        padding: 20px 16px;
+    }
+
+    .featured-book-heading-row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .featured-book-pause {
+        align-self: flex-start;
+    }
+
+    .display-case {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        margin-top: 20px;
+        padding: 14px;
+    }
+
+    .display-case-window {
+        min-height: 280px;
+    }
+
+    .display-case-details {
+        text-align: center;
+    }
+
+    .display-case-count {
+        margin-top: 18px;
     }
 }
