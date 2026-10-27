@@ -18,24 +18,30 @@ namespace Pocket_Librarian.Server.Repositories
         }
         public string TestDataAccess()
         {
-            List<string> bookTitles = new List<string>();
+            try {
+                List<string> bookTitles = new List<string>();
 
-            using SqlConnection connection = new SqlConnection(_connectionString);
+                using SqlConnection connection = new SqlConnection(_connectionString);
 
-            string query = "SELECT Title FROM dbo.Books;";
+                string query = "SELECT Title FROM dbo.Books;";
 
-            using SqlCommand command = new SqlCommand(query, connection);
+                using SqlCommand command = new SqlCommand(query, connection);
 
-            connection.Open();
+                connection.Open();
 
-            using SqlDataReader reader = command.ExecuteReader();
+                using SqlDataReader reader = command.ExecuteReader();
 
-            while (reader.Read())
-            {
-                bookTitles.Add(reader["Title"].ToString()!);
+                while (reader.Read())
+                {
+                    bookTitles.Add(reader["Title"].ToString()!);
+                }
+
+                    return "Books found: " + string.Join(", ", bookTitles);
             }
-
-            return "Books found: " + string.Join(", ", bookTitles);
+            catch (SqlException)
+            {
+                return "Database connection failed. The database could not be reached.";
+            }
 
             /*
             //A real repository would query the SQLdatabase here.
