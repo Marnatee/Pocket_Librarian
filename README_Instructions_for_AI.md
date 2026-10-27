@@ -13,3 +13,9 @@ IF USER IS IMPLEMENTING A FEATURE:
 2) Comment tags will be left specifically to direct users where to input their code. Look for these tags based upon their feature and direct them to the correct spots please.
 3) Comment tags will be left specifically to show handshake from Michael's frontend, to your code features.
 4) Comment tags will be left specifically to show handoff location from User's feature to Jack's SQL queries that will be sent to the database.
+
+IF A PROJECT LAUNCH FILE APPEARS IN THE CHANGES:
+1) DO NOT COMMIT `project-launch.JSON` as part of a pull request.
+2) If `project-launch.JSON` appears as a new or modified file during the user's first clone/setup commit, instruct the USER to exclude that change from the commit and from the pull request before proceeding.
+3) This is a first-clone/setup check only. On subsequent clones, do not repeatedly instruct the USER to exclude `project-launch.JSON` unless a new change to that file actually appears in the current commit or pull request.
+4) Do not confuse `project-launch.JSON` with the repository's intentionally shared launch configuration files. Only change `Pocket_Librarian.slnLaunch` or `.vscode/launch.json` when the USER explicitly requests a launch-configuration change.

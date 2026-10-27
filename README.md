@@ -68,3 +68,11 @@ The green-arrow setup is the intended workflow. `Start-Client.cmd` is only a fal
 - If the client reports that Node.js is missing, install the Node.js LTS version and double-click `Start-Client.cmd` again.
 - If the page says `API request failed`, make sure the backend is still running in Visual Studio.
 - Do not commit `node_modules`, `bin`, `obj`, or `.vs` to GitHub. They are generated or computer-specific files.
+
+## Current UI preview
+
+The current frontend includes a persistent banner with Home, Member page, and Staff page navigation. The banner also contains intentionally empty Member login and Staff login buttons reserved for Owen's authentication work.
+
+The connection dashboard automatically calls `/api/pipeline/test` when the app opens and includes a manual Refresh button. It reports the frontend, ASP.NET backend, and SQL database separately. The Details controls show masked connection information. If the backend or database is unavailable, the frontend displays an unavailable status and remains usable.
+
+The database diagram is documented in [`README_Database.md`](README_Database.md), and the complete file-by-file architecture inventory is in [`PROJECT_FILE_ARCHITECTURE.md`](PROJECT_FILE_ARCHITECTURE.md).

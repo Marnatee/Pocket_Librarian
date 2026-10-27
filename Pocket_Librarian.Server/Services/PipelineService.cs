@@ -28,10 +28,14 @@ namespace Pocket_Librarian.Server.Services
                 "Business layer is calling the data-access layer."
                 );
 
-            string repositoryMessage =
+            var repositoryResult =
                 _repository.TestDataAccess();
 
-            response.Steps.Add(repositoryMessage);
+            response.DatabaseConnected = repositoryResult.Connected;
+            response.DatabaseMessage = repositoryResult.Message;
+            response.DatabaseDetails = repositoryResult.Details;
+
+            response.Steps.Add(repositoryResult.Message);
 
             response.Steps.Add(
                 "Data-access result returned to the business layer"
@@ -39,7 +43,9 @@ namespace Pocket_Librarian.Server.Services
 
             response.Success = true;
             response.FinalMessage =
-                "The complete three-layer pipeline worked.";
+                repositoryResult.Connected
+                    ? "The complete three-layer pipeline worked."
+                    : "The API pipeline responded, but the database is unavailable.";
 
             return response;
         }

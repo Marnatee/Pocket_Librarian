@@ -2,271 +2,357 @@
  Purely page styling, no processing. */
 
 /* Controls the entire page. */
-.pipeline-page {
-    width: 90%;
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 24px;
+.app-shell {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 10% 0%, rgba(211, 228, 241, 0.5), transparent 36%),
+        #f4f7f9;
+    color: #20313d;
     font-family: Arial, Helvetica, sans-serif;
-    color: #222222;
 }
 
-/* Featured Book display-case section. */
-.featured-book {
-    padding: 28px;
-    border: 1px solid #d8c29d;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #fffaf0, #f4e4c1);
-    box-shadow: 0 14px 30px rgba(91, 61, 26, 0.16);
+/* Persistent application banner. */
+.app-banner {
+    display: grid;
+    grid-template-columns: minmax(170px, 1fr) auto auto minmax(330px, 1.2fr);
+    gap: 22px;
+    align-items: start;
+    padding: 22px clamp(18px, 4vw, 48px);
+    border-bottom: 1px solid #c8d5dd;
+    background: #17384d;
+    color: #f4f8fa;
+    box-shadow: 0 8px 24px rgba(22, 54, 74, 0.18);
 }
 
-.featured-book-heading-row {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 20px;
+.app-banner-brand {
+    min-width: 0;
 }
 
-.featured-book h1 {
-    margin: 0 0 4px;
-    color: #4e2f16;
-    font-size: clamp(2rem, 5vw, 3.25rem);
+.brand-kicker,
+.brand-subtitle,
+.dashboard-eyebrow,
+.page-eyebrow,
+.last-checked {
+    margin: 0;
 }
 
-.eyebrow,
-.display-case-label {
-    margin: 0 0 8px;
-    color: #8b5e34;
+.brand-kicker {
+    color: #f6d48d;
+    font-size: clamp(1.35rem, 2vw, 1.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.brand-subtitle {
+    margin-top: 4px;
+    color: #b7c9d4;
     font-size: 0.78rem;
+}
+
+.page-navigation,
+.banner-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.page-navigation {
+    min-height: 40px;
+}
+
+.page-navigation button,
+.login-button,
+.dashboard-refresh-button,
+.status-details-button {
+    border: 1px solid transparent;
+    border-radius: 7px;
+    cursor: pointer;
+    font: inherit;
+    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.page-navigation button {
+    padding: 9px 11px;
+    border-color: #45677a;
+    background: transparent;
+    color: #e1edf2;
+    font-size: 0.86rem;
+    white-space: nowrap;
+}
+
+.page-navigation button:hover,
+.page-navigation button.active {
+    border-color: #f6d48d;
+    background: #315b71;
+    color: #ffffff;
+}
+
+.banner-actions {
+    justify-content: flex-end;
+}
+
+.login-button {
+    padding: 9px 12px;
+    border-color: #7893a2;
+    background: #f1f6f8;
+    color: #17384d;
+    font-size: 0.82rem;
     font-weight: 700;
+    white-space: nowrap;
+}
+
+.login-button:hover {
+    background: #f6d48d;
+}
+
+/* Small dashboard showing the current health of each application layer. */
+.connection-dashboard {
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #45677a;
+    border-radius: 10px;
+    background: rgba(9, 28, 41, 0.45);
+}
+
+.connection-dashboard-heading-row,
+.status-card-topline {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+}
+
+.dashboard-eyebrow {
+    color: #f6d48d;
+    font-size: 0.64rem;
+    font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;
 }
 
-.featured-book-pause {
-    flex-shrink: 0;
-    margin: 0;
-    padding: 9px 13px;
-    border: 1px solid #a87945;
-    border-radius: 999px;
-    background: #fffdf8;
-    color: #4e2f16;
-    font-size: 0.85rem;
+.connection-dashboard h2 {
+    margin: 2px 0 0;
+    color: #ffffff;
+    font-size: 1rem;
 }
 
-.display-case {
+.dashboard-refresh-button {
+    padding: 7px 10px;
+    border-color: #7893a2;
+    background: transparent;
+    color: #f4f8fa;
+    font-size: 0.76rem;
+}
+
+.dashboard-refresh-button:hover:not(:disabled) {
+    border-color: #f6d48d;
+    color: #f6d48d;
+}
+
+.dashboard-refresh-button:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+.status-card-list {
     display: grid;
-    grid-template-columns: minmax(220px, 300px) 1fr;
-    gap: 34px;
-    align-items: center;
-    max-width: 760px;
-    margin: 26px auto 18px;
-    padding: 22px;
-    border: 10px solid #8b5e34;
-    border-radius: 12px;
-    background: #5b3b24;
-    box-shadow: inset 0 0 0 4px #d2a866, inset 0 0 22px rgba(0, 0, 0, 0.45);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
 }
 
-.display-case-window {
-    display: grid;
-    place-items: center;
-    min-height: 330px;
-    padding: 18px;
-    border: 5px solid #d2a866;
-    border-radius: 6px;
-    background: linear-gradient(145deg, #fffdf8, #ead5a9);
-    box-shadow: inset 0 0 16px rgba(91, 61, 26, 0.28);
+.status-card {
+    min-width: 0;
+    padding: 9px;
+    border: 1px solid #45677a;
+    border-radius: 7px;
+    background: #224a61;
 }
 
-.featured-book-cover {
-    display: block;
-    width: 100%;
-    max-width: 210px;
-    height: 300px;
-    object-fit: contain;
-    filter: drop-shadow(8px 10px 7px rgba(0, 0, 0, 0.32));
-    animation: book-cover-in 400ms ease-out;
-}
-
-@keyframes book-cover-in {
-    from { opacity: 0; transform: translateY(8px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.display-case-details {
-    color: #fff8eb;
-    text-align: left;
-}
-
-.display-case-details h2 {
-    margin: 0 0 8px;
-    color: #fff8eb;
-    font-size: clamp(1.5rem, 3vw, 2.3rem);
-}
-
-.display-case-details > p:not(.display-case-label):not(.display-case-count) {
-    margin: 0;
-    color: #f0d9b0;
-    font-size: 1.05rem;
-}
-
-.display-case-count {
-    margin: 28px 0 0;
-    color: #d2a866;
-    font-size: 0.9rem;
+.status-card-name {
+    color: #ffffff;
+    font-size: 0.76rem;
     font-weight: 700;
 }
 
-.featured-book-dots {
-    display: flex;
-    justify-content: center;
-    gap: 9px;
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #d7e6ec;
+    font-size: 0.65rem;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
-.featured-book-dots button {
-    width: 11px;
-    height: 11px;
-    margin: 0;
-    padding: 0;
-    border: 1px solid #8b5e34;
+.status-dot {
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
+    background: #aebec7;
+}
+
+.status-online .status-dot {
+    background: #63e6a3;
+    box-shadow: 0 0 0 3px rgba(99, 230, 163, 0.15);
+}
+
+.status-offline .status-dot,
+.status-error .status-dot {
+    background: #ff8d86;
+}
+
+.status-checking .status-dot {
+    background: #f6d48d;
+}
+
+.status-details-button {
+    margin-top: 8px;
+    padding: 3px 0;
+    border: 0;
     background: transparent;
-    cursor: pointer;
+    color: #b7d9e8;
+    font-size: 0.68rem;
+    text-decoration: underline;
 }
 
-.featured-book-dots button.active {
-    background: #8b5e34;
-    box-shadow: 0 0 0 3px rgba(139, 94, 52, 0.2);
+.status-details-button:hover {
+    color: #f6d48d;
 }
 
-.featured-book button:focus-visible,
-.featured-book-dots button:focus-visible {
-    outline: 3px solid #1f6feb;
+.status-details {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #45677a;
+    color: #d7e6ec;
+    font-size: 0.66rem;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.status-details p {
+    margin: 0 0 4px;
+}
+
+.status-details p:last-child {
+    margin-bottom: 0;
+}
+
+.last-checked {
+    margin-top: 8px;
+    color: #9db6c2;
+    font-size: 0.64rem;
+}
+
+.page-container {
+    width: min(1180px, 100%);
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: clamp(28px, 5vw, 64px) clamp(18px, 4vw, 48px) 72px;
+}
+
+.page-view {
+    animation: page-enter 220ms ease-out;
+}
+
+@keyframes page-enter {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.page-introduction {
+    max-width: 700px;
+    margin-bottom: 30px;
+}
+
+.page-eyebrow {
+    color: #8f5e2e;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.page-introduction h1 {
+    margin: 7px 0 10px;
+    color: #17384d;
+    font-size: clamp(2.2rem, 6vw, 4.5rem);
+    letter-spacing: -0.055em;
+    line-height: 0.98;
+}
+
+.page-introduction p:last-child {
+    color: #5c6d77;
+    font-size: 1rem;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.feature-placeholder {
+    display: flex;
+    min-height: 310px;
+    box-sizing: border-box;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 20px;
+    border: 1px solid #cad7de;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.84);
+    box-shadow: 0 12px 30px rgba(30, 66, 87, 0.09);
+}
+
+.feature-placeholder h2 {
+    margin: 0 0 16px;
+    color: #244b62;
+    font-size: 1.35rem;
+}
+
+.feature-placeholder img {
+    display: block;
+    width: 100%;
+    flex: 1;
+    min-height: 230px;
+    border-radius: 9px;
+    object-fit: cover;
+}
+
+button:focus-visible {
+    outline: 3px solid #f6b957;
     outline-offset: 3px;
 }
 
-/* Keeps the existing API demonstration separate from the frontpage feature. */
-.pipeline-test {
-    margin-top: 42px;
+@media (max-width: 1100px) {
+    .app-banner {
+        grid-template-columns: 1fr auto;
+    }
+
+    .connection-dashboard {
+        grid-column: 1 / -1;
+    }
 }
-
-    /* Pipeline-test heading. */
-    .pipeline-test h2 {
-        margin-bottom: 8px;
-        color: #1f3a5f;
-    }
-
-    /* Description underneath the heading. */
-    .pipeline-page > p {
-        margin-bottom: 24px;
-        color: #555555;
-    }
-
-    /* Pipeline test button. */
-    .pipeline-test button {
-        padding: 12px 20px;
-        margin-bottom: 24px;
-        border: none;
-        border-radius: 5px;
-        background-color: #1f6feb;
-        color: white;
-        font-size: 1rem;
-        cursor: pointer;
-    }
-
-        /* Change the button color when the mouse is over it. */
-        .pipeline-test button:hover {
-            background-color: #1557b0;
-        }
-
-        /* Keyboard-accessibility indicator. */
-        .pipeline-test button:focus-visible {
-            outline: 3px solid #ffbf47;
-            outline-offset: 3px;
-        }
-
-/* Container holding all the status fields. */
-.status-section {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 20px;
-    border: 1px solid #cccccc;
-    border-radius: 8px;
-    background-color: #f7f7f7;
-}
-
-    /* Status section heading. */
-    .status-section h2 {
-        margin-top: 0;
-        margin-bottom: 12px;
-        color: #1f3a5f;
-    }
-
-    /* Labels displayed above each field. */
-    .status-section label {
-        margin-top: 12px;
-        font-weight: bold;
-    }
-
-    /* Status text fields and backend-steps area. */
-    .status-section input,
-    .status-section textarea {
-        box-sizing: border-box;
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #999999;
-        border-radius: 4px;
-        background-color: white;
-        color: #222222;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 1rem;
-    }
-
-    /* Keep each backend step on its own line. */
-    .status-section textarea {
-        resize: vertical;
-        line-height: 1.5;
-    }
 
 @media (max-width: 680px) {
-    .pipeline-page {
-        box-sizing: border-box;
-        width: 100%;
-        margin: 0 auto;
-        padding: 18px;
-    }
-
-    .featured-book {
-        padding: 20px 16px;
-    }
-
-    .featured-book-heading-row {
-        align-items: stretch;
-        flex-direction: column;
-    }
-
-    .featured-book-pause {
-        align-self: flex-start;
-    }
-
-    .display-case {
+    .app-banner {
         grid-template-columns: 1fr;
-        gap: 20px;
-        margin-top: 20px;
-        padding: 14px;
+        gap: 14px;
     }
 
-    .display-case-window {
-        min-height: 280px;
+    .page-navigation,
+    .banner-actions {
+        justify-content: flex-start;
     }
 
-    .display-case-details {
-        text-align: center;
+    .status-card-list,
+    .feature-grid {
+        grid-template-columns: 1fr;
     }
 
-    .display-case-count {
-        margin-top: 18px;
+    .connection-dashboard-heading-row {
+        align-items: flex-start;
     }
 }
