@@ -2,16 +2,436 @@
  Purely page styling, no processing. */
 
 /* Controls the entire page. */
-.pipeline-page {
-    width: 90%;
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 24px;
+.app-shell {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 10% 0%, rgba(211, 228, 241, 0.5), transparent 36%),
+        #f4f7f9;
+    color: #20313d;
     font-family: Arial, Helvetica, sans-serif;
-    color: #222222;
 }
 
-/* Featured Book display-case section. */
+/* Persistent application banner. */
+.app-banner {
+    display: grid;
+    grid-template-columns: minmax(170px, 1fr) auto auto minmax(330px, 1.2fr);
+    gap: 22px;
+    align-items: start;
+    padding: 22px clamp(18px, 4vw, 48px);
+    border-bottom: 1px solid #c8d5dd;
+    background: #17384d;
+    color: #f4f8fa;
+    box-shadow: 0 8px 24px rgba(22, 54, 74, 0.18);
+}
+
+.app-banner-brand {
+    min-width: 0;
+}
+
+.brand-kicker,
+.brand-subtitle,
+.dashboard-eyebrow,
+.page-eyebrow,
+.last-checked {
+    margin: 0;
+}
+
+.brand-kicker {
+    color: #f6d48d;
+    font-size: clamp(1.35rem, 2vw, 1.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.brand-subtitle {
+    margin-top: 4px;
+    color: #b7c9d4;
+    font-size: 0.78rem;
+}
+
+.page-navigation,
+.banner-actions,
+.login-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.page-navigation {
+    min-height: 40px;
+}
+
+.page-navigation button,
+.login-button,
+.dashboard-refresh-button,
+.status-details-button {
+    border: 1px solid transparent;
+    border-radius: 7px;
+    cursor: pointer;
+    font: inherit;
+    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.page-navigation button {
+    padding: 9px 11px;
+    border-color: #45677a;
+    background: transparent;
+    color: #e1edf2;
+    font-size: 0.86rem;
+    white-space: nowrap;
+}
+
+.page-navigation button:hover,
+.page-navigation button.active {
+    border-color: #f6d48d;
+    background: #315b71;
+    color: #ffffff;
+}
+
+.login-panel {
+    min-width: 260px;
+    padding: 10px;
+    border: 1px solid #45677a;
+    border-radius: 9px;
+    background: rgba(9, 28, 41, 0.45);
+}
+
+.login-panel-title {
+    margin: 0 0 7px;
+    color: #f6d48d;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.login-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+}
+
+.login-fields label,
+.manual-database-form label {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 3px;
+    color: #d7e6ec;
+    font-size: 0.68rem;
+}
+
+.login-fields input,
+.manual-database-form input {
+    min-width: 0;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 6px 7px;
+    border: 1px solid #7893a2;
+    border-radius: 5px;
+    background: #f4f8fa;
+    color: #17384d;
+    font-size: 0.75rem;
+}
+
+.login-actions {
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.login-button {
+    padding: 9px 12px;
+    border-color: #7893a2;
+    background: #f1f6f8;
+    color: #17384d;
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.login-button:hover {
+    background: #f6d48d;
+}
+
+/* Small dashboard showing the current health of each application layer. */
+.connection-dashboard {
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #45677a;
+    border-radius: 10px;
+    background: rgba(9, 28, 41, 0.45);
+}
+
+.connection-dashboard-heading-row,
+.status-card-topline {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+}
+
+.status-card-topline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.dashboard-eyebrow {
+    color: #f6d48d;
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.connection-dashboard h2 {
+    margin: 2px 0 0;
+    color: #ffffff;
+    font-size: 1rem;
+}
+
+.dashboard-refresh-button {
+    padding: 7px 10px;
+    border-color: #7893a2;
+    background: transparent;
+    color: #f4f8fa;
+    font-size: 0.76rem;
+}
+
+.dashboard-refresh-button:hover:not(:disabled) {
+    border-color: #f6d48d;
+    color: #f6d48d;
+}
+
+.dashboard-refresh-button:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+.status-card-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.status-card {
+    min-width: 0;
+    padding: 9px;
+    border: 1px solid #45677a;
+    border-radius: 7px;
+    background: #224a61;
+}
+
+.status-card-name {
+    color: #ffffff;
+    font-size: 0.76rem;
+    font-weight: 700;
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #d7e6ec;
+    font-size: 0.65rem;
+    font-weight: 700;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #aebec7;
+}
+
+.status-online .status-dot {
+    background: #63e6a3;
+    box-shadow: 0 0 0 3px rgba(99, 230, 163, 0.15);
+}
+
+.status-offline .status-dot,
+.status-error .status-dot {
+    background: #ff8d86;
+}
+
+.status-checking .status-dot {
+    background: #f6d48d;
+}
+
+.status-details-button {
+    margin-top: 8px;
+    padding: 3px 0;
+    border: 0;
+    background: transparent;
+    color: #b7d9e8;
+    font-size: 0.68rem;
+    text-decoration: underline;
+}
+
+.status-details-button:hover {
+    color: #f6d48d;
+}
+
+.status-button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.status-details {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #45677a;
+    color: #d7e6ec;
+    font-size: 0.66rem;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.status-details p {
+    margin: 0 0 4px;
+}
+
+.status-details p:last-child {
+    margin-bottom: 0;
+}
+
+.manual-database-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #45677a;
+}
+
+.manual-database-submit {
+    align-self: flex-start;
+    padding: 5px 8px;
+    border: 1px solid #7893a2;
+    border-radius: 5px;
+    background: #f1f6f8;
+    color: #17384d;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+.manual-database-submit:hover:not(:disabled) {
+    background: #f6d48d;
+}
+
+.manual-database-submit:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+.manual-database-note,
+.manual-database-message {
+    margin: 0;
+    color: #b7d9e8;
+    font-size: 0.62rem;
+    line-height: 1.3;
+}
+
+.manual-database-message {
+    color: #f6d48d;
+}
+
+.last-checked {
+    margin-top: 8px;
+    color: #9db6c2;
+    font-size: 0.64rem;
+}
+
+.page-container {
+    width: min(1180px, 100%);
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: clamp(28px, 5vw, 64px) clamp(18px, 4vw, 48px) 72px;
+}
+
+.page-view {
+    animation: page-enter 220ms ease-out;
+}
+
+@keyframes page-enter {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.page-introduction {
+    max-width: 700px;
+    margin-bottom: 30px;
+}
+
+.page-eyebrow {
+    color: #8f5e2e;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.page-introduction h1 {
+    margin: 7px 0 10px;
+    color: #17384d;
+    font-size: clamp(2.2rem, 6vw, 4.5rem);
+    letter-spacing: -0.055em;
+    line-height: 0.98;
+}
+
+.page-introduction p:last-child {
+    color: #5c6d77;
+    font-size: 1rem;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.feature-placeholder {
+    display: flex;
+    min-height: 310px;
+    box-sizing: border-box;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 20px;
+    border: 1px solid #cad7de;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.84);
+    box-shadow: 0 12px 30px rgba(30, 66, 87, 0.09);
+}
+
+.feature-placeholder h2 {
+    margin: 0 0 16px;
+    color: #244b62;
+    font-size: 1.35rem;
+}
+
+.feature-placeholder img {
+    display: block;
+    width: 100%;
+    flex: 1;
+    min-height: 230px;
+    border-radius: 9px;
+    object-fit: cover;
+}
+
+.home-feature-layout {
+    display: grid;
+    gap: 20px;
+}
+
+/* Featured Book display-case section restored from the master branch. */
 .featured-book {
     padding: 28px;
     border: 1px solid #d8c29d;
@@ -151,42 +571,36 @@
     margin-top: 42px;
 }
 
-    /* Pipeline-test heading. */
-    .pipeline-test h2 {
-        margin-bottom: 8px;
-        color: #1f3a5f;
-    }
+.pipeline-test h2 {
+    margin-bottom: 8px;
+    color: #1f3a5f;
+}
 
-    /* Description underneath the heading. */
-    .pipeline-page > p {
-        margin-bottom: 24px;
-        color: #555555;
-    }
+.pipeline-test > p {
+    margin-bottom: 24px;
+    color: #555555;
+}
 
-    /* Pipeline test button. */
-    .pipeline-test button {
-        padding: 12px 20px;
-        margin-bottom: 24px;
-        border: none;
-        border-radius: 5px;
-        background-color: #1f6feb;
-        color: white;
-        font-size: 1rem;
-        cursor: pointer;
-    }
+.pipeline-test > button {
+    padding: 12px 20px;
+    margin-bottom: 24px;
+    border: none;
+    border-radius: 5px;
+    background-color: #1f6feb;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+}
 
-        /* Change the button color when the mouse is over it. */
-        .pipeline-test button:hover {
-            background-color: #1557b0;
-        }
+.pipeline-test > button:hover {
+    background-color: #1557b0;
+}
 
-        /* Keyboard-accessibility indicator. */
-        .pipeline-test button:focus-visible {
-            outline: 3px solid #ffbf47;
-            outline-offset: 3px;
-        }
+.pipeline-test > button:focus-visible {
+    outline: 3px solid #ffbf47;
+    outline-offset: 3px;
+}
 
-/* Container holding all the status fields. */
 .status-section {
     display: flex;
     flex-direction: column;
@@ -197,45 +611,77 @@
     background-color: #f7f7f7;
 }
 
-    /* Status section heading. */
-    .status-section h2 {
-        margin-top: 0;
-        margin-bottom: 12px;
-        color: #1f3a5f;
+.status-section h2 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: #1f3a5f;
+}
+
+.status-section label {
+    margin-top: 12px;
+    font-weight: bold;
+}
+
+.status-section input,
+.status-section textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #999999;
+    border-radius: 4px;
+    background-color: white;
+    color: #222222;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1rem;
+}
+
+.status-section textarea {
+    resize: vertical;
+    line-height: 1.5;
+}
+
+button:focus-visible {
+    outline: 3px solid #f6b957;
+    outline-offset: 3px;
+}
+
+@media (max-width: 1100px) {
+    .app-banner {
+        grid-template-columns: 1fr auto;
     }
 
-    /* Labels displayed above each field. */
-    .status-section label {
-        margin-top: 12px;
-        font-weight: bold;
+    .connection-dashboard {
+        grid-column: 1 / -1;
     }
 
-    /* Status text fields and backend-steps area. */
-    .status-section input,
-    .status-section textarea {
-        box-sizing: border-box;
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #999999;
-        border-radius: 4px;
-        background-color: white;
-        color: #222222;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 1rem;
+    .login-panel {
+        grid-column: 1 / -1;
     }
-
-    /* Keep each backend step on its own line. */
-    .status-section textarea {
-        resize: vertical;
-        line-height: 1.5;
-    }
+}
 
 @media (max-width: 680px) {
-    .pipeline-page {
-        box-sizing: border-box;
-        width: 100%;
-        margin: 0 auto;
-        padding: 18px;
+    .app-banner {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .page-navigation,
+    .banner-actions,
+    .login-actions {
+        justify-content: flex-start;
+    }
+
+    .status-card-list,
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .connection-dashboard-heading-row {
+        align-items: flex-start;
+    }
+
+    .login-fields {
+        grid-template-columns: 1fr;
     }
 
     .featured-book {
