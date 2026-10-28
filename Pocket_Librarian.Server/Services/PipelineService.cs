@@ -24,6 +24,14 @@ namespace Pocket_Librarian.Server.Services
             return BuildPipelineResponse(repositoryResult);
         }
 
+        public PipelineResponse CheckDatabase()
+        {
+            var repositoryResult =
+                _repository.TestDataAccess();
+
+            return BuildPipelineResponse(repositoryResult);
+        }
+
         public PipelineResponse ConnectManualDatabase(string connectionString)
         {
             var repositoryResult =

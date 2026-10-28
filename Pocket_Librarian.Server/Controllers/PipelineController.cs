@@ -36,6 +36,23 @@ namespace Pocket_Librarian.Server.Controllers
             return Ok(response);
         }
 
+        [HttpGet("database-status")]
+        public ActionResult<PipelineResponse> TestDatabaseStatus()
+        {
+            PipelineResponse response = _pipelineService.CheckDatabase();
+
+            response.Steps.Insert(
+                0,
+                "API controller received the database status request."
+                );
+
+            response.Steps.Add(
+                "API controller is sending the database status result."
+                );
+
+            return Ok(response);
+        }
+
         [HttpPost("database/connect")]
         public ActionResult<PipelineResponse> ConnectManualDatabase(
             [FromBody] ManualDatabaseConnectionRequest request)

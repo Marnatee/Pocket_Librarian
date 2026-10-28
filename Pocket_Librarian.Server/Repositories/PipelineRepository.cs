@@ -8,6 +8,7 @@ namespace Pocket_Librarian.Server.Repositories
 {
     public class PipelineRepository
     {
+        private const int DatabaseProbeTimeoutSeconds = 3;
         private readonly string _configuredConnectionString;
         private string? _manualConnectionString;
 
@@ -58,11 +59,19 @@ namespace Pocket_Librarian.Server.Repositories
             {
                 List<string> bookTitles = new List<string>();
 
-                using SqlConnection connection = new SqlConnection(connectionString);
+                SqlConnectionStringBuilder connectionBuilder =
+                    new SqlConnectionStringBuilder(connectionString)
+                    {
+                        ConnectTimeout = DatabaseProbeTimeoutSeconds
+                    };
+
+                using SqlConnection connection =
+                    new SqlConnection(connectionBuilder.ConnectionString);
 
                 string query = "SELECT Title FROM dbo.Books;";
 
                 using SqlCommand command = new SqlCommand(query, connection);
+                command.CommandTimeout = DatabaseProbeTimeoutSeconds;
 
                 connection.Open();
 
@@ -84,6 +93,14 @@ namespace Pocket_Librarian.Server.Repositories
                 return (
                     false,
                     "Database connection failed. The database could not be reached.",
+                    GetMaskedConnectionDetails(connectionString, connectionSource)
+                );
+            }
+            catch (ArgumentException)
+            {
+                return (
+                    false,
+                    "Database connection failed. The connection string is invalid.",
                     GetMaskedConnectionDetails(connectionString, connectionSource)
                 );
             }

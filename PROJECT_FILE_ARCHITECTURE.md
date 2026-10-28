@@ -56,7 +56,8 @@ The runtime flow is: **React frontend → ASP.NET Core controller → business s
 | --- | --- |
 | `Pocket_Librarian.Server/Pocket_Librarian.Server.csproj` | ASP.NET Core server project definition and backend dependencies; server tier support |
 | `Pocket_Librarian.Server/Program.cs` | API host setup and dependency registration; application/business layer / server tier |
-| `Pocket_Librarian.Server/Controllers/PipelineController.cs` | HTTP API boundary for the health-check request; application layer / server tier |
+| `Pocket_Librarian.Server/Controllers/HealthController.cs` | Fast backend-only health endpoint; application layer / server tier |
+| `Pocket_Librarian.Server/Controllers/PipelineController.cs` | HTTP API boundary for the full pipeline, database-status, and manual database requests; application layer / server tier |
 | `Pocket_Librarian.Server/Controllers/WeatherForecastController.cs` | Template API controller; application layer / server tier |
 | `Pocket_Librarian.Server/Models/ManualDatabaseConnectionRequest.cs` | Temporary manual database connection request model; application layer / server tier |
 | `Pocket_Librarian.Server/Models/PipelineResponse.cs` | API response model crossing the server/frontend boundary; application layer / server tier |

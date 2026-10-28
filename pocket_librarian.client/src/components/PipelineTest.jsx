@@ -3,6 +3,8 @@
 
 import { useState } from "react";
 
+const PIPELINE_TIMEOUT_MS = 5000;
+
 function PipelineTest() {
     const [frontendStatus, setFrontendStatus] =
         useState("Waiting for button click");
@@ -23,9 +25,17 @@ function PipelineTest() {
         setBackendSteps([]);
         setFinalResponse("Waiting for response...");
 
+        const abortController = new AbortController();
+        const timeoutId = window.setTimeout(
+            () => abortController.abort(),
+            PIPELINE_TIMEOUT_MS
+        );
+
         try {
             // Send a GET request to the ASP.NET Core controller.
-            const response = await fetch("/api/pipeline/test");
+            const response = await fetch("/api/pipeline/test", {
+                signal: abortController.signal,
+            });
 
             setApiStatus(
                 `Response received: HTTP ${response.status}`
@@ -49,8 +59,14 @@ function PipelineTest() {
             );
         } catch (error) {
             setApiStatus("API request failed");
-            setFinalResponse(error.message);
+            setFinalResponse(
+                error.name === "AbortError"
+                    ? "The API pipeline test timed out after 5 seconds."
+                    : error.message
+            );
             setFrontendStatus("Error");
+        } finally {
+            window.clearTimeout(timeoutId);
         }
     }
 

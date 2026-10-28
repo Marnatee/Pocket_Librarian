@@ -71,8 +71,8 @@ The green-arrow setup is the intended workflow. `Start-Client.cmd` is only a fal
 
 ## Current UI preview
 
-The current frontend includes a persistent banner with Home, Member page, and Staff page navigation. The banner also contains intentionally empty Member login and Staff login buttons reserved for Owen's authentication work.
+The current frontend includes a persistent banner with Home, Member page, and Staff page navigation. The banner also contains a combined staff/member login panel with intentionally empty Sign in and Sign up buttons reserved for Owen's authentication work.
 
-The connection dashboard automatically calls `/api/pipeline/test` when the app opens and includes a manual Refresh button. It checks the ASP.NET backend locally, then reports the SQL database separately. The database may be local SQL Server or Azure SQL. The Details controls show masked connection information. A demo-only Manual connect control can test a full connection string for the current server session without saving it. If the backend or database is unavailable, the frontend displays an unavailable status and remains usable.
+The connection dashboard automatically calls the fast backend-only `/api/health` endpoint when the app opens, then calls `/api/pipeline/database-status` separately for SQL. The backend card can therefore show Online even when the database is unavailable. The database may be local SQL Server or Azure SQL. The Details controls show masked connection information. A demo-only Manual connect control can test a full connection string for the current server session without saving it. Database probes use a short timeout so an unavailable database does not hold up the interface. If the backend or database is unavailable, the frontend displays an unavailable status and remains usable.
 
 The database diagram is documented in [`README_Database.md`](README_Database.md), and the complete file-by-file architecture inventory is in [`PROJECT_FILE_ARCHITECTURE.md`](PROJECT_FILE_ARCHITECTURE.md).

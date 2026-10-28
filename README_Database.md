@@ -28,7 +28,7 @@ This document records the database design shown in `pocket_librarian.client/Docu
 
 The React frontend must call the ASP.NET Core API. It must not connect directly to SQL Server. The API's business-logic layer calls the data-access repository, and the repository performs the SQL query.
 
-The current pipeline health check queries `dbo.Books` and returns a separate database status. If the database is unavailable, the local API still returns a safe health-check response so the frontend can show the database as unavailable without crashing.
+The local backend exposes two separate checks. `GET /api/health` confirms that ASP.NET Core is responding without calling the business or data-access layers. `GET /api/pipeline/database-status` queries `dbo.Books` and returns the database status. The full `GET /api/pipeline/test` endpoint remains the three-layer pipeline demonstration. If the database is unavailable, the backend-only health check still reports Online and the frontend can show the database as unavailable without crashing. Database connection and command probes use a short three-second timeout.
 
 The backend always runs locally through ASP.NET Core. The database connection may target local SQL Server or Azure SQL. The repository reads `ConnectionStrings:PocketLibrarianDatabase`; an environment variable named `ConnectionStrings__PocketLibrarianDatabase` can override the local development value without changing source code. The connection-status dashboard intentionally masks the server and database names when it displays connection details.
 
