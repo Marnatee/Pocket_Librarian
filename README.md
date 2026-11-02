@@ -76,3 +76,5 @@ The current frontend includes a persistent banner with Home, Member page, and St
 The connection dashboard automatically calls the fast backend-only `/api/health` endpoint when the app opens, then calls `/api/pipeline/database-status` separately for SQL. The backend card can therefore show Online even when the database is unavailable. The database may be local SQL Server or Azure SQL. The Details controls show masked connection information. A demo-only Manual connect control can test a full connection string for the current server session without saving it. Database probes use a short timeout so an unavailable database does not hold up the interface. If the backend or database is unavailable, the frontend displays an unavailable status and remains usable.
 
 The database diagram is documented in [`README_Database.md`](README_Database.md), and the complete file-by-file architecture inventory is in [`PROJECT_FILE_ARCHITECTURE.md`](PROJECT_FILE_ARCHITECTURE.md).
+Confirm Reservation Management to the master
+
