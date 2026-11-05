@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Pocket_Librarian.Server.Models;
-using Pocket_Librarian.Server.Services;
+using ProjectAuthenticationService = Pocket_Librarian.Server.Services.AuthenticationService;
 
 namespace Pocket_Librarian.Server.Controllers;
 
@@ -13,9 +13,9 @@ namespace Pocket_Librarian.Server.Controllers;
 [Route("api/auth")]
 public class AuthenticationController : ControllerBase
 {
-    private readonly AuthenticationService _authenticationService;
+    private readonly ProjectAuthenticationService _authenticationService;
 
-    public AuthenticationController(AuthenticationService authenticationService)
+    public AuthenticationController(ProjectAuthenticationService authenticationService)
     {
         _authenticationService = authenticationService;
     }
