@@ -154,6 +154,12 @@
     background: #f6d48d;
 }
 
+.login-message {
+    margin: 8px 0 0;
+    color: #d7e6ec;
+    font-size: 0.72rem;
+}
+
 /* Small dashboard showing the current health of each application layer. */
 .connection-dashboard {
     min-width: 0;
