@@ -58,9 +58,62 @@ async function fetchWithTimeout(url, options = {}, timeoutMs) {
 
 function App() {
     const [currentPage, setCurrentPage] = useState("home");
+    const [currentUser, setCurrentUser] = useState(null);
+    const [authMessage, setAuthMessage] = useState("");
     const [statuses, setStatuses] = useState(initialStatuses);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [lastChecked, setLastChecked] = useState("");
+
+    const signIn = useCallback(async ({ email, password }) => {
+        setAuthMessage("Signing in...");
+
+        const response = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            setAuthMessage(data.message || "Sign in failed.");
+            return;
+        }
+
+        setCurrentUser(data);
+        setAuthMessage(`Signed in as ${data.email} (${data.role}).`);
+        setCurrentPage("home");
+    }, []);
+
+    const signUp = useCallback(async ({ firstName, lastName, email, password }) => {
+        setAuthMessage("Creating account...");
+
+        const response = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ firstName, lastName, email, password }),
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        setAuthMessage(
+            response.ok
+                ? "Account created. Sign in with your email and password."
+                : data.message || "Account registration failed."
+        );
+    }, []);
+
+    const signOut = useCallback(async () => {
+        await fetch("/api/auth/logout", {
+            method: "POST",
+            credentials: "include",
+        });
+
+        setCurrentUser(null);
+        setCurrentPage("home");
+        setAuthMessage("You have been signed out.");
+    }, []);
 
     const refreshConnectionStatus = useCallback(async () => {
         setIsRefreshing(true);
@@ -281,6 +334,17 @@ function App() {
     }, []);
 
     useEffect(() => {
+        fetch("/api/auth/me", { credentials: "include" })
+            .then((response) => (response.ok ? response.json() : null))
+            .then((user) => {
+                if (user) {
+                    setCurrentUser(user);
+                }
+            })
+            .catch(() => {
+                // The public home page remains usable if authentication is offline.
+            });
+
         const initialCheck = window.setTimeout(() => {
             refreshConnectionStatus();
         }, 0);
@@ -291,9 +355,9 @@ function App() {
     function renderCurrentPage() {
         switch (currentPage) {
             case "member":
-                return <MemberPage />;
+                return currentUser ? <MemberPage /> : <HomePage />;
             case "staff":
-                return <StaffPage />;
+                return currentUser?.role === "Staff" ? <StaffPage /> : <HomePage />;
             case "home":
             default:
                 return <HomePage />;
@@ -304,7 +368,24 @@ function App() {
         <div className="app-shell">
             <AppBanner
                 currentPage={currentPage}
-                onPageChange={setCurrentPage}
+                onPageChange={(page) => {
+                    if (page === "member" && !currentUser) {
+                        setAuthMessage("Sign in to open the member page.");
+                        return;
+                    }
+
+                    if (page === "staff" && currentUser?.role !== "Staff") {
+                        setAuthMessage("Only staff accounts can open the staff page.");
+                        return;
+                    }
+
+                    setCurrentPage(page);
+                }}
+                currentUser={currentUser}
+                authMessage={authMessage}
+                onSignIn={signIn}
+                onSignUp={signUp}
+                onSignOut={signOut}
                 statuses={statuses}
                 isRefreshing={isRefreshing}
                 lastChecked={lastChecked}
