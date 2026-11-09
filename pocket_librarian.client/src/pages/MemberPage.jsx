@@ -10,6 +10,9 @@ const memberFeatures = [
 ];
 
 function MemberPage() {
+
+    const currentUserId = 1;
+
     return (
         <section className="page-view" aria-labelledby="member-page-heading">
             <div className="page-introduction">
@@ -18,6 +21,7 @@ function MemberPage() {
                 <p>Member tools will be connected to the login flow as features are completed.</p>
             </div>
 
+            <ReservationManager userId={currentUserId} />
             <div className="feature-grid">
                 {memberFeatures.map((feature) => (
                     <FeaturePlaceholder key={feature} title={feature} />
