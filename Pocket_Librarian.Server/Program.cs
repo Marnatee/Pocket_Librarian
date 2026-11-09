@@ -11,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddSingleton<PipelineRepository>();
 builder.Services.AddScoped<PipelineService>();
+builder.Services.AddSingleton<ReservationRepository>();
+builder.Services.AddScoped<ReservationService>();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
