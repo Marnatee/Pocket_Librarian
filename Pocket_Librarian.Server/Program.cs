@@ -14,6 +14,8 @@ builder.Services.AddSingleton<PipelineRepository>();
 builder.Services.AddScoped<PipelineService>();
 builder.Services.AddSingleton<AuthenticationRepository>();
 builder.Services.AddScoped<AuthenticationService>();
+builder.Services.AddSingleton<ReservationRepository>();
+builder.Services.AddScoped<ReservationService>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
