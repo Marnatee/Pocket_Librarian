@@ -355,7 +355,7 @@ function App() {
     function renderCurrentPage() {
         switch (currentPage) {
             case "member":
-                return currentUser ? <MemberPage /> : <HomePage />;
+                return currentUser ? <MemberPage currentUser={currentUser} /> : <HomePage />;
             case "staff":
                 return currentUser?.role === "Staff" ? <StaffPage /> : <HomePage />;
             case "home":
