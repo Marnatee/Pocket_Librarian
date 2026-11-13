@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./CatalogueSearch.css";
 
 function CatalogueSearch() {
     const [title, setTitle] = useState("");
@@ -14,7 +15,7 @@ function CatalogueSearch() {
     }
 
     return (
-        <section className="catalogue-search">
+        <section className="feature-placeholder catalogue-search">
             <h2>Search Catalogue</h2>
 
             <form onSubmit={handleSearch}>

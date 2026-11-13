@@ -1,0 +1,77 @@
+.catalogue-search form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.catalogue-search-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+    .catalogue-search-fields label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        color: #244b62;
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    .catalogue-search-fields input,
+    .catalogue-search-fields select {
+        width: 100%;
+        padding: 10px 11px;
+        border: 1px solid #aebfc9;
+        border-radius: 7px;
+        background: #ffffff;
+        color: #20313d;
+        font: inherit;
+    }
+
+        .catalogue-search-fields input:focus,
+        .catalogue-search-fields select:focus {
+            outline: 3px solid rgba(246, 185, 87, 0.35);
+            border-color: #8f5e2e;
+        }
+
+.catalogue-availability-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #5c6d77;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+    .catalogue-availability-filter input {
+        width: 16px;
+        height: 16px;
+    }
+
+.catalogue-search-button {
+    align-self: flex-start;
+    padding: 10px 18px;
+    border: 1px solid #244b62;
+    border-radius: 7px;
+    background: #244b62;
+    color: #ffffff;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+}
+
+    .catalogue-search-button:hover {
+        background: #17384d;
+    }
+
+@media (max-width: 680px) {
+    .catalogue-search-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .catalogue-search-button {
+        width: 100%;
+    }
+}
