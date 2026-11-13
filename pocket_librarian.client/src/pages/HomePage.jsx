@@ -3,6 +3,7 @@
 
 import FeaturePlaceholder from "../components/FeaturePlaceholder";
 import FeaturedBookCarousel from "../components/FeaturedBookCarousel";
+import CatalogueSearch from "../components/CatalogueSearch";
 import PipelineTest from "../components/PipelineTest";
 
 function HomePage() {
@@ -16,7 +17,7 @@ function HomePage() {
 
             <div className="home-feature-layout">
                 <FeaturedBookCarousel />
-                <FeaturePlaceholder title="Search Catalogue" />
+                <CatalogueSearch />
             </div>
 
             <PipelineTest />
