@@ -3,8 +3,8 @@
 // response back.
 
 using Microsoft.AspNetCore.Mvc;
-using Pocket_Librarian.Server.Models;
-using Pocket_Librarian.Server.Services;
+using Pocket_Librarian.BLL.Models;
+using Pocket_Librarian.BLL.Services;
 
 namespace Pocket_Librarian.Server.Controllers
 {

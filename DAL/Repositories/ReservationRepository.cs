@@ -1,11 +1,13 @@
 // Data access layer (SQL Database)
 // This layer communicates with the SQL Database to perform CRUD operations on reservations.
 using Microsoft.Data.SqlClient;
-using Pocket_Librarian.Server.Models;
+using Microsoft.Extensions.Configuration;
+using Pocket_Librarian.BLL.Interfaces;
+using Pocket_Librarian.BLL.Models;
 
-namespace Pocket_Librarian.Server.Repositories
+namespace Pocket_Librarian.DAL.Repositories
 {
-    public class ReservationRepository
+    public class ReservationRepository : IReservationRepository
     {
         private const string ReservationSelectSql = @"
             SELECT r.ReservationID, r.UserID, r.BookID, r.DateReserved, r.DateReturned,
@@ -21,7 +23,7 @@ namespace Pocket_Librarian.Server.Repositories
 
         public ReservationRepository(IConfiguration configuration)
         {
-            _configuredConnectionString = configuration.GetConnectionString("PocketLibrarianDatabase")
+            _configuredConnectionString = configuration["ConnectionStrings:PocketLibrarianDatabase"]
                 ?? string.Empty;
         }
 

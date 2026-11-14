@@ -1,7 +1,7 @@
 ﻿// Data-transfer model
 // Carries a temporary demo connection string from React to the local API.
 
-namespace Pocket_Librarian.Server.Models
+namespace Pocket_Librarian.BLL.Models
 {
     public class ManualDatabaseConnectionRequest
     {

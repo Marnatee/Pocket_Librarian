@@ -1,4 +1,4 @@
-namespace Pocket_Librarian.Server.Models
+namespace Pocket_Librarian.BLL.Models
 {
     public class Reservation
     {

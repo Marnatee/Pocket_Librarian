@@ -2,11 +2,13 @@
 //This would communicate with the SQL Database.
 //SQL Database is made in SQL Server Management Studio (SSMS).
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using Pocket_Librarian.BLL.Interfaces;
 
 
-namespace Pocket_Librarian.Server.Repositories
+namespace Pocket_Librarian.DAL.Repositories
 {
-    public class PipelineRepository
+    public class PipelineRepository : IPipelineRepository
     {
         private const int DatabaseProbeTimeoutSeconds = 3;
         private readonly string _configuredConnectionString;
@@ -14,7 +16,7 @@ namespace Pocket_Librarian.Server.Repositories
 
         public PipelineRepository(IConfiguration configuration)
         {
-            _configuredConnectionString = configuration.GetConnectionString("PocketLibrarianDatabase")
+            _configuredConnectionString = configuration["ConnectionStrings:PocketLibrarianDatabase"]
                 ?? string.Empty;
         }
 
