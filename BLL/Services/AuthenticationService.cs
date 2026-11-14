@@ -1,17 +1,17 @@
 using System.Security.Cryptography;
-using Pocket_Librarian.Server.Models;
-using Pocket_Librarian.Server.Repositories;
+using Pocket_Librarian.BLL.Interfaces;
+using Pocket_Librarian.BLL.Models;
 
-namespace Pocket_Librarian.Server.Services;
+namespace Pocket_Librarian.BLL.Services;
 
 public class AuthenticationService
 {
     private const int SaltSize = 16;
     private const int HashSize = 32;
     private const int Iterations = 100_000;
-    private readonly AuthenticationRepository _repository;
+    private readonly IAuthenticationRepository _repository;
 
-    public AuthenticationService(AuthenticationRepository repository)
+    public AuthenticationService(IAuthenticationRepository repository)
     {
         _repository = repository;
     }

@@ -31,7 +31,7 @@ If Visual Studio does not show the `Pocket Librarian (Edge)` profile, use the tw
 
 In Visual Studio:
 
-1. In Solution Explorer, right-click `Pocket_Librarian.Server`.
+1. In Solution Explorer, right-click `Server`.
 2. Select **Set as Startup Project**.
 3. Select the `https` profile beside the green arrow.
 4. Click the green arrow.
@@ -62,6 +62,27 @@ The green-arrow setup is the intended workflow. `Start-Client.cmd` is only a fal
 
 - Stop the backend by clicking the red square in Visual Studio.
 - Stop the frontend by closing its terminal window or pressing `Ctrl+C` in that terminal.
+
+## Required project organization
+
+Keep the solution organized into these four project-level components:
+
+```text
+Pocket_Librarian
+├── BLL
+├── DAL
+├── Server
+└── Client
+```
+
+- Put business rules and services in `BLL`.
+- Put SQL queries, connections, and repositories in `DAL`.
+- Put API controllers, startup configuration, and authentication pipeline setup in `Server`.
+- Put React pages, components, styles, and frontend assets in `Client`.
+- React calls the `Server` through HTTP; it must not call `BLL`, `DAL`, or SQL Server directly.
+- `Server` controllers call BLL services. BLL services use repository interfaces, and DAL supplies the implementations through dependency injection.
+- Do not add new business services or repositories directly under `Server`.
+- When adding a new repository, add its interface under `BLL/Interfaces`, its implementation under `DAL/Repositories`, and register the pair in `Server/Program.cs`.
 
 ## Troubleshooting
 

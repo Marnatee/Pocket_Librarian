@@ -2,19 +2,20 @@
 // Starts and configures ASP.NET Core and registers the service and repository.
 
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Pocket_Librarian.Server.Repositories;
-using Pocket_Librarian.Server.Services;
+using Pocket_Librarian.BLL.Interfaces;
+using Pocket_Librarian.BLL.Services;
+using Pocket_Librarian.DAL.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddSingleton<PipelineRepository>();
+builder.Services.AddSingleton<IPipelineRepository, PipelineRepository>();
 builder.Services.AddScoped<PipelineService>();
-builder.Services.AddSingleton<AuthenticationRepository>();
+builder.Services.AddSingleton<IAuthenticationRepository, AuthenticationRepository>();
 builder.Services.AddScoped<AuthenticationService>();
-builder.Services.AddSingleton<ReservationRepository>();
+builder.Services.AddSingleton<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<ReservationService>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

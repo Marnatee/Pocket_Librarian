@@ -1,23 +1,18 @@
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using System.Data;
+using Pocket_Librarian.BLL.Interfaces;
+using Pocket_Librarian.BLL.Models;
 
-namespace Pocket_Librarian.Server.Repositories;
+namespace Pocket_Librarian.DAL.Repositories;
 
-public sealed record StoredUser(
-    int UserId,
-    string FirstName,
-    string LastName,
-    string Email,
-    string PasswordHash,
-    string Role);
-
-public class AuthenticationRepository
+public class AuthenticationRepository : IAuthenticationRepository
 {
     private readonly string _connectionString;
 
     public AuthenticationRepository(IConfiguration configuration)
     {
-        _connectionString = configuration.GetConnectionString("PocketLibrarianDatabase")
+        _connectionString = configuration["ConnectionStrings:PocketLibrarianDatabase"]
             ?? string.Empty;
     }
 

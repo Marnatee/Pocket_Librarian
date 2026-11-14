@@ -1,7 +1,9 @@
 <Solution>
-  <Project Path="pocket_librarian.client/pocket_librarian.client.esproj">
+  <Project Path="BLL/BLL.csproj" />
+  <Project Path="DAL/DAL.csproj" />
+  <Project Path="Server/Server.csproj" />
+  <Project Path="Client/Client.esproj">
     <Build />
     <Deploy />
   </Project>
-  <Project Path="Pocket_Librarian.Server/Pocket_Librarian.Server.csproj" />
 </Solution>
