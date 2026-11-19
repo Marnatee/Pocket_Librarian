@@ -198,7 +198,7 @@ public sealed class CreateReturnTaskRequest
     public string ShelfLocation { get; set; } = "Unassigned";
 }
 
-public sealed class TaskActionRequest
+public class TaskActionRequest
 {
     public int ReturnTaskId { get; set; }
 }
