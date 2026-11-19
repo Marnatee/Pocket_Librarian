@@ -1,8 +1,8 @@
 # Pocket Librarian database design
 
-This document records the database design shown in `pocket_librarian.client/Documentation/Pocket_Librarian_Database.png`.
+This document records the database design shown in `Client/Documentation/Pocket_Librarian_Database.png`.
 
-![Pocket Librarian database diagram](pocket_librarian.client/Documentation/Pocket_Librarian_Database.png)
+![Pocket Librarian database diagram](Client/Documentation/Pocket_Librarian_Database.png)
 
 ## Tables
 

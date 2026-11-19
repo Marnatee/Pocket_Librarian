@@ -2,16 +2,16 @@
 // Controls what the application should do and calls the data access layer
 // when data access is needed.
 
-using Pocket_Librarian.Server.Models;
-using Pocket_Librarian.Server.Repositories;
+using Pocket_Librarian.BLL.Interfaces;
+using Pocket_Librarian.BLL.Models;
 
-namespace Pocket_Librarian.Server.Services
+namespace Pocket_Librarian.BLL.Services
 {
     public class ReservationService
     {
-        private readonly ReservationRepository _repository;
+        private readonly IReservationRepository _repository;
 
-        public ReservationService(ReservationRepository repository)
+        public ReservationService(IReservationRepository repository)
         {
             _repository = repository;
         }

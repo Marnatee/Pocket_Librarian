@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using Pocket_Librarian.Server.Models;
-using ProjectAuthenticationService = Pocket_Librarian.Server.Services.AuthenticationService;
+using Pocket_Librarian.BLL.Models;
+using ProjectAuthenticationService = Pocket_Librarian.BLL.Services.AuthenticationService;
 
 namespace Pocket_Librarian.Server.Controllers;
 

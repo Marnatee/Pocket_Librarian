@@ -2,7 +2,7 @@
 // Defines the response informaton that travels
 // back to React as JSON
 
-namespace Pocket_Librarian.Server.Models
+namespace Pocket_Librarian.BLL.Models
 {
     public class PipelineResponse
     {

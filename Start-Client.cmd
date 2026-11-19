@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-cd /d "%~dp0pocket_librarian.client"
+cd /d "%~dp0Client"
 
 where node >nul 2>nul
 if errorlevel 1 (

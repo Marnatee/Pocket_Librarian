@@ -4,10 +4,10 @@ The following tools were used to generate this project:
 - create-vite
 
 The following steps were used to generate this project:
-- Create react project with create-vite: `npm init --yes vite@latest pocket_librarian.client -- --template=react  --no-rolldown --no-immediate`.
+- Create react project with create-vite: `npm init --yes vite@latest Client -- --template=react  --no-rolldown --no-immediate`.
 - Update `vite.config.js` to set up proxying and certs.
 - Update `App` component to fetch and display weather information.
-- Create project file (`pocket_librarian.client.esproj`).
+- Create project file (`Client.esproj`).
 - Create `launch.json` to enable debugging.
 - Add project to solution.
 - Update proxy endpoint to be the backend server endpoint.

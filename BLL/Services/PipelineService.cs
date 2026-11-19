@@ -2,16 +2,16 @@
 // Controls what the application should do and calls the DAL
 // when data access is needed.
 
-using Pocket_Librarian.Server.Models;
-using Pocket_Librarian.Server.Repositories;
+using Pocket_Librarian.BLL.Interfaces;
+using Pocket_Librarian.BLL.Models;
 
-namespace Pocket_Librarian.Server.Services
+namespace Pocket_Librarian.BLL.Services
 {
     public class PipelineService
     {
-        private readonly PipelineRepository _repository;
+        private readonly IPipelineRepository _repository;
 
-        public PipelineService(PipelineRepository repository)
+        public PipelineService(IPipelineRepository repository)
         {
             _repository = repository;
         }

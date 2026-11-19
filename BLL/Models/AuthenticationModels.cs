@@ -1,4 +1,4 @@
-namespace Pocket_Librarian.Server.Models;
+namespace Pocket_Librarian.BLL.Models;
 
 public sealed class RegisterRequest
 {
@@ -19,4 +19,12 @@ public sealed record AuthenticatedUser(
     string FirstName,
     string LastName,
     string Email,
+    string Role);
+
+public sealed record StoredUser(
+    int UserId,
+    string FirstName,
+    string LastName,
+    string Email,
+    string PasswordHash,
     string Role);
