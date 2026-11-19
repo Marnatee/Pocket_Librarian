@@ -1,3 +1,4 @@
+/* Catalogue search form layout */
 .catalogue-search form {
     display: flex;
     flex-direction: column;
@@ -10,6 +11,7 @@
     gap: 16px;
 }
 
+    /* Search field labels and controls */
     .catalogue-search-fields label {
         display: flex;
         flex-direction: column;
@@ -30,12 +32,14 @@
         font: inherit;
     }
 
+        /* Highlight the active search field using the site's accent color. */
         .catalogue-search-fields input:focus,
         .catalogue-search-fields select:focus {
             outline: 3px solid rgba(246, 185, 87, 0.35);
             border-color: #8f5e2e;
         }
 
+/* Availability filter */
 .catalogue-availability-filter {
     display: flex;
     align-items: center;
@@ -50,6 +54,7 @@
         height: 16px;
     }
 
+/* Catalogue search action */
 .catalogue-search-button {
     align-self: flex-start;
     padding: 10px 18px;
@@ -66,6 +71,7 @@
         background: #17384d;
     }
 
+/* Stack the search fields on smaller screens. */
 @media (max-width: 680px) {
     .catalogue-search-fields {
         grid-template-columns: 1fr;

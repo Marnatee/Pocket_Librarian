@@ -2,12 +2,15 @@ import { useState } from "react";
 import "./CatalogueSearch.css";
 
 function CatalogueSearch() {
+    // Stores the current catalogue search criteria entered by the user.
     const [title, setTitle] = useState("");
     const [isbn, setIsbn] = useState("");
     const [author, setAuthor] = useState("");
     const [genre, setGenre] = useState("");
     const [availableOnly, setAvailableOnly] = useState(false);
 
+    // Handles form submission without allowing the browser to reload the page.
+    // Backend catalogue searching will be connected here.
     function handleSearch(event) {
         event.preventDefault();
 
@@ -53,6 +56,7 @@ function CatalogueSearch() {
                             value={genre}
                             onChange={(event) => setGenre(event.target.value)}
                         >
+                            {/* Genre options will be populated from the database. */}
                             <option value="">All Genres</option>
                         </select>
                     </label>

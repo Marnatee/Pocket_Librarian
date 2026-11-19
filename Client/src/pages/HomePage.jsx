@@ -1,7 +1,7 @@
 // Presentation layer / UI
 // Home page feature placeholders.
 
-import FeaturePlaceholder from "../components/FeaturePlaceholder";
+import FeaturePlaceholder from "../components/FeaturePlaceholder";    // CONSIDERING REMOVAL: This is a placeholder component that is not used in the current implementation.
 import FeaturedBookCarousel from "../components/FeaturedBookCarousel";
 import CatalogueSearch from "../components/CatalogueSearch";
 import PipelineTest from "../components/PipelineTest";
