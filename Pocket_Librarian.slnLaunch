@@ -3,13 +3,13 @@
     "Name": "Pocket Librarian",
     "Projects": [
       {
-        "Path": "Server\\Server.csproj",
-        "Action": "Start"
-      },
-      {
         "Path": "Client\\Client.esproj",
         "Action": "Start",
         "DebugTarget": "Pocket Librarian (Edge)"
+      },
+      {
+        "Path": "Server\\Server.csproj",
+        "Action": "Start"
       }
     ]
   }

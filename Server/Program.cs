@@ -17,6 +17,10 @@ builder.Services.AddSingleton<IAuthenticationRepository, AuthenticationRepositor
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddSingleton<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<ReservationService>();
+builder.Services.AddScoped<IMemberProfileRepository, MemberProfileRepository>();
+builder.Services.AddScoped<MemberProfileService>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<NotificationService>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
