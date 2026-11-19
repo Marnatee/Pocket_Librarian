@@ -11,6 +11,48 @@
     font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Returns queue feature navigation */
+.feature-view {
+    animation: page-enter 220ms ease-out;
+}
+
+.btn-back-to-features {
+    margin-bottom: 20px;
+}
+
+.feature-placeholder-clickable {
+    display: flex;
+    min-height: 250px;
+    box-sizing: border-box;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border: 2px solid #8f5e2e;
+    border-radius: 15px;
+    background: linear-gradient(135deg, rgba(143, 94, 46, 0.08), rgba(143, 94, 46, 0.03));
+    color: inherit;
+    cursor: pointer;
+    text-align: center;
+}
+
+.feature-placeholder-clickable:hover,
+.feature-placeholder-clickable:focus-visible {
+    border-color: #a0704a;
+    box-shadow: 0 12px 30px rgba(30, 66, 87, 0.15);
+    transform: translateY(-3px);
+}
+
+.feature-placeholder-clickable h3 {
+    margin: 0 0 12px;
+    color: #17384d;
+}
+
+.feature-placeholder-clickable p {
+    margin: 0;
+    color: #5c6d77;
+}
+
 /* Persistent application banner. */
 .app-banner {
     display: grid;

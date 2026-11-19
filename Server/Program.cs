@@ -21,6 +21,8 @@ builder.Services.AddScoped<IMemberProfileRepository, MemberProfileRepository>();
 builder.Services.AddScoped<MemberProfileService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<IReturnsQueueRepository, ReturnsQueueRepository>();
+builder.Services.AddScoped<ReturnsQueueService>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
