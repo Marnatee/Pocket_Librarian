@@ -11,11 +11,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddSingleton<PipelineRepository>();
 builder.Services.AddScoped<PipelineService>();
-builder.Services.AddScoped<MemberProfileRepository>(); // New Code
-builder.Services.AddScoped<ReservationRepository>(); // New Code
-builder.Services.AddScoped<UserPreferencesRepository>(); // New Code
-builder.Services.AddScoped<MessageRepository>();// New Code
-builder.Services.AddScoped<NotificationRepository>(); // New Code
+
+/////// NEW CODE ///////
+builder.Services.AddScoped<MemberProfileRepository>(); 
+builder.Services.AddScoped<ReservationRepository>(); 
+builder.Services.AddScoped<UserPreferencesRepository>(); 
+builder.Services.AddScoped<MessageRepository>();
+builder.Services.AddScoped<NotificationRepository>(); 
+/////// NEW CODE ///////
+
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
