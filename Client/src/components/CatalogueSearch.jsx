@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./CatalogueSearch.css";
 
 function CatalogueSearch() {
@@ -8,6 +8,30 @@ function CatalogueSearch() {
     const [author, setAuthor] = useState("");
     const [genre, setGenre] = useState("");
     const [availableOnly, setAvailableOnly] = useState(false);
+
+    // Stores the genres retrieved from the backend for the filter dropdown.
+    const [genres, setGenres] = useState([]);
+
+    // Loads the available catalogue genres when the component first appears.
+    useEffect(() => {
+        async function loadGenres() {
+            try {
+                const response = await fetch("/api/catalogue/genres");
+
+                if (!response.ok) {
+                    throw new Error("Failed to load catalogue genres.");
+                }
+
+                const data = await response.json();
+                setGenres(data);
+            }
+            catch (error) {
+                console.error("Error loading catalogue genres:", error);
+            }
+        }
+
+        loadGenres();
+    }, []);
 
     // Handles form submission without allowing the browser to reload the page.
     // Backend catalogue searching will be connected here.
@@ -56,8 +80,16 @@ function CatalogueSearch() {
                             value={genre}
                             onChange={(event) => setGenre(event.target.value)}
                         >
-                            {/* Genre options will be populated from the database. */}
                             <option value="">All Genres</option>
+
+                            {genres.map((catalogueGenre) => (
+                                <option
+                                    key={catalogueGenre.genreId}
+                                    value={catalogueGenre.genreId}
+                                >
+                                    {catalogueGenre.genreName}
+                                </option>
+                            ))}
                         </select>
                     </label>
                 </div>

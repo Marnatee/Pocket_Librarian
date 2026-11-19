@@ -9,14 +9,21 @@ using Pocket_Librarian.DAL.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
+
 builder.Services.AddSingleton<IPipelineRepository, PipelineRepository>();
 builder.Services.AddScoped<PipelineService>();
+
 builder.Services.AddSingleton<IAuthenticationRepository, AuthenticationRepository>();
 builder.Services.AddScoped<AuthenticationService>();
+
 builder.Services.AddSingleton<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<ReservationService>();
+
+// Registers the catalogue repository implementation and business service.
+builder.Services.AddSingleton<ICatalogueRepository, CatalogueRepository>();
+builder.Services.AddScoped<CatalogueService>();
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
