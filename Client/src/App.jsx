@@ -364,7 +364,9 @@ function App() {
                     />
                 ) : <HomePage />;
             case "staff":
-                return currentUser?.role === "Staff" ? <StaffPage /> : <HomePage />;
+                return currentUser?.role === "Staff"
+                    ? <StaffPage currentUser={currentUser} />
+                    : <HomePage />;
             case "home":
             default:
                 return <HomePage />;

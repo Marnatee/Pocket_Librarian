@@ -329,24 +329,26 @@ namespace Pocket_Librarian.DAL.Repositories
                 using SqlTransaction transaction = connection.BeginTransaction();
 
                 const string findBookQuery = @"
-                    SELECT BookID
-                    FROM dbo.Reservations WITH (UPDLOCK, ROWLOCK)
-                    WHERE ReservationID = @ReservationID
-                      AND DateReturned IS NULL";
+                    SELECT r.BookID, b.Title
+                    FROM dbo.Reservations AS r WITH (UPDLOCK, ROWLOCK)
+                    INNER JOIN dbo.Books AS b ON b.BookID = r.BookID
+                    WHERE r.ReservationID = @ReservationID
+                      AND r.DateReturned IS NULL";
 
                 int bookId;
+                string bookTitle;
                 using (SqlCommand findBookCommand = new SqlCommand(
                     findBookQuery, connection, transaction))
                 {
                     findBookCommand.Parameters.AddWithValue("@ReservationID", reservationId);
-                    object? result = await findBookCommand.ExecuteScalarAsync();
-
-                    if (result is null || result == DBNull.Value)
+                    using SqlDataReader reader = await findBookCommand.ExecuteReaderAsync();
+                    if (!await reader.ReadAsync())
                     {
                         return false;
                     }
 
-                    bookId = Convert.ToInt32(result);
+                    bookId = reader.GetInt32(0);
+                    bookTitle = reader.GetString(1);
                 }
 
                 const string returnQuery = @"
@@ -367,23 +369,28 @@ namespace Pocket_Librarian.DAL.Repositories
                     }
                 }
 
-                const string incrementQuery = @"
-                    UPDATE dbo.Books
-                    SET CopiesAvailable = CASE
-                        WHEN CopiesAvailable < TotalCopies THEN CopiesAvailable + 1
-                        ELSE TotalCopies
-                    END
-                    WHERE BookID = @BookID";
+                // The physical return is now represented by a pending returns-queue task.
+                // Inventory is incremented only when staff completes the task, preventing
+                // a returned book from becoming available before it is restocked.
+                const string taskQuery = @"
+                    INSERT INTO dbo.ReturnTasks
+                        (ReservationID, BookID, AssignedStaffID, ShelfLocation, BookTitle,
+                         Status, DateCreated, DateClaimed, DateCompleted)
+                    VALUES
+                        (@ReservationID, @BookID, NULL, 'Unassigned', @BookTitle,
+                         'Pending', GETUTCDATE(), NULL, NULL)";
 
-                using (SqlCommand incrementCommand = new SqlCommand(
-                    incrementQuery, connection, transaction))
+                using (SqlCommand taskCommand = new SqlCommand(
+                    taskQuery, connection, transaction))
                 {
-                    incrementCommand.Parameters.AddWithValue("@BookID", bookId);
+                    taskCommand.Parameters.AddWithValue("@ReservationID", reservationId);
+                    taskCommand.Parameters.AddWithValue("@BookID", bookId);
+                    taskCommand.Parameters.AddWithValue("@BookTitle", bookTitle);
 
-                    if (await incrementCommand.ExecuteNonQueryAsync() != 1)
+                    if (await taskCommand.ExecuteNonQueryAsync() != 1)
                     {
                         throw new InvalidOperationException(
-                            "The reservation was returned, but the book inventory could not be updated.");
+                            "The reservation was returned, but the returns-queue task could not be created.");
                     }
                 }
 
