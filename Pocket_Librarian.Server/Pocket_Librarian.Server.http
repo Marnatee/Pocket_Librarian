@@ -4,3 +4,6 @@ GET {{Pocket_Librarian.Server_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+GET {{Pocket_Librarian.Server_HostAddress}}/api/reservations/GregBooks
+Accept: application/json
