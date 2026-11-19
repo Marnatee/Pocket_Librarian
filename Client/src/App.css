@@ -722,3 +722,67 @@ button:focus-visible {
         margin-top: 18px;
     }
 }
+
+/* Returns Queue Integration */
+.feature-view {
+    animation: page-enter 220ms ease-out;
+}
+
+.btn-back-to-features {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    padding: 8px 16px;
+    background: #244b62;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-back-to-features:hover {
+    background: #17384d;
+    transform: translateX(-2px);
+}
+
+.feature-placeholder-clickable {
+    display: flex;
+    min-height: 310px;
+    box-sizing: border-box;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border: 2px solid #8f5e2e;
+    border-radius: 15px;
+    background: linear-gradient(135deg, rgba(143, 94, 46, 0.08), rgba(143, 94, 46, 0.03));
+    box-shadow: 0 12px 30px rgba(30, 66, 87, 0.09);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.feature-placeholder-clickable:hover {
+    border-color: #a0704a;
+    background: linear-gradient(135deg, rgba(143, 94, 46, 0.15), rgba(143, 94, 46, 0.08));
+    box-shadow: 0 16px 40px rgba(30, 66, 87, 0.15);
+    transform: translateY(-4px);
+}
+
+.feature-placeholder-clickable h3 {
+    margin: 0 0 12px;
+    color: #17384d;
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.feature-placeholder-clickable p {
+    margin: 0;
+    color: #5c6d77;
+    font-size: 0.95rem;
+}
+

@@ -17,6 +17,8 @@ builder.Services.AddSingleton<IAuthenticationRepository, AuthenticationRepositor
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddSingleton<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<ReservationService>();
+builder.Services.AddSingleton<IReturnsQueueRepository, ReturnsQueueRepository>();
+builder.Services.AddScoped<ReturnsQueueService>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
