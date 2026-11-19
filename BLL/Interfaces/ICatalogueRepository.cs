@@ -8,5 +8,8 @@ namespace Pocket_Librarian.BLL.Interfaces
     {
         // Retrieves all genres available for catalogue filtering.
         List<CatalogueGenre> GetGenres();
+
+        // Searches the catalogue using the provided search criteria.
+        List<CatalogueBook> SearchBooks(CatalogueSearchCriteria criteria);
     }
 }
