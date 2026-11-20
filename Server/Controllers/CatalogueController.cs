@@ -35,5 +35,23 @@ namespace Pocket_Librarian.Server.Controllers
                     new { message = "The catalogue service could not reach the database." });
             }
         }
+
+        // Searches the catalogue using filter values supplied through the request query string.
+        [HttpGet("search")]
+        public ActionResult<List<CatalogueBook>> SearchBooks(
+            [FromQuery] CatalogueSearchCriteria criteria)
+        {
+            try
+            {
+                List<CatalogueBook> books = _service.SearchBooks(criteria);
+                return Ok(books);
+            }
+            catch (SqlException)
+            {
+                return StatusCode(
+                    StatusCodes.Status503ServiceUnavailable,
+                    new { message = "The catalogue service could not reach the database." });
+            }
+        }
     }
 }

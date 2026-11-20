@@ -12,6 +12,9 @@ function CatalogueSearch() {
     // Stores the genres retrieved from the backend for the filter dropdown.
     const [genres, setGenres] = useState([]);
 
+    // Stores the books returned by the catalogue search.
+    const [results, setResults] = useState([]);
+
     // Loads the available catalogue genres when the component first appears.
     useEffect(() => {
         async function loadGenres() {
@@ -33,12 +36,47 @@ function CatalogueSearch() {
         loadGenres();
     }, []);
 
-    // Handles form submission without allowing the browser to reload the page.
-    // Backend catalogue searching will be connected here.
-    function handleSearch(event) {
+    // Sends the current catalogue filters to the backend and stores
+    // the matching books returned by the search endpoint.
+    async function handleSearch(event) {
         event.preventDefault();
 
-        // Going to connect this to the ASP.NET backend.
+        const searchParameters = new URLSearchParams();
+
+        if (title.trim() !== "") {
+            searchParameters.append("title", title.trim());
+        }
+
+        if (isbn.trim() !== "") {
+            searchParameters.append("isbn", isbn.trim());
+        }
+
+        if (author.trim() !== "") {
+            searchParameters.append("author", author.trim());
+        }
+
+        if (genre !== "") {
+            searchParameters.append("genreId", genre);
+        }
+
+        searchParameters.append("availableOnly", availableOnly);
+
+        try {
+            const response = await fetch(
+                `/api/catalogue/search?${searchParameters.toString()}`
+            );
+
+            if (!response.ok) {
+                throw new Error("Catalogue search failed.");
+            }
+
+            const data = await response.json();
+            setResults(data);
+        }
+        catch (error) {
+            console.error("Error searching catalogue:", error);
+            setResults([]);
+        }
     }
 
     return (

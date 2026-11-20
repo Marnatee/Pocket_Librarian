@@ -20,5 +20,16 @@ namespace Pocket_Librarian.BLL.Services
         {
             return _repository.GetGenres();
         }
+
+        // Searches the catalogue using the provided criteria.
+        // Search text is trimmed before being passed to the data-access layer.
+        public List<CatalogueBook> SearchBooks(CatalogueSearchCriteria criteria)
+        {
+            criteria.Title = criteria.Title.Trim();
+            criteria.ISBN = criteria.ISBN.Trim();
+            criteria.Author = criteria.Author.Trim();
+
+            return _repository.SearchBooks(criteria);
+        }
     }
 }
