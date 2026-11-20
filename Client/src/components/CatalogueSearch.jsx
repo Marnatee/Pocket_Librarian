@@ -15,21 +15,46 @@ function CatalogueSearch() {
     // Stores the books returned by the catalogue search.
     const [results, setResults] = useState([]);
 
+    // Tracks whether the user has performed a search so an empty result
+    // can be distinguished from the initial page state.
+    const [hasSearched, setHasSearched] = useState(false);
+
+    // Stores an error message if the catalogue search cannot be completed.
+    const [searchError, setSearchError] = useState("");
+
     // Loads the available catalogue genres when the component first appears.
+    // Retries temporary failures so a delayed backend startup does not leave
+    // the genre dropdown empty for the rest of the page session.
     useEffect(() => {
         async function loadGenres() {
-            try {
-                const response = await fetch("/api/catalogue/genres");
+            const maxAttempts = 10;
+            const retryDelay = 500;
 
-                if (!response.ok) {
-                    throw new Error("Failed to load catalogue genres.");
+            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                try {
+                    const response = await fetch("/api/catalogue/genres");
+
+                    if (!response.ok) {
+                        throw new Error("Failed to load catalogue genres.");
+                    }
+
+                    const data = await response.json();
+                    setGenres(data);
+                    return;
                 }
+                catch (error) {
+                    if (attempt === maxAttempts) {
+                        console.error(
+                            "Error loading catalogue genres after multiple attempts:",
+                            error
+                        );
+                        return;
+                    }
 
-                const data = await response.json();
-                setGenres(data);
-            }
-            catch (error) {
-                console.error("Error loading catalogue genres:", error);
+                    await new Promise((resolve) =>
+                        setTimeout(resolve, retryDelay)
+                    );
+                }
             }
         }
 
@@ -40,6 +65,7 @@ function CatalogueSearch() {
     // the matching books returned by the search endpoint.
     async function handleSearch(event) {
         event.preventDefault();
+        setSearchError("");
 
         const searchParameters = new URLSearchParams();
 
@@ -72,10 +98,13 @@ function CatalogueSearch() {
 
             const data = await response.json();
             setResults(data);
+            setHasSearched(true);
         }
         catch (error) {
             console.error("Error searching catalogue:", error);
             setResults([]);
+            setHasSearched(true);
+            setSearchError("The catalogue search could not be completed.");
         }
     }
 
@@ -147,6 +176,51 @@ function CatalogueSearch() {
                     Search
                 </button>
             </form>
+            {/* Displays the outcome of the most recent catalogue search. */}
+            {hasSearched && (
+                <div className="catalogue-results">
+                    <h3>Search Results</h3>
+
+                    {searchError !== "" ? (
+                        <p className="catalogue-search-error">
+                            {searchError}
+                        </p>
+                    ) : results.length === 0 ? (
+                        <p>No books matched your search.</p>
+                    ) : (
+                        results.map((book) => (
+                            <article
+                                className="catalogue-result"
+                                key={book.bookId}
+                            >
+                                <h4>{book.title}</h4>
+
+                                <p>
+                                    <strong>Author:</strong>{" "}
+                                    {book.authors.join(", ")}
+                                </p>
+
+                                <p>
+                                    <strong>ISBN:</strong>{" "}
+                                    {book.isbn || "Not available"}
+                                </p>
+
+                                <p>
+                                    <strong>Genre:</strong>{" "}
+                                    {book.genres.join(", ")}
+                                </p>
+
+                                <p>{book.description}</p>
+
+                                <p>
+                                    <strong>Availability:</strong>{" "}
+                                    {book.copiesAvailable} of {book.totalCopies} copies are available.
+                                </p>
+                            </article>
+                        ))
+                    )}
+                </div>
+            )}
         </section>
     );
 }
