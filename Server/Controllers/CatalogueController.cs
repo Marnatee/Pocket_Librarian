@@ -46,6 +46,10 @@ namespace Pocket_Librarian.Server.Controllers
                 List<CatalogueBook> books = _service.SearchBooks(criteria);
                 return Ok(books);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
             catch (SqlException)
             {
                 return StatusCode(

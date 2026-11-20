@@ -117,3 +117,10 @@
     color: #b42318;
     font-weight: 600;
 }
+
+/* Error shown when the catalogue genre list cannot be loaded. */
+.catalogue-genre-error {
+    color: #b42318;
+    font-size: 0.85rem;
+    font-weight: 600;
+}

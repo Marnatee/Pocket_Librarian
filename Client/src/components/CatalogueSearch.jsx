@@ -22,6 +22,9 @@ function CatalogueSearch() {
     // Stores an error message if the catalogue search cannot be completed.
     const [searchError, setSearchError] = useState("");
 
+    // Stores an error message if the catalogue genre list cannot be loaded.
+    const [genreError, setGenreError] = useState("");
+
     // Loads the available catalogue genres when the component first appears.
     // Retries temporary failures so a delayed backend startup does not leave
     // the genre dropdown empty for the rest of the page session.
@@ -40,6 +43,7 @@ function CatalogueSearch() {
 
                     const data = await response.json();
                     setGenres(data);
+                    setGenreError("");
                     return;
                 }
                 catch (error) {
@@ -48,6 +52,8 @@ function CatalogueSearch() {
                             "Error loading catalogue genres after multiple attempts:",
                             error
                         );
+
+                        setGenreError("Genres could not be loaded.");
                         return;
                     }
 
@@ -93,7 +99,20 @@ function CatalogueSearch() {
             );
 
             if (!response.ok) {
-                throw new Error("Catalogue search failed.");
+                let errorMessage = "Catalogue search failed.";
+
+                try {
+                    const errorData = await response.json();
+
+                    if (errorData.message) {
+                        errorMessage = errorData.message;
+                    }
+                }
+                catch {
+                    // Keep the generic message if the server did not return JSON.
+                }
+
+                throw new Error(errorMessage);
             }
 
             const data = await response.json();
@@ -104,7 +123,9 @@ function CatalogueSearch() {
             console.error("Error searching catalogue:", error);
             setResults([]);
             setHasSearched(true);
-            setSearchError("The catalogue search could not be completed.");
+            setSearchError(
+                error.message || "The catalogue search could not be completed."
+            );
         }
     }
 
@@ -119,6 +140,7 @@ function CatalogueSearch() {
                         <input
                             type="text"
                             value={title}
+                            maxLength={255}
                             onChange={(event) => setTitle(event.target.value)}
                         />
                     </label>
@@ -128,6 +150,7 @@ function CatalogueSearch() {
                         <input
                             type="text"
                             value={isbn}
+                            maxLength={13}
                             onChange={(event) => setIsbn(event.target.value)}
                         />
                     </label>
@@ -137,6 +160,7 @@ function CatalogueSearch() {
                         <input
                             type="text"
                             value={author}
+                            maxLength={101}
                             onChange={(event) => setAuthor(event.target.value)}
                         />
                     </label>
@@ -146,8 +170,11 @@ function CatalogueSearch() {
                         <select
                             value={genre}
                             onChange={(event) => setGenre(event.target.value)}
+                            disabled={genreError !== ""}
                         >
-                            <option value="">All Genres</option>
+                            <option value="">
+                                {genreError !== "" ? "Unable to load genres" : "All Genres"}
+                            </option>
 
                             {genres.map((catalogueGenre) => (
                                 <option
@@ -158,6 +185,12 @@ function CatalogueSearch() {
                                 </option>
                             ))}
                         </select>
+
+                        {genreError !== "" && (
+                            <span className="catalogue-genre-error">
+                                {genreError}
+                            </span>
+                        )}
                     </label>
                 </div>
 
