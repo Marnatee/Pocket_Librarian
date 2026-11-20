@@ -355,9 +355,18 @@ function App() {
     function renderCurrentPage() {
         switch (currentPage) {
             case "member":
-                return currentUser ? <MemberPage currentUser={currentUser} /> : <HomePage />;
+                return currentUser ? (
+                    <MemberPage
+                        currentUser={currentUser}
+                        onProfileUpdated={(profile) => {
+                            setCurrentUser((user) => ({ ...user, ...profile }));
+                        }}
+                    />
+                ) : <HomePage />;
             case "staff":
-                return currentUser?.role === "Staff" ? <StaffPage /> : <HomePage />;
+                return currentUser?.role === "Staff"
+                    ? <StaffPage currentUser={currentUser} />
+                    : <HomePage />;
             case "home":
             default:
                 return <HomePage />;

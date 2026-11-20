@@ -1,16 +1,11 @@
 // Presentation layer / UI
-// Member page feature placeholders.
+// Member page and authenticated member features.
 
-import FeaturePlaceholder from "../components/FeaturePlaceholder";
+import MemberNotifications from "../components/MemberNotifications";
+import MemberProfileManagement from "../components/MemberProfileManagement";
 import ReservationManager from "../components/ReservationManager";
 
-const memberFeatures = [
-    "Member notifications",
-    "Reservation Queue",
-    "Member Profile Management",
-];
-
-function MemberPage({ currentUser }) {
+function MemberPage({ currentUser, onProfileUpdated }) {
     const currentUserId = Number(currentUser?.userId);
 
     return (
@@ -18,14 +13,13 @@ function MemberPage({ currentUser }) {
             <div className="page-introduction">
                 <p className="page-eyebrow">Member workspace</p>
                 <h1 id="member-page-heading">Member Page</h1>
-                <p>Member tools will be connected to the login flow as features are completed.</p>
+                <p>Manage your profile, review notifications, and manage your reservations.</p>
             </div>
 
             <ReservationManager userId={currentUserId} />
-            <div className="feature-grid">
-                {memberFeatures.map((feature) => (
-                    <FeaturePlaceholder key={feature} title={feature} />
-                ))}
+            <div className="member-tools-grid">
+                <MemberProfileManagement onProfileUpdated={onProfileUpdated} />
+                <MemberNotifications />
             </div>
         </section>
     );
