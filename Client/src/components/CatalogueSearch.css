@@ -1,0 +1,126 @@
+/* Catalogue search form layout */
+.catalogue-search form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.catalogue-search-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+    /* Search field labels and controls */
+    .catalogue-search-fields label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        color: #244b62;
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    .catalogue-search-fields input,
+    .catalogue-search-fields select {
+        width: 100%;
+        padding: 10px 11px;
+        border: 1px solid #aebfc9;
+        border-radius: 7px;
+        background: #ffffff;
+        color: #20313d;
+        font: inherit;
+    }
+
+        /* Highlight the active search field using the site's accent color. */
+        .catalogue-search-fields input:focus,
+        .catalogue-search-fields select:focus {
+            outline: 3px solid rgba(246, 185, 87, 0.35);
+            border-color: #8f5e2e;
+        }
+
+/* Availability filter */
+.catalogue-availability-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #5c6d77;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+    .catalogue-availability-filter input {
+        width: 16px;
+        height: 16px;
+    }
+
+/* Catalogue search action */
+.catalogue-search-button {
+    align-self: flex-start;
+    padding: 10px 18px;
+    border: 1px solid #244b62;
+    border-radius: 7px;
+    background: #244b62;
+    color: #ffffff;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+}
+
+    .catalogue-search-button:hover {
+        background: #17384d;
+    }
+
+/* Stack the search fields on smaller screens. */
+@media (max-width: 680px) {
+    .catalogue-search-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .catalogue-search-button {
+        width: 100%;
+    }
+}
+
+/* Catalogue search results */
+.catalogue-results {
+    margin-top: 24px;
+}
+
+    .catalogue-results h3 {
+        margin-bottom: 16px;
+        color: #244b62;
+    }
+
+.catalogue-result {
+    padding: 18px;
+    margin-bottom: 16px;
+    border: 1px solid #d4dee4;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+    .catalogue-result h4 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        color: #244b62;
+        font-size: 1.15rem;
+    }
+
+    .catalogue-result p {
+        margin: 8px 0;
+        line-height: 1.4;
+    }
+
+/* Error message shown when a catalogue search request fails. */
+.catalogue-search-error {
+    color: #b42318;
+    font-weight: 600;
+}
+
+/* Error shown when the catalogue genre list cannot be loaded. */
+.catalogue-genre-error {
+    color: #b42318;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
