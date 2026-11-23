@@ -15,7 +15,11 @@ The queue endpoints require the authenticated user to have the `Staff` role.
 The API obtains the staff ID from the authentication cookie; clients must not
 send an arbitrary staff ID.
 
-Run `Database/ReturnsQueue.sql` after the core database tables exist. The
+Run `Database/FulfillmentQueue.sql` and `Database/ReturnsQueue.sql` after the
+core database tables exist. The fulfillment script adds the reservation status
+used to prevent a member from returning a book before staff has fulfilled it.
+The returns script creates the return-task, action-history, and support-ticket
+tables. The
 current implementation uses the project’s aggregate `Books` inventory fields
 (`TotalCopies` and `CopiesAvailable`). If the database is later changed to
 track individual `BookCopies`, the queue should be changed to store `CopyID`

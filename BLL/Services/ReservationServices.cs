@@ -33,6 +33,9 @@ namespace Pocket_Librarian.BLL.Services
                 DateReturned = null
             };
 
+            // ReservationRepository creates the reservation and its fulfillment
+            // task in the same SQL transaction. A reservation cannot silently
+            // exist without a staff task.
             return await _repository.CreateReservationAsync(reservation);
         }
 
@@ -61,7 +64,9 @@ namespace Pocket_Librarian.BLL.Services
                 throw new ArgumentException("UserId must be greater than 0", nameof(userId));
 
             var allReservations = await _repository.GetReservationsByUserIdAsync(userId);
-            return allReservations.Where(r => r.DateReturned == null).ToList();
+            return allReservations
+                .Where(r => r.DateReturned == null && r.ReservationStatus == "Fulfilled")
+                .ToList();
         }
 
         
