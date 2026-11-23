@@ -29,6 +29,9 @@ builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<IReturnsQueueRepository, ReturnsQueueRepository>();
 builder.Services.AddScoped<ReturnsQueueService>();
 
+builder.Services.AddScoped<IFulfillmentQueueRepository, FulfillmentQueueRepository>();
+builder.Services.AddScoped<FulfillmentQueueService>();
+
 // Registers the catalogue repository implementation and business service.
 builder.Services.AddSingleton<ICatalogueRepository, CatalogueRepository>();
 builder.Services.AddScoped<CatalogueService>();

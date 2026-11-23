@@ -4,9 +4,9 @@
 import { useState } from "react";
 import FeaturePlaceholder from "../components/FeaturePlaceholder";
 import ReturnsQueueManager from "../components/ReturnsQueueManager";
+import FulfillmentQueueManager from "../components/FulfillmentQueueManager";
 
 const otherStaffFeatures = [
-    "Fulfillment queue",
     "Catalogue administration",
     "Book donation requests",
 ];
@@ -33,6 +33,17 @@ function StaffPage({ currentUser }) {
                     </button>
                     <ReturnsQueueManager currentUser={currentUser} />
                 </div>
+            ) : activeFeature === "Fulfillment queue" ? (
+                <div className="feature-view">
+                    <button
+                        className="btn-back-to-features"
+                        type="button"
+                        onClick={() => setActiveFeature(null)}
+                    >
+                        ← Back to Features
+                    </button>
+                    <FulfillmentQueueManager currentUser={currentUser} />
+                </div>
             ) : (
                 <div className="feature-grid">
                     <button
@@ -42,6 +53,14 @@ function StaffPage({ currentUser }) {
                     >
                         <h3>Returns queue</h3>
                         <p>Process returned books and assign new tasks</p>
+                    </button>
+                    <button
+                        className="feature-placeholder-clickable"
+                        type="button"
+                        onClick={() => setActiveFeature("Fulfillment queue")}
+                    >
+                        <h3>Fulfillment queue</h3>
+                        <p>Locate reserved books and prepare for member pickup</p>
                     </button>
                     {otherStaffFeatures.map((feature) => (
                         <FeaturePlaceholder key={feature} title={feature} />

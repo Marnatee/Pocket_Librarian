@@ -10,10 +10,20 @@ namespace Pocket_Librarian.BLL.Services
     public class ReservationService
     {
         private readonly IReservationRepository _repository;
+        private readonly IMemberProfileRepository _memberProfileRepository;
+        private readonly ICatalogueRepository _catalogueRepository;
+        private readonly FulfillmentQueueService? _fulfillmentQueueService;
 
-        public ReservationService(IReservationRepository repository)
+        public ReservationService(
+            IReservationRepository repository,
+            IMemberProfileRepository memberProfileRepository,
+            ICatalogueRepository catalogueRepository,
+            FulfillmentQueueService? fulfillmentQueueService = null)
         {
             _repository = repository;
+            _memberProfileRepository = memberProfileRepository;
+            _catalogueRepository = catalogueRepository;
+            _fulfillmentQueueService = fulfillmentQueueService;
         }
 
         //Creates a new reservation for a user checking out a book
@@ -33,7 +43,40 @@ namespace Pocket_Librarian.BLL.Services
                 DateReturned = null
             };
 
-            return await _repository.CreateReservationAsync(reservation);
+            int reservationId = await _repository.CreateReservationAsync(reservation);
+
+            // Create a fulfillment task if the service is available
+            if (_fulfillmentQueueService != null)
+            {
+                try
+                {
+                    // Get member profile to construct member name
+                    var memberProfile = await _memberProfileRepository.GetByUserIdAsync(userId);
+                    if (memberProfile != null)
+                    {
+                        string memberName = $"{memberProfile.FirstName} {memberProfile.LastName}".Trim();
+
+                        // Get reservation with book title for fulfillment task
+                        var reservationWithDetails = await _repository.GetReservationByIdAsync(reservationId);
+                        if (reservationWithDetails?.BookTitle != null)
+                        {
+                            await _fulfillmentQueueService.CreateFulfillmentTaskAsync(
+                                reservationId,
+                                userId,
+                                bookId,
+                                reservationWithDetails.BookTitle,
+                                memberName);
+                        }
+                    }
+                }
+                catch
+                {
+                    // If fulfillment task creation fails, don't fail the entire reservation
+                    // Log this if logging is configured, but allow the reservation to succeed
+                }
+            }
+
+            return reservationId;
         }
 
         
