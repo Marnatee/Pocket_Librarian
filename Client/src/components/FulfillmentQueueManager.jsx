@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import "./FulfillmentQueueManager.css";
 
-function FulfillmentQueueManager({ currentUser }) {
+function FulfillmentQueueManager() {
     const [tasks, setTasks] = useState([]);
     const [currentTask, setCurrentTask] = useState(null);
     const [loading, setLoading] = useState(true);

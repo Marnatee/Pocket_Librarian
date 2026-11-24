@@ -4,6 +4,7 @@
 import MemberNotifications from "../components/MemberNotifications";
 import MemberProfileManagement from "../components/MemberProfileManagement";
 import ReservationManager from "../components/ReservationManager";
+import BookDonationForm from "../components/BookDonationForm";
 
 function MemberPage({ currentUser, onProfileUpdated }) {
     const currentUserId = Number(currentUser?.userId);
@@ -17,6 +18,7 @@ function MemberPage({ currentUser, onProfileUpdated }) {
             </div>
 
             <ReservationManager userId={currentUserId} />
+            <BookDonationForm />
             <div className="member-tools-grid">
                 <MemberProfileManagement onProfileUpdated={onProfileUpdated} />
                 <MemberNotifications />

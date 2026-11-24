@@ -19,12 +19,30 @@ This document records the database design shown in `Client/Documentation/Pocket_
 
 ## Relationships
 
+- One Users row can submit many BookDonations; each donation is initially
+  Pending Verification.
+- An approved donation either creates a new Books row or increases the
+  existing book's TotalCopies and CopiesAvailable values.
+
 - One `Users` row can have many `Reservations`; each reservation belongs to one user.
 - One `Users` row can have many `Notifications`; each notification belongs to one user.
 - One `Books` row can have many `Reservations`; each reservation belongs to one book.
 - `Books` and `Authors` have a many-to-many relationship through `BookAuthors`.
 - `Books` and `Genres` have a many-to-many relationship through `BookGenres`.
 - The primary keys in the junction tables are composite keys made from their two foreign-key columns.
+
+## Book donations
+
+Run Database/BookDonationFeature.sql after the core database exists. The
+script adds nullable catalogue metadata for approved donations and creates or
+upgrades the BookDonations table. The application does not modify the
+catalogue when a member submits a request. Staff approval performs the
+donation-to-catalogue change in one database transaction.
+
+The current project uses aggregate inventory counts rather than individual
+physical-copy rows. Approving a donation for an existing BookID increases
+both TotalCopies and CopiesAvailable by the donated amount. Individual
+barcode or shelf-level copy tracking is outside this feature.
 
 ## Application architecture notes
 

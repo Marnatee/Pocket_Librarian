@@ -36,6 +36,9 @@ builder.Services.AddScoped<FulfillmentQueueService>();
 builder.Services.AddSingleton<ICatalogueRepository, CatalogueRepository>();
 builder.Services.AddScoped<CatalogueService>();
 
+builder.Services.AddScoped<IBookDonationRepository, BookDonationRepository>();
+builder.Services.AddScoped<BookDonationService>();
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
