@@ -11,6 +11,7 @@ namespace Pocket_Librarian.DAL.Repositories
     {
         private const string ReservationSelectSql = @"
             SELECT r.ReservationID, r.UserID, r.BookID, r.DateReserved, r.DateReturned,
+                   r.ReservationStatus,
                    CONCAT(u.FirstName, ' ', u.LastName) AS UserName,
                    u.Email AS UserEmail,
                    b.Title AS BookTitle
@@ -68,7 +69,7 @@ namespace Pocket_Librarian.DAL.Repositories
                         if (duplicateCount > 0)
                         {
                             throw new InvalidOperationException(
-                                "This user already has this book checked out.");
+                                "This user already has an active reservation for this book.");
                         }
                     }
 
@@ -116,8 +117,10 @@ namespace Pocket_Librarian.DAL.Repositories
                     }
 
                     string query = @"
-                        INSERT INTO dbo.Reservations (UserID, BookID, DateReserved, DateReturned)
-                        VALUES (@UserId, @BookId, @DateReserved, @DateReturned);
+                        INSERT INTO dbo.Reservations
+                            (UserID, BookID, DateReserved, DateReturned, ReservationStatus)
+                        VALUES
+                            (@UserId, @BookId, @DateReserved, @DateReturned, 'Pending');
                         SELECT CAST(SCOPE_IDENTITY() AS int);";
 
                     using (SqlCommand command = new SqlCommand(query, connection, transaction))
@@ -127,9 +130,58 @@ namespace Pocket_Librarian.DAL.Repositories
                         command.Parameters.AddWithValue("@DateReserved", reservation.DateReserved);
                         command.Parameters.AddWithValue("@DateReturned", reservation.DateReturned ?? (object)DBNull.Value);
 
-                        var result = await command.ExecuteScalarAsync();
+                        int reservationId = Convert.ToInt32(await command.ExecuteScalarAsync());
+
+                        const string detailsQuery = @"
+                            SELECT b.Title, CONCAT(u.FirstName, ' ', u.LastName)
+                            FROM dbo.Reservations AS r
+                            INNER JOIN dbo.Books AS b ON b.BookID = r.BookID
+                            INNER JOIN dbo.Users AS u ON u.UserID = r.UserID
+                            WHERE r.ReservationID = @ReservationId";
+
+                        string bookTitle;
+                        string memberName;
+                        using (SqlCommand detailsCommand = new SqlCommand(
+                            detailsQuery, connection, transaction))
+                        {
+                            detailsCommand.Parameters.AddWithValue("@ReservationId", reservationId);
+                            using SqlDataReader reader = await detailsCommand.ExecuteReaderAsync();
+                            if (!await reader.ReadAsync())
+                            {
+                                throw new InvalidOperationException(
+                                    "The reservation was created, but its fulfillment details could not be found.");
+                            }
+
+                            bookTitle = reader.GetString(0);
+                            memberName = reader.GetString(1);
+                        }
+
+                        const string fulfillmentTaskQuery = @"
+                            INSERT INTO dbo.FulfillmentTasks
+                                (ReservationID, UserID, BookID, AssignedStaffID, BookTitle,
+                                 MemberName, Status, DateCreated, DateAssigned, DateFulfilled)
+                            VALUES
+                                (@ReservationId, @UserId, @BookId, NULL, @BookTitle,
+                                 @MemberName, 'Pending', GETUTCDATE(), NULL, NULL);";
+
+                        using (SqlCommand fulfillmentTaskCommand = new SqlCommand(
+                            fulfillmentTaskQuery, connection, transaction))
+                        {
+                            fulfillmentTaskCommand.Parameters.AddWithValue("@ReservationId", reservationId);
+                            fulfillmentTaskCommand.Parameters.AddWithValue("@UserId", reservation.UserId);
+                            fulfillmentTaskCommand.Parameters.AddWithValue("@BookId", reservation.BookId);
+                            fulfillmentTaskCommand.Parameters.AddWithValue("@BookTitle", bookTitle);
+                            fulfillmentTaskCommand.Parameters.AddWithValue("@MemberName", memberName);
+
+                            if (await fulfillmentTaskCommand.ExecuteNonQueryAsync() != 1)
+                            {
+                                throw new InvalidOperationException(
+                                    "The reservation could not be added to the fulfillment queue.");
+                            }
+                        }
+
                         transaction.Commit();
-                        return result != null ? Convert.ToInt32(result) : 0;
+                        return reservationId;
                     }
                 }
             }
@@ -264,6 +316,7 @@ namespace Pocket_Librarian.DAL.Repositories
 
                     string query = ReservationSelectSql + @"
                         WHERE r.DateReturned IS NULL
+                          AND r.ReservationStatus = 'Fulfilled'
                         ORDER BY r.DateReserved ASC";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -297,7 +350,8 @@ namespace Pocket_Librarian.DAL.Repositories
 
                     string query = @"
                         UPDATE Reservations
-                        SET UserId = @UserId, BookId = @BookId, DateReserved = @DateReserved, DateReturned = @DateReturned
+                        SET UserId = @UserId, BookId = @BookId, DateReserved = @DateReserved,
+                            DateReturned = @DateReturned, ReservationStatus = @ReservationStatus
                         WHERE ReservationId = @ReservationId";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -307,6 +361,7 @@ namespace Pocket_Librarian.DAL.Repositories
                         command.Parameters.AddWithValue("@BookId", reservation.BookId);
                         command.Parameters.AddWithValue("@DateReserved", reservation.DateReserved);
                         command.Parameters.AddWithValue("@DateReturned", reservation.DateReturned ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@ReservationStatus", reservation.ReservationStatus);
 
                         int rowsAffected = await command.ExecuteNonQueryAsync();
                         return rowsAffected > 0;
@@ -329,7 +384,7 @@ namespace Pocket_Librarian.DAL.Repositories
                 using SqlTransaction transaction = connection.BeginTransaction();
 
                 const string findBookQuery = @"
-                    SELECT r.BookID, b.Title
+                    SELECT r.BookID, b.Title, r.ReservationStatus
                     FROM dbo.Reservations AS r WITH (UPDLOCK, ROWLOCK)
                     INNER JOIN dbo.Books AS b ON b.BookID = r.BookID
                     WHERE r.ReservationID = @ReservationID
@@ -349,11 +404,18 @@ namespace Pocket_Librarian.DAL.Repositories
 
                     bookId = reader.GetInt32(0);
                     bookTitle = reader.GetString(1);
+                    string reservationStatus = reader.GetString(2);
+                    if (!string.Equals(reservationStatus, "Fulfilled", StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new InvalidOperationException(
+                            "This reservation cannot be returned until staff fulfills it.");
+                    }
                 }
 
                 const string returnQuery = @"
                     UPDATE dbo.Reservations
-                    SET DateReturned = @DateReturned
+                    SET DateReturned = @DateReturned,
+                        ReservationStatus = 'Returned'
                     WHERE ReservationID = @ReservationID
                       AND DateReturned IS NULL";
 
@@ -470,6 +532,20 @@ namespace Pocket_Librarian.DAL.Repositories
                     isActive = reader.IsDBNull(1);
                 }
 
+                // FulfillmentTasks references this reservation. A reservation
+                // deletion is therefore also a cancellation of its fulfillment
+                // history, and must remove the dependent task first.
+                const string deleteFulfillmentTaskQuery = @"
+                    DELETE FROM dbo.FulfillmentTasks
+                    WHERE ReservationID = @ReservationID";
+
+                using (SqlCommand deleteFulfillmentTaskCommand = new SqlCommand(
+                    deleteFulfillmentTaskQuery, connection, transaction))
+                {
+                    deleteFulfillmentTaskCommand.Parameters.AddWithValue("@ReservationID", reservationId);
+                    await deleteFulfillmentTaskCommand.ExecuteNonQueryAsync();
+                }
+
                 const string deleteQuery = @"
                     DELETE FROM dbo.Reservations
                     WHERE ReservationID = @ReservationID";
@@ -529,9 +605,10 @@ namespace Pocket_Librarian.DAL.Repositories
                 BookId = reader.GetInt32(2),
                 DateReserved = reader.GetDateTime(3),
                 DateReturned = reader.IsDBNull(4) ? null : reader.GetDateTime(4),
-                UserName = reader.IsDBNull(5) ? null : reader.GetString(5),
-                UserEmail = reader.IsDBNull(6) ? null : reader.GetString(6),
-                BookTitle = reader.IsDBNull(7) ? null : reader.GetString(7)
+                ReservationStatus = reader.GetString(5),
+                UserName = reader.IsDBNull(6) ? null : reader.GetString(6),
+                UserEmail = reader.IsDBNull(7) ? null : reader.GetString(7),
+                BookTitle = reader.IsDBNull(8) ? null : reader.GetString(8)
             };
         }
     }

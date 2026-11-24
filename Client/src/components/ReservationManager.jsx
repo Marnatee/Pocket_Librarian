@@ -1,6 +1,6 @@
 // Reservation Manager Component
 // Displays user's current and past reservations
-// Allows users to checkout and return books
+// Allows users to reserve and return books
 
 import { useCallback, useEffect, useState } from "react";
 import "./ReservationManager.css";
@@ -58,7 +58,7 @@ function ReservationManager({ userId }) {
         }
     }, [userId]);
 
-    // Create a new reservation (checkout book)
+    // Create a new reservation request for staff fulfillment.
     const handleCheckoutBook = async (e) => {
         e.preventDefault();
         if (!bookIdInput || bookIdInput <= 0) {
@@ -93,7 +93,7 @@ function ReservationManager({ userId }) {
 
             const data = await response.json();
             setSuccess(
-                `Book checked out successfully! Reservation ID: ${data.reservationId}`
+                `Reservation submitted successfully. Staff will prepare the book for pickup. Reservation ID: ${data.reservationId}`
             );
             setBookIdInput("");
             setShowCheckoutForm(false);
@@ -109,7 +109,7 @@ function ReservationManager({ userId }) {
         }
     };
 
-    // Return a book
+    // Return a fulfilled book.
     const handleReturnBook = async (reservationId) => {
         setLoading(true);
         setError(null);
@@ -157,6 +157,9 @@ function ReservationManager({ userId }) {
     }, [fetchActiveReservations, fetchAllReservations]);
 
     const pastReservations = reservations.filter((r) => r.dateReturned !== null);
+    const pendingReservations = reservations.filter(
+        (r) => r.dateReturned === null && r.reservationStatus === "Pending"
+    );
 
     return (
         <div className="reservation-manager">
@@ -177,6 +180,37 @@ function ReservationManager({ userId }) {
                 </div>
             )}
 
+            {pendingReservations.length > 0 && (
+                <div className="reservations-section">
+                    <h3>Awaiting Staff Fulfillment ({pendingReservations.length})</h3>
+                    <div className="reservations-list">
+                        {pendingReservations.map((reservation) => (
+                            <div
+                                key={reservation.reservationId}
+                                className="reservation-card"
+                            >
+                                <div className="reservation-info">
+                                    <div className="info-row">
+                                        <span className="label">Book:</span>
+                                        <span className="value">
+                                            {reservation.bookTitle || `Book ${reservation.bookId}`}
+                                        </span>
+                                    </div>
+                                    <div className="info-row">
+                                        <span className="label">Reservation ID:</span>
+                                        <span className="value">{reservation.reservationId}</span>
+                                    </div>
+                                    <div className="info-row">
+                                        <span className="label">Status:</span>
+                                        <span className="value">Waiting for staff to prepare the book</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Checkout Book Section */}
             <div className="checkout-section">
                 {!showCheckoutForm ? (
@@ -185,7 +219,7 @@ function ReservationManager({ userId }) {
                         className="btn btn-primary"
                         disabled={loading}
                     >
-                        Checkout Book
+                        Reserve Book
                     </button>
                 ) : (
                     <form

@@ -1,0 +1,284 @@
+/* Fulfillment Queue Manager Styles */
+
+.fulfillment-queue-container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 0 2rem;
+  background: transparent;
+  min-height: auto;
+  font-family: inherit;
+}
+
+.queue-section {
+  text-align: left;
+}
+
+.queue-section h2 {
+  font-size: 2rem;
+  color: #17384d;
+  margin: 0 0 1.5rem 0;
+}
+
+.queue-section h3 {
+  font-size: 1.3rem;
+  color: #2c5aa0;
+  margin: 1.5rem 0 1rem 0;
+}
+
+.alert {
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.alert-error {
+  background-color: #fee;
+  color: #c33;
+  border-left: 4px solid #c33;
+}
+
+.alert-success {
+  background-color: #efe;
+  color: #363;
+  border-left: 4px solid #363;
+}
+
+.queue-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #1890ff;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #0050b3;
+}
+
+.btn-success {
+  background-color: #52c41a;
+  color: white;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.btn-success:hover:not(:disabled) {
+  background-color: #45a013;
+}
+
+.task-list-section {
+  margin-bottom: 2rem;
+}
+
+.empty-message {
+  color: #999;
+  font-style: italic;
+  padding: 2rem;
+  text-align: center;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.task-item {
+  background: white;
+  border: 2px solid #d5e0e6;
+  border-radius: 6px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.task-item:hover {
+  border-color: #1890ff;
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.15);
+}
+
+.task-item.active {
+  border-color: #1890ff;
+  background-color: #f0f7ff;
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.25);
+}
+
+.task-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.task-book-title {
+  font-weight: bold;
+  color: #2c5aa0;
+  font-size: 1.1rem;
+  flex: 1;
+}
+
+.task-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-left: 1rem;
+}
+
+.status-pending {
+  background-color: #fff7e6;
+  color: #d46b08;
+}
+
+.status-inprogress {
+  background-color: #e6f7ff;
+  color: #1890ff;
+}
+
+.status-completed {
+  background-color: #f6ffed;
+  color: #52c41a;
+}
+
+.task-item-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  color: #666;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.task-member-name {
+  flex: 1;
+}
+
+.task-date {
+  white-space: nowrap;
+}
+
+.task-detail-section {
+  background: white;
+  border: 1px solid #d5e0e6;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(30, 66, 87, 0.09);
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.task-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid #eee;
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail-row .label {
+  font-weight: bold;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.detail-row .value {
+  color: #666;
+  font-size: 1rem;
+  padding: 0.5rem;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.task-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.action-hint {
+  font-size: 0.9rem;
+  color: #999;
+  margin: 0;
+  padding: 0.5rem 0;
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .fulfillment-queue-container {
+    padding: 0 1rem 2rem 1rem;
+  }
+
+  .queue-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .queue-section h3 {
+    font-size: 1.1rem;
+  }
+
+  .task-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .task-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .task-status {
+    margin-left: 0;
+  }
+
+  .task-item-details {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .queue-controls {
+    flex-direction: column;
+  }
+}
