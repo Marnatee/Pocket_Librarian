@@ -11,19 +11,30 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddSingleton<PipelineRepository>();
 builder.Services.AddScoped<PipelineService>();
-builder.Services.AddScoped<MemberProfileRepository>(); // New Code
-builder.Services.AddScoped<ReservationRepository>(); // New Code
-builder.Services.AddScoped<UserPreferencesRepository>(); // New Code
-builder.Services.AddScoped<MessageRepository>();// New Code
-builder.Services.AddScoped<NotificationRepository>(); // New Code
+builder.Services.AddScoped<MemberProfileRepository>();
+builder.Services.AddScoped<ReservationRepository>();
+builder.Services.AddScoped<UserPreferencesRepository>();
+builder.Services.AddScoped<MessageRepository>();
+builder.Services.AddScoped<NotificationRepository>();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-/////////////NEW CODE/////////////
+/////New Code/////
 
-// Creates database tables when the application starts
+// Creates the BookDonations table when the application starts.
+using (var scope = app.Services.CreateScope())
+{
+    var donationRepository =
+        scope.ServiceProvider
+            .GetRequiredService<DonationRepository>();
+
+    await donationRepository.EnsureDonationsTableAsync();
+}
+
+/////New Code/////
+
 using (var scope = app.Services.CreateScope())
 {
     // Creates the UserPreferences table
@@ -50,7 +61,6 @@ using (var scope = app.Services.CreateScope())
     await messageRepository
         .EnsureMessagesTableAsync();
 }
-/////////////NEW CODE/////////////
 
 app.UseDefaultFiles();
 app.MapStaticAssets();
@@ -59,14 +69,23 @@ app.MapStaticAssets();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+
+    /////New Code/////
+    
+    app.UseHttpsRedirection();
+
+    // Identifies the logged-in user.
+    app.UseAuthentication();
+
+    // Checks whether the user has permission.
+    app.UseAuthorization();
+
+    // Enables controller endpoints.
+    app.MapControllers();
+
+    /////New Code/////
+
+    app.MapFallbackToFile("/index.html");
+
+    app.Run();
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.MapFallbackToFile("/index.html");
-
-app.Run();

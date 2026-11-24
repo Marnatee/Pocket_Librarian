@@ -5,5 +5,18 @@ Accept: application/json
 
 ###
 
-GET {{Pocket_Librarian.Server_HostAddress}}/api/reservations/GregBooks
-Accept: application/json
+POST {{Pocket_Librarian.Server_HostAddress}}/api/donations
+Content-Type: application/json
+
+{
+  "title": "The Great Gatsby",
+  "author": "F. Scott Fitzgerald",
+  "isbn": "9780743273565",
+  "genre": "Classic",
+  "publicationYear": 1925,
+  "description": "A classic American novel.",
+  "bookCondition": "Good",
+  "numberOfCopies": 1,
+  "coverImageUrl": "",
+  "donationComments": "No writing or highlighting."
+}
