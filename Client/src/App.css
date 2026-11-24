@@ -708,6 +708,131 @@
     font: inherit;
 }
 
+.member-form textarea,
+.donation-review-controls textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 10px;
+    border: 1px solid #b7c9d4;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #20313d;
+    font: inherit;
+    resize: vertical;
+}
+
+.member-form input[type="file"] {
+    padding: 7px;
+}
+
+.donation-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.donation-field-wide {
+    grid-column: 1 / -1;
+}
+
+.donation-review-card,
+.donation-form-card {
+    margin-top: 20px;
+}
+
+.donation-review-list {
+    display: grid;
+    gap: 14px;
+}
+
+.donation-review-item {
+    padding: 16px;
+    border: 1px solid #d8e1e6;
+    border-radius: 10px;
+    background: #f8fbfc;
+}
+
+.donation-review-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.donation-review-heading h3 {
+    margin: 0;
+    color: #17384d;
+}
+
+.donation-status {
+    padding: 4px 7px;
+    border-radius: 999px;
+    background: #fff0c7;
+    color: #6d4a00;
+    font-size: 0.7rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.donation-review-item > p {
+    color: #5c6d77;
+    font-size: 0.84rem;
+    line-height: 1.45;
+}
+
+.donation-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 18px;
+    margin: 12px 0;
+}
+
+.donation-details div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid #e2e9ed;
+    padding-bottom: 5px;
+}
+
+.donation-details dt {
+    color: #5c6d77;
+    font-weight: 700;
+}
+
+.donation-details dd {
+    margin: 0;
+    text-align: right;
+}
+
+.donation-review-controls {
+    display: grid;
+    grid-template-columns: minmax(150px, 0.5fr) minmax(220px, 1fr);
+    gap: 12px;
+    align-items: end;
+}
+
+.donation-review-controls label {
+    display: grid;
+    gap: 5px;
+    color: #45606d;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.donation-review-controls input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 10px;
+    border: 1px solid #b7c9d4;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #20313d;
+    font: inherit;
+}
+
+.donation-review-controls .member-form-actions {
+    grid-column: 1 / -1;
+}
+
 .member-form input:focus {
     outline: 3px solid rgba(31, 111, 235, 0.2);
     border-color: #1f6feb;
@@ -909,7 +1034,9 @@ button:focus-visible {
 
     .status-card-list,
     .feature-grid,
-    .member-tools-grid {
+    .member-tools-grid,
+    .donation-form,
+    .donation-review-controls {
         grid-template-columns: 1fr;
     }
 
