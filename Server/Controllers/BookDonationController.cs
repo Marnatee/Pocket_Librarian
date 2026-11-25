@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Pocket_Librarian.BLL.Models;
 using Pocket_Librarian.BLL.Services;
+using Pocket_Librarian.Server.Services;
 
 namespace Pocket_Librarian.Server.Controllers;
 
@@ -20,10 +21,12 @@ public sealed class BookDonationController : ControllerBase
         };
 
     private readonly BookDonationService _service;
+    private readonly CoverImageStorage _imageStorage;
 
-    public BookDonationController(BookDonationService service)
+    public BookDonationController(BookDonationService service, CoverImageStorage imageStorage)
     {
         _service = service;
+        _imageStorage = imageStorage;
     }
 
     [Authorize(Roles = "Member")]
@@ -44,16 +47,10 @@ public sealed class BookDonationController : ControllerBase
             return BadRequest(new { message = "Cover images must be JPEG, PNG, or WebP files." });
         }
 
-        byte[]? imageBytes = null;
-        if (form.CoverImage is not null && form.CoverImage.Length > 0)
-        {
-            await using MemoryStream stream = new();
-            await form.CoverImage.CopyToAsync(stream);
-            imageBytes = stream.ToArray();
-        }
-
+        string? coverImagePath = null;
         try
         {
+            coverImagePath = await _imageStorage.SaveAsync(form.CoverImage);
             int donationId = await _service.SubmitAsync(new BookDonationSubmission
             {
                 UserId = userId.Value,
@@ -65,9 +62,10 @@ public sealed class BookDonationController : ControllerBase
                 Description = form.Description,
                 BookCondition = form.BookCondition,
                 NumberOfCopies = form.NumberOfCopies,
-                CoverImage = imageBytes,
                 CoverImageContentType = form.CoverImage?.ContentType,
                 CoverImageFileName = form.CoverImage?.FileName,
+                CoverImagePath = coverImagePath,
+                SourceType = "Member donation",
                 DonationComments = form.DonationComments
             });
 
@@ -82,13 +80,20 @@ public sealed class BookDonationController : ControllerBase
         }
         catch (ArgumentException exception)
         {
+            _imageStorage.Delete(coverImagePath);
             return BadRequest(new { message = exception.Message });
         }
         catch (SqlException)
         {
+            _imageStorage.Delete(coverImagePath);
             return StatusCode(
                 StatusCodes.Status503ServiceUnavailable,
                 new { message = "The donation service could not reach the database." });
+        }
+        catch
+        {
+            _imageStorage.Delete(coverImagePath);
+            throw;
         }
     }
 
@@ -125,7 +130,8 @@ public sealed class BookDonationController : ControllerBase
             bool approved = await _service.ApproveAsync(
                 donationId,
                 staffUserId.Value,
-                review ?? new BookDonationReview());
+                review?.ExistingBookId,
+                review?.ReviewNotes);
 
             return approved
                 ? Ok(new { message = "Donation approved and added to the catalogue." })
@@ -164,7 +170,7 @@ public sealed class BookDonationController : ControllerBase
             bool rejected = await _service.RejectAsync(
                 donationId,
                 staffUserId.Value,
-                review ?? new BookDonationReview());
+                review?.ReviewNotes);
 
             return rejected
                 ? Ok(new { message = "Donation rejected." })

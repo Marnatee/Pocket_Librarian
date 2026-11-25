@@ -2,10 +2,9 @@
 // Staff page feature navigation and staff-only tools.
 
 import { useState } from "react";
-import FeaturePlaceholder from "../components/FeaturePlaceholder";
 import ReturnsQueueManager from "../components/ReturnsQueueManager";
 import FulfillmentQueueManager from "../components/FulfillmentQueueManager";
-import DonationReviewManager from "../components/DonationReviewManager";
+import CatalogueAdministrationManager from "../components/CatalogueAdministrationManager";
 
 function StaffPage({ currentUser }) {
     const [activeFeature, setActiveFeature] = useState(null);
@@ -40,7 +39,7 @@ function StaffPage({ currentUser }) {
                     </button>
                     <FulfillmentQueueManager currentUser={currentUser} />
                 </div>
-            ) : activeFeature === "Book donation requests" ? (
+            ) : activeFeature === "Catalogue administration" ? (
                 <div className="feature-view">
                     <button
                         className="btn-back-to-features"
@@ -49,7 +48,7 @@ function StaffPage({ currentUser }) {
                     >
                         ← Back to Features
                     </button>
-                    <DonationReviewManager />
+                    <CatalogueAdministrationManager />
                 </div>
             ) : (
                 <div className="feature-grid">
@@ -72,12 +71,11 @@ function StaffPage({ currentUser }) {
                     <button
                         className="feature-placeholder-clickable"
                         type="button"
-                        onClick={() => setActiveFeature("Book donation requests")}
+                        onClick={() => setActiveFeature("Catalogue administration")}
                     >
-                        <h3>Book donation requests</h3>
-                        <p>Verify member donations and add approved copies to the catalogue</p>
+                        <h3>Catalogue administration</h3>
+                        <p>Manage catalogue records, donations, and physical copies</p>
                     </button>
-                    <FeaturePlaceholder title="Catalogue administration" />
                 </div>
             )}
         </section>

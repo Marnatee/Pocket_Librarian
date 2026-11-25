@@ -62,7 +62,10 @@ namespace Pocket_Librarian.DAL.Repositories
                     b.Title,
                     b.Description,
                     b.TotalCopies,
-                    b.CopiesAvailable
+                    b.CopiesAvailable,
+                    b.PublicationYear,
+                    b.CoverImagePath,
+                    b.SourceType
                 FROM dbo.Books b
                 WHERE
                     (@Title = '' OR b.Title LIKE '%' + @Title + '%')
@@ -138,6 +141,16 @@ namespace Pocket_Librarian.DAL.Repositories
 
                         CopiesAvailable =
                             reader.GetInt32(reader.GetOrdinal("CopiesAvailable"))
+                        ,
+                        PublicationYear = reader.IsDBNull(reader.GetOrdinal("PublicationYear"))
+                            ? null
+                            : reader.GetInt32(reader.GetOrdinal("PublicationYear")),
+                        CoverImagePath = reader.IsDBNull(reader.GetOrdinal("CoverImagePath"))
+                            ? null
+                            : reader.GetString(reader.GetOrdinal("CoverImagePath")),
+                        SourceType = reader.IsDBNull(reader.GetOrdinal("SourceType"))
+                            ? "Library acquisition"
+                            : reader.GetString(reader.GetOrdinal("SourceType"))
                     });
                 }
             }
@@ -208,6 +221,283 @@ namespace Pocket_Librarian.DAL.Repositories
             }
 
             return genres;
+        }
+
+        public async Task<List<CatalogueBook>> GetAllBooksAsync()
+        {
+            const string sql = """
+                SELECT BookID, ISBN, Title, Description, TotalCopies, CopiesAvailable,
+                       PublicationYear, CoverImagePath, SourceType
+                FROM dbo.Books
+                ORDER BY Title, BookID;
+                """;
+            await using SqlConnection connection = new(_connectionString);
+            await connection.OpenAsync();
+            await using SqlCommand command = new(sql, connection);
+            await using SqlDataReader reader = await command.ExecuteReaderAsync();
+            List<CatalogueBook> books = new();
+            while (await reader.ReadAsync()) books.Add(ReadBook(reader));
+            await reader.CloseAsync();
+            foreach (CatalogueBook book in books)
+            {
+                book.Authors = await GetBookAuthorsAsync(connection, book.BookId);
+                book.Genres = await GetBookGenresAsync(connection, book.BookId);
+            }
+            return books;
+        }
+
+        public async Task<CatalogueBook?> GetBookByIdAsync(int bookId)
+        {
+            const string sql = """
+                SELECT BookID, ISBN, Title, Description, TotalCopies, CopiesAvailable,
+                       PublicationYear, CoverImagePath, SourceType
+                FROM dbo.Books
+                WHERE BookID = @BookID;
+                """;
+            await using SqlConnection connection = new(_connectionString);
+            await connection.OpenAsync();
+            await using SqlCommand command = new(sql, connection);
+            command.Parameters.Add("@BookID", SqlDbType.Int).Value = bookId;
+            await using SqlDataReader reader = await command.ExecuteReaderAsync();
+            if (!await reader.ReadAsync()) return null;
+            CatalogueBook book = ReadBook(reader);
+            await reader.CloseAsync();
+            book.Authors = await GetBookAuthorsAsync(connection, bookId);
+            book.Genres = await GetBookGenresAsync(connection, bookId);
+            return book;
+        }
+
+        public async Task<int> CreateBookAsync(CatalogueBookMutation book)
+        {
+            await using SqlConnection connection = new(_connectionString);
+            await connection.OpenAsync();
+            await using SqlTransaction transaction = (SqlTransaction)await connection.BeginTransactionAsync();
+            try
+            {
+                const string sql = """
+                    INSERT INTO dbo.Books
+                        (ISBN, Title, Description, TotalCopies, CopiesAvailable,
+                         PublicationYear, CoverImagePath, SourceType)
+                    OUTPUT INSERTED.BookID
+                    VALUES
+                        (@ISBN, @Title, @Description, 0, 0,
+                         @PublicationYear, @CoverImagePath, @SourceType);
+                    """;
+                await using SqlCommand command = new(sql, connection, transaction);
+                AddBookParameters(command, book);
+                int bookId = Convert.ToInt32(await command.ExecuteScalarAsync());
+                await ReplaceLinksAsync(connection, transaction, bookId, book.Author, book.Genre);
+                await transaction.CommitAsync();
+                return bookId;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        public async Task<bool> UpdateBookAsync(int bookId, CatalogueBookMutation book)
+        {
+            await using SqlConnection connection = new(_connectionString);
+            await connection.OpenAsync();
+            await using SqlTransaction transaction = (SqlTransaction)await connection.BeginTransactionAsync();
+            try
+            {
+                const string sql = """
+                    UPDATE dbo.Books
+                    SET ISBN = @ISBN,
+                        Title = @Title,
+                        Description = @Description,
+                        PublicationYear = @PublicationYear,
+                        CoverImagePath = COALESCE(@CoverImagePath, CoverImagePath),
+                        SourceType = @SourceType
+                    WHERE BookID = @BookID;
+                    """;
+                await using SqlCommand command = new(sql, connection, transaction);
+                command.Parameters.Add("@BookID", SqlDbType.Int).Value = bookId;
+                AddBookParameters(command, book);
+                bool updated = await command.ExecuteNonQueryAsync() == 1;
+                if (updated) await ReplaceLinksAsync(connection, transaction, bookId, book.Author, book.Genre);
+                if (updated) await transaction.CommitAsync();
+                else await transaction.RollbackAsync();
+                return updated;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        public async Task<bool> DeleteBookAsync(int bookId)
+        {
+            await using SqlConnection connection = new(_connectionString);
+            await connection.OpenAsync();
+            await using SqlTransaction transaction = (SqlTransaction)await connection.BeginTransactionAsync();
+            try
+            {
+                if (!await BookExistsAsync(connection, transaction, bookId))
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+
+                const string sql = """
+                    DELETE FROM dbo.BookCopies WHERE BookID = @BookID;
+                    DELETE FROM dbo.BookAuthors WHERE BookID = @BookID;
+                    DELETE FROM dbo.BookGenres WHERE BookID = @BookID;
+                    DELETE FROM dbo.Books WHERE BookID = @BookID;
+                    """;
+                await using SqlCommand command = new(sql, connection, transaction);
+                command.Parameters.Add("@BookID", SqlDbType.Int).Value = bookId;
+                await command.ExecuteNonQueryAsync();
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        private static CatalogueBook ReadBook(SqlDataReader reader) =>
+            new()
+            {
+                BookId = reader.GetInt32(0),
+                ISBN = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                Title = reader.GetString(2),
+                Description = reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
+                TotalCopies = reader.GetInt32(4),
+                CopiesAvailable = reader.GetInt32(5),
+                PublicationYear = reader.IsDBNull(6) ? null : reader.GetInt32(6),
+                CoverImagePath = reader.IsDBNull(7) ? null : reader.GetString(7),
+                SourceType = reader.IsDBNull(8) ? "Library acquisition" : reader.GetString(8)
+            };
+
+        private static void AddBookParameters(SqlCommand command, CatalogueBookMutation book)
+        {
+            AddNullable(command, "@ISBN", SqlDbType.NVarChar, 20, book.ISBN);
+            command.Parameters.Add("@Title", SqlDbType.NVarChar, 255).Value = book.Title.Trim();
+            AddNullable(command, "@Description", SqlDbType.NVarChar, -1, book.Description);
+            AddNullable(command, "@PublicationYear", SqlDbType.Int, null, book.PublicationYear);
+            AddNullable(command, "@CoverImagePath", SqlDbType.NVarChar, 500, book.CoverImagePath);
+            command.Parameters.Add("@SourceType", SqlDbType.NVarChar, 100).Value = book.SourceType.Trim();
+        }
+
+        private static async Task ReplaceLinksAsync(
+            SqlConnection connection,
+            SqlTransaction transaction,
+            int bookId,
+            string? author,
+            string? genre)
+        {
+            const string deleteSql = """
+                DELETE FROM dbo.BookAuthors WHERE BookID = @BookID;
+                DELETE FROM dbo.BookGenres WHERE BookID = @BookID;
+                """;
+            await using (SqlCommand delete = new(deleteSql, connection, transaction))
+            {
+                delete.Parameters.Add("@BookID", SqlDbType.Int).Value = bookId;
+                await delete.ExecuteNonQueryAsync();
+            }
+            await AddAuthorAsync(connection, transaction, bookId, author);
+            await AddGenreAsync(connection, transaction, bookId, genre);
+        }
+
+        private static async Task AddAuthorAsync(SqlConnection connection, SqlTransaction transaction, int bookId, string? author)
+        {
+            if (string.IsNullOrWhiteSpace(author)) return;
+            string[] parts = author.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            string firstName = parts.Length > 1 ? string.Join(" ", parts[..^1]) : string.Empty;
+            string lastName = parts[^1];
+            const string sql = """
+                DECLARE @AuthorID INT;
+                SELECT TOP 1 @AuthorID = AuthorID FROM dbo.Authors
+                WHERE FirstName = @FirstName AND LastName = @LastName;
+                IF @AuthorID IS NULL
+                BEGIN
+                    INSERT INTO dbo.Authors (FirstName, LastName)
+                    VALUES (@FirstName, @LastName);
+                    SET @AuthorID = CONVERT(INT, SCOPE_IDENTITY());
+                END;
+                INSERT INTO dbo.BookAuthors (BookID, AuthorID) VALUES (@BookID, @AuthorID);
+                """;
+            await using SqlCommand command = new(sql, connection, transaction);
+            command.Parameters.Add("@FirstName", SqlDbType.NVarChar, 100).Value = firstName;
+            command.Parameters.Add("@LastName", SqlDbType.NVarChar, 100).Value = lastName;
+            command.Parameters.Add("@BookID", SqlDbType.Int).Value = bookId;
+            await command.ExecuteNonQueryAsync();
+        }
+
+        private static async Task AddGenreAsync(SqlConnection connection, SqlTransaction transaction, int bookId, string? genre)
+        {
+            if (string.IsNullOrWhiteSpace(genre)) return;
+            const string sql = """
+                DECLARE @GenreID INT;
+                SELECT TOP 1 @GenreID = GenreID FROM dbo.Genres WHERE GenreName = @GenreName;
+                IF @GenreID IS NULL
+                BEGIN
+                    INSERT INTO dbo.Genres (GenreName) VALUES (@GenreName);
+                    SET @GenreID = CONVERT(INT, SCOPE_IDENTITY());
+                END;
+                INSERT INTO dbo.BookGenres (BookID, GenreID) VALUES (@BookID, @GenreID);
+                """;
+            await using SqlCommand command = new(sql, connection, transaction);
+            command.Parameters.Add("@GenreName", SqlDbType.NVarChar, 100).Value = genre.Trim();
+            command.Parameters.Add("@BookID", SqlDbType.Int).Value = bookId;
+            await command.ExecuteNonQueryAsync();
+        }
+
+        private static async Task<List<string>> GetBookAuthorsAsync(SqlConnection connection, int bookId)
+        {
+            const string sql = """
+                SELECT CONCAT(a.FirstName, ' ', a.LastName)
+                FROM dbo.Authors a
+                INNER JOIN dbo.BookAuthors ba ON ba.AuthorID = a.AuthorID
+                WHERE ba.BookID = @BookID
+                ORDER BY a.LastName, a.FirstName;
+                """;
+            await using SqlCommand command = new(sql, connection);
+            command.Parameters.Add("@BookID", SqlDbType.Int).Value = bookId;
+            await using SqlDataReader reader = await command.ExecuteReaderAsync();
+            List<string> values = new();
+            while (await reader.ReadAsync()) values.Add(reader.GetString(0).Trim());
+            return values;
+        }
+
+        private static async Task<List<string>> GetBookGenresAsync(SqlConnection connection, int bookId)
+        {
+            const string sql = """
+                SELECT g.GenreName
+                FROM dbo.Genres g
+                INNER JOIN dbo.BookGenres bg ON bg.GenreID = g.GenreID
+                WHERE bg.BookID = @BookID
+                ORDER BY g.GenreName;
+                """;
+            await using SqlCommand command = new(sql, connection);
+            command.Parameters.Add("@BookID", SqlDbType.Int).Value = bookId;
+            await using SqlDataReader reader = await command.ExecuteReaderAsync();
+            List<string> values = new();
+            while (await reader.ReadAsync()) values.Add(reader.GetString(0));
+            return values;
+        }
+
+        private static async Task<bool> BookExistsAsync(SqlConnection connection, SqlTransaction transaction, int bookId)
+        {
+            const string sql = "SELECT CASE WHEN EXISTS (SELECT 1 FROM dbo.Books WHERE BookID = @BookID) THEN 1 ELSE 0 END;";
+            await using SqlCommand command = new(sql, connection, transaction);
+            command.Parameters.Add("@BookID", SqlDbType.Int).Value = bookId;
+            return Convert.ToInt32(await command.ExecuteScalarAsync()) == 1;
+        }
+
+        private static void AddNullable(SqlCommand command, string name, SqlDbType type, int? size, object? value)
+        {
+            SqlParameter parameter = size.HasValue
+                ? command.Parameters.Add(name, type, size.Value)
+                : command.Parameters.Add(name, type);
+            parameter.Value = value ?? DBNull.Value;
         }
     }
 }

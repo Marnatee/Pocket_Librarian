@@ -11,7 +11,9 @@ This document records the database design shown in `Client/Documentation/Pocket_
 | `Users` | `UserID` (PK), `FirstName`, `LastName`, `Email`, `PasswordHash`, `Role` | Stores member and staff accounts. |
 | `Reservations` | `ReservationID` (PK), `UserID` (FK), `BookID` (FK), `DateReserved`, `DateReturned` | Stores the reservation history and connects members to books. |
 | `Notifications` | `NotificationID` (PK), `UserID` (FK), `Title`, `MessageText`, `CreatedDate`, `IsRead` | Stores member notifications and read status. |
-| `Books` | `BookID` (PK), `ISBN`, `Title`, `Description`, `TotalCopies`, `CopiesAvailable` | Stores catalogue records and current copy availability. |
+| `Books` | `BookID` (PK), `ISBN`, `Title`, `Description`, `PublicationYear`, `ConditionSummary`, `CoverImagePath`, `SourceType`, `TotalCopies`, `CopiesAvailable` | Stores catalogue records and aggregate availability. |
+| `BookDonations` | Donation metadata, `VerificationStatus`, `ReviewNotes`, `ApprovedBookID`, `CoverImagePath` | Stores member submissions and the staff review history. |
+| `BookCopies` | `CopyID` (PK), `BookID` (FK), `Barcode`, `Condition`, `Status`, `Location`, reservation/checkout fields | Stores each physical copy independently. |
 | `Authors` | `AuthorID` (PK), `FirstName`, `LastName` | Stores author records. |
 | `BookAuthors` | `BookID` (PK/FK), `AuthorID` (PK/FK) | Junction table for the many-to-many book/author relationship. |
 | `Genres` | `GenreID` (PK), `GenreName` | Stores genre records. |
@@ -33,16 +35,18 @@ This document records the database design shown in `Client/Documentation/Pocket_
 
 ## Book donations
 
-Run Database/BookDonationFeature.sql after the core database exists. The
-script adds nullable catalogue metadata for approved donations and creates or
-upgrades the BookDonations table. The application does not modify the
-catalogue when a member submits a request. Staff approval performs the
+Run `Database/CatalogueAdministrationFeature.sql` after the core database
+exists. The script is rerunnable and adds the catalogue metadata, donation
+workflow fields, and the `BookCopies` table. The application does not modify
+the catalogue when a member submits a request. Staff approval performs the
 donation-to-catalogue change in one database transaction.
 
-The current project uses aggregate inventory counts rather than individual
-physical-copy rows. Approving a donation for an existing BookID increases
-both TotalCopies and CopiesAvailable by the donated amount. Individual
-barcode or shelf-level copy tracking is outside this feature.
+`BookCopies` is the source of truth for individual physical-copy condition,
+status, location, reservation, and checkout data. `Books.TotalCopies` and
+`Books.CopiesAvailable` are maintained aggregate values for catalogue search.
+Cover images are stored as files under `Server/wwwroot/uploads/covers`; SQL
+stores the relative URL in `Books.CoverImagePath` or
+`BookDonations.CoverImagePath`.
 
 ## Application architecture notes
 
