@@ -21,16 +21,18 @@ member's UserID.
 
 ## Staff behavior
 
-Staff can open Book donation requests from the Staff page. A staff member can
-approve or reject each pending request.
+Staff can open Catalogue administration from the Staff page. Staff can view,
+edit, verify, approve, reject, archive, and delete donation requests; manually
+create or edit catalogue records; and manage each physical copy separately.
 
 - Approving without an existing Book ID creates a new catalogue book.
-- Entering an existing Book ID adds the donated number of copies to that book.
+- Entering an existing Book ID adds one `BookCopies` row per donated copy.
 - The approval and inventory update happen in one SQL transaction.
-- Rejecting a request keeps its history and records the staff review.
+- Rejecting or archiving a request keeps its history and records the staff review.
+- Each copy can have its own condition, availability status, location, and notes.
 
 ## Database setup
 
-Run Database/BookDonationFeature.sql against the existing Pocket Librarian
-database before testing the feature. The script is designed to be rerunnable
-and uses the current dbo.Users(UserID) schema.
+Run `Database/CatalogueAdministrationFeature.sql` against the existing Pocket
+Librarian database before testing the feature. The script is designed to be
+rerunnable and uses the current `dbo.Users(UserID)` schema.

@@ -11,5 +11,15 @@ namespace Pocket_Librarian.BLL.Interfaces
 
         // Searches the catalogue using the provided search criteria.
         List<CatalogueBook> SearchBooks(CatalogueSearchCriteria criteria);
+
+        Task<List<CatalogueBook>> GetAllBooksAsync();
+
+        Task<CatalogueBook?> GetBookByIdAsync(int bookId);
+
+        Task<int> CreateBookAsync(CatalogueBookMutation book);
+
+        Task<bool> UpdateBookAsync(int bookId, CatalogueBookMutation book);
+
+        Task<bool> DeleteBookAsync(int bookId);
     }
 }

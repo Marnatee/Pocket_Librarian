@@ -39,6 +39,14 @@
 
         public string Description { get; set; } = string.Empty;
 
+        public int? PublicationYear { get; set; }
+
+        public string? CoverImagePath { get; set; }
+
+        public string SourceType { get; set; } = "Library acquisition";
+
+        public string VerificationStatus { get; set; } = "Approved";
+
         public int TotalCopies { get; set; }
 
         public int CopiesAvailable { get; set; }
@@ -46,5 +54,18 @@
         public List<string> Authors { get; set; } = new List<string>();
 
         public List<string> Genres { get; set; } = new List<string>();
+    }
+
+    // The editable metadata submitted by a staff member for a catalogue record.
+    public class CatalogueBookMutation
+    {
+        public string Title { get; set; } = string.Empty;
+        public string? Author { get; set; }
+        public string? ISBN { get; set; }
+        public string? Genre { get; set; }
+        public int? PublicationYear { get; set; }
+        public string? Description { get; set; }
+        public string? CoverImagePath { get; set; }
+        public string SourceType { get; set; } = "Library acquisition";
     }
 }

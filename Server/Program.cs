@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Pocket_Librarian.BLL.Interfaces;
 using Pocket_Librarian.BLL.Services;
 using Pocket_Librarian.DAL.Repositories;
+using Pocket_Librarian.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +39,12 @@ builder.Services.AddScoped<CatalogueService>();
 
 builder.Services.AddScoped<IBookDonationRepository, BookDonationRepository>();
 builder.Services.AddScoped<BookDonationService>();
+builder.Services.AddScoped<IDonationRepository, DonationRepository>();
+builder.Services.AddScoped<DonationService>();
+builder.Services.AddScoped<IBookCopyRepository, BookCopyRepository>();
+builder.Services.AddScoped<BookCopyService>();
+builder.Services.AddScoped<CatalogueAdminService>();
+builder.Services.AddSingleton<CoverImageStorage>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -72,6 +79,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,0 +1,151 @@
+.catalogue-admin {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.catalogue-admin-heading,
+.catalogue-admin-card-header,
+.catalogue-admin-toolbar,
+.catalogue-admin-actions,
+.catalogue-admin-copy-add,
+.copy-row {
+    display: flex;
+    gap: .75rem;
+    align-items: center;
+}
+
+.catalogue-admin-heading {
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.catalogue-admin-tabs {
+    display: flex;
+    gap: .5rem;
+}
+
+.catalogue-admin-tabs button.active,
+.catalogue-admin-actions .primary {
+    background: #173f5f;
+    color: white;
+}
+
+.catalogue-admin-success,
+.catalogue-admin-error {
+    padding: .75rem 1rem;
+    border-radius: .5rem;
+}
+
+.catalogue-admin-success {
+    background: #e5f5e9;
+    color: #155724;
+}
+
+.catalogue-admin-error {
+    background: #fde8e8;
+    color: #9b1c1c;
+}
+
+.catalogue-admin-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.catalogue-admin-card {
+    padding: 1rem;
+    border: 1px solid #d8dee8;
+    border-radius: .75rem;
+    background: #fff;
+    box-shadow: 0 3px 12px rgb(20 35 60 / 7%);
+}
+
+.catalogue-admin-card-header {
+    justify-content: space-between;
+}
+
+.catalogue-admin-card-header span,
+.catalogue-admin-card h3 small {
+    color: #5c6b7a;
+    font-size: .85rem;
+}
+
+.catalogue-admin-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .75rem;
+}
+
+.catalogue-admin-form-grid label {
+    display: grid;
+    gap: .3rem;
+    font-weight: 600;
+}
+
+.catalogue-admin-form-grid .wide {
+    grid-column: 1 / -1;
+}
+
+.catalogue-admin-form-grid input,
+.catalogue-admin-form-grid select,
+.catalogue-admin-form-grid textarea,
+.catalogue-admin-copy-add input,
+.catalogue-admin-copy-add select,
+.copy-row input,
+.copy-row select {
+    min-width: 0;
+    padding: .55rem;
+    border: 1px solid #bdc7d4;
+    border-radius: .35rem;
+    font: inherit;
+}
+
+.catalogue-admin-form-grid textarea {
+    min-height: 4rem;
+}
+
+.catalogue-admin-actions {
+    flex-wrap: wrap;
+    margin-top: .5rem;
+}
+
+.catalogue-admin-actions .danger,
+.copy-row .danger {
+    color: #9b1c1c;
+}
+
+.copy-management {
+    display: grid;
+    gap: .6rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e3e8ef;
+}
+
+.catalogue-admin-copy-add {
+    flex-wrap: wrap;
+}
+
+.copy-row {
+    display: grid;
+    grid-template-columns: auto repeat(4, minmax(0, 1fr)) auto auto;
+}
+
+@media (max-width: 760px) {
+    .catalogue-admin-heading,
+    .catalogue-admin-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .catalogue-admin-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .catalogue-admin-form-grid .wide {
+        grid-column: auto;
+    }
+
+    .copy-row {
+        grid-template-columns: 1fr;
+    }
+}
