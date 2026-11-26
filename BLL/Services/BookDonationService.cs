@@ -72,17 +72,15 @@ public sealed class BookDonationService
         donation.ISBN = OptionalText(isbn, 20);
         donation.Genre = OptionalText(genre, 100);
         donation.Description = OptionalText(description, 4000);
-        donation.Condition = OptionalText(condition, 30) ?? "Good";
-        donation.CopiesDonated = ValidateCopies(copies);
+        donation.BookCondition = OptionalText(condition, 30) ?? "Good";
+        donation.NumberOfCopies = ValidateCopies(copies);
         donation.SourceType = RequiredText(sourceType, "Source type", 100);
         donation.CoverImagePath = string.IsNullOrWhiteSpace(coverImagePath)
             ? donation.CoverImagePath
             : coverImagePath;
         donation.PublicationYear = publicationYear;
 
-        if (!string.IsNullOrWhiteSpace(donation.ISBN)
-            && await _repository.ISBNExistsAsync(donation.ISBN, donationId))
-            throw new InvalidOperationException("A book with that ISBN already exists.");
+        return await _repository.UpdateAsync(donation);
 
         return await _repository.UpdateAsync(donation);
     }
