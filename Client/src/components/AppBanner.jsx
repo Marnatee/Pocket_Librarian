@@ -12,6 +12,7 @@ function AppBanner({
     onSignIn,
     onSignUp,
     onSignOut,
+    onOpenPipeline,
     statuses,
     isRefreshing,
     lastChecked,
@@ -133,6 +134,7 @@ function AppBanner({
                 isRefreshing={isRefreshing}
                 lastChecked={lastChecked}
                 onRefresh={onRefresh}
+                onOpenPipeline={onOpenPipeline}
                 onManualDatabaseConnect={onManualDatabaseConnect}
             />
         </header>

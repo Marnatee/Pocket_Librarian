@@ -6,7 +6,7 @@
     min-height: 100vh;
     background:
         radial-gradient(circle at 10% 0%, rgba(211, 228, 241, 0.5), transparent 36%),
-        #f4f7f9;
+        #f6f8fb;
     color: #20313d;
     font-family: Arial, Helvetica, sans-serif;
 }
@@ -17,7 +17,19 @@
 }
 
 .btn-back-to-features {
+    padding: 9px 13px;
+    border: 1px solid #9fb4c0;
+    border-radius: 7px;
+    background: #eef5f8;
+    color: #17384d;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
     margin-bottom: 20px;
+}
+
+.btn-back-to-features:hover {
+    background: #dceaf0;
 }
 
 .feature-placeholder-clickable {
@@ -28,9 +40,9 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
-    border: 2px solid #8f5e2e;
+    border: 2px solid #b7cbd8;
     border-radius: 15px;
-    background: linear-gradient(135deg, rgba(143, 94, 46, 0.08), rgba(143, 94, 46, 0.03));
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(37, 99, 235, 0.03));
     color: inherit;
     cursor: pointer;
     text-align: center;
@@ -38,7 +50,7 @@
 
 .feature-placeholder-clickable:hover,
 .feature-placeholder-clickable:focus-visible {
-    border-color: #a0704a;
+    border-color: #2563eb;
     box-shadow: 0 12px 30px rgba(30, 66, 87, 0.15);
     transform: translateY(-3px);
 }
@@ -264,6 +276,33 @@
     margin-top: 10px;
 }
 
+.dashboard-footer-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.dashboard-pipeline-button {
+    padding: 5px 8px;
+    border: 1px solid #7893a2;
+    border-radius: 6px;
+    background: #315b71;
+    color: #f4f8fa;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.68rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.dashboard-pipeline-button:hover {
+    border-color: #f6d48d;
+    background: #3c6c84;
+    color: #ffffff;
+}
+
 .status-card {
     min-width: 0;
     padding: 9px;
@@ -322,6 +361,23 @@
 }
 
 .status-details-button:hover {
+    color: #f6d48d;
+}
+
+.status-inline-action {
+    display: block;
+    margin-top: 7px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #b7d9e8;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.68rem;
+    text-decoration: underline;
+}
+
+.status-inline-action:hover {
     color: #f6d48d;
 }
 
@@ -420,7 +476,7 @@
 }
 
 .page-eyebrow {
-    color: #8f5e2e;
+    color: #2563eb;
     font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.14em;
@@ -616,7 +672,12 @@
 
 /* Keeps the existing API demonstration separate from the frontpage feature. */
 .pipeline-test {
-    margin-top: 42px;
+    margin-top: 0;
+    padding: 24px;
+    border: 1px solid #cad7de;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 12px 30px rgba(30, 66, 87, 0.09);
 }
 
 .member-tools-grid {
@@ -624,6 +685,16 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
     margin-top: 20px;
+}
+
+.member-donation-feature-wrap {
+    margin-top: 20px;
+}
+
+.member-donation-feature {
+    min-height: 180px;
+    align-items: flex-start;
+    text-align: left;
 }
 
 .member-feature-card {
@@ -934,7 +1005,7 @@
 
 .pipeline-test h2 {
     margin-bottom: 8px;
-    color: #1f3a5f;
+    color: #17384d;
 }
 
 .pipeline-test > p {
@@ -947,14 +1018,14 @@
     margin-bottom: 24px;
     border: none;
     border-radius: 5px;
-    background-color: #1f6feb;
+    background-color: #2563eb;
     color: white;
     font-size: 1rem;
     cursor: pointer;
 }
 
 .pipeline-test > button:hover {
-    background-color: #1557b0;
+    background-color: #1d4ed8;
 }
 
 .pipeline-test > button:focus-visible {
@@ -967,15 +1038,15 @@
     flex-direction: column;
     gap: 8px;
     padding: 20px;
-    border: 1px solid #cccccc;
+    border: 1px solid #cad7de;
     border-radius: 8px;
-    background-color: #f7f7f7;
+    background-color: #f6f9fb;
 }
 
 .status-section h2 {
     margin-top: 0;
     margin-bottom: 12px;
-    color: #1f3a5f;
+    color: #17384d;
 }
 
 .status-section label {

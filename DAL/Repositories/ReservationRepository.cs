@@ -595,6 +595,72 @@ namespace Pocket_Librarian.DAL.Repositories
             }
         }
 
+        public async Task<int> ClearReservationHistoryAsync(int userId)
+        {
+            try
+            {
+                using SqlConnection connection = new SqlConnection(GetActiveConnectionString());
+                await connection.OpenAsync();
+                using SqlTransaction transaction = connection.BeginTransaction();
+
+                const string query = @"
+                    CREATE TABLE #ReservationHistoryToClear
+                    (
+                        ReservationID INT NOT NULL PRIMARY KEY
+                    );
+
+                    INSERT INTO #ReservationHistoryToClear (ReservationID)
+                    SELECT ReservationID
+                    FROM dbo.Reservations WITH (UPDLOCK, HOLDLOCK)
+                    WHERE UserID = @UserId
+                      AND DateReturned IS NOT NULL;
+
+                    -- Remove dependent workflow records first so the member's
+                    -- returned reservations can be deleted safely.
+                    DELETE supportTicket
+                    FROM dbo.SupportTickets AS supportTicket
+                    INNER JOIN dbo.ReturnTasks AS returnTask
+                        ON returnTask.ReturnTaskID = supportTicket.ReturnTaskID
+                    INNER JOIN #ReservationHistoryToClear AS history
+                        ON history.ReservationID = returnTask.ReservationID;
+
+                    DELETE returnAction
+                    FROM dbo.ReturnActions AS returnAction
+                    INNER JOIN dbo.ReturnTasks AS returnTask
+                        ON returnTask.ReturnTaskID = returnAction.ReturnTaskID
+                    INNER JOIN #ReservationHistoryToClear AS history
+                        ON history.ReservationID = returnTask.ReservationID;
+
+                    DELETE returnTask
+                    FROM dbo.ReturnTasks AS returnTask
+                    INNER JOIN #ReservationHistoryToClear AS history
+                        ON history.ReservationID = returnTask.ReservationID;
+
+                    DELETE fulfillmentTask
+                    FROM dbo.FulfillmentTasks AS fulfillmentTask
+                    INNER JOIN #ReservationHistoryToClear AS history
+                        ON history.ReservationID = fulfillmentTask.ReservationID;
+
+                    DELETE reservation
+                    FROM dbo.Reservations AS reservation
+                    INNER JOIN #ReservationHistoryToClear AS history
+                        ON history.ReservationID = reservation.ReservationID;
+
+                    SELECT COUNT(*) FROM #ReservationHistoryToClear;";
+
+                using SqlCommand command = new SqlCommand(query, connection, transaction);
+                command.Parameters.AddWithValue("@UserId", userId);
+                int deletedCount = Convert.ToInt32(await command.ExecuteScalarAsync());
+
+                transaction.Commit();
+                return deletedCount;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Error clearing reservation history from database", ex);
+            }
+        }
+
        
         private static Reservation MapReservation(SqlDataReader reader)
         {

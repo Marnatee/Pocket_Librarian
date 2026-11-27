@@ -302,6 +302,38 @@ namespace Pocket_Librarian.Server.Controllers
             }
         }
 
+        [HttpDelete("user/{userId}/history")]
+        public async Task<ActionResult<object>> ClearReservationHistory(int userId)
+        {
+            try
+            {
+                if (!CanAccessUserReservation(userId))
+                {
+                    return Forbid();
+                }
+
+                int deletedCount = await _service.ClearReservationHistoryAsync(userId);
+                return Ok(new
+                {
+                    success = true,
+                    deletedCount,
+                    message = "Returned reservation history cleared successfully"
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    error = "An error occurred while clearing reservation history",
+                    details = ex.Message
+                });
+            }
+        }
+
     
         [HttpGet("book/{bookId}/available")]
         public async Task<ActionResult<object>> IsBookAvailable(int bookId)

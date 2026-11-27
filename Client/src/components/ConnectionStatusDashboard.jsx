@@ -15,6 +15,7 @@ function ConnectionStatusDashboard({
     isRefreshing,
     lastChecked,
     onRefresh,
+    onOpenPipeline,
     onManualDatabaseConnect,
 }) {
     const [openDetails, setOpenDetails] = useState({});
@@ -89,17 +90,6 @@ function ConnectionStatusDashboard({
                             >
                                 {openDetails[key] ? "Hide details" : "Details"}
                             </button>
-
-                            {key === "database" && (
-                                <button
-                                    className="status-details-button"
-                                    type="button"
-                                    onClick={() => setIsManualFormOpen((isOpen) => !isOpen)}
-                                    aria-expanded={isManualFormOpen}
-                                >
-                                    {isManualFormOpen ? "Hide manual" : "Manual connect"}
-                                </button>
-                            )}
                         </div>
 
                         {openDetails[key] && (
@@ -107,49 +97,70 @@ function ConnectionStatusDashboard({
                                 {status.details.map((detail) => (
                                     <p key={detail}>{detail}</p>
                                 ))}
-                            </div>
-                        )}
+                                {key === "database" && (
+                                    <>
+                                        <button
+                                            className="status-inline-action"
+                                            type="button"
+                                            onClick={() => setIsManualFormOpen((isOpen) => !isOpen)}
+                                            aria-expanded={isManualFormOpen}
+                                        >
+                                            {isManualFormOpen ? "Hide manual connect" : "Manual connect"}
+                                        </button>
 
-                        {key === "database" && isManualFormOpen && (
-                            <form
-                                className="manual-database-form"
-                                onSubmit={submitManualConnection}
-                            >
-                                <label htmlFor="manual-database-connection">
-                                    Connection string
-                                </label>
-                                <input
-                                    id="manual-database-connection"
-                                    type="password"
-                                    value={manualConnectionString}
-                                    onChange={(event) => setManualConnectionString(event.target.value)}
-                                    placeholder="Server=...;Database=..."
-                                    autoComplete="off"
-                                />
-                                <button
-                                    className="manual-database-submit"
-                                    type="submit"
-                                    disabled={isRefreshing}
-                                >
-                                    {isRefreshing ? "Testing..." : "Test connection"}
-                                </button>
-                                <p className="manual-database-note">
-                                    Demo only. This is not saved to source code or browser storage.
-                                </p>
-                                {manualConnectionMessage && (
-                                    <p className="manual-database-message">
-                                        {manualConnectionMessage}
-                                    </p>
+                                        {isManualFormOpen && (
+                                            <form
+                                                className="manual-database-form"
+                                                onSubmit={submitManualConnection}
+                                            >
+                                                <label htmlFor="manual-database-connection">
+                                                    Connection string
+                                                </label>
+                                                <input
+                                                    id="manual-database-connection"
+                                                    type="password"
+                                                    value={manualConnectionString}
+                                                    onChange={(event) => setManualConnectionString(event.target.value)}
+                                                    placeholder="Server=...;Database=..."
+                                                    autoComplete="off"
+                                                />
+                                                <button
+                                                    className="manual-database-submit"
+                                                    type="submit"
+                                                    disabled={isRefreshing}
+                                                >
+                                                    {isRefreshing ? "Testing..." : "Test connection"}
+                                                </button>
+                                                <p className="manual-database-note">
+                                                    Demo only. This is not saved to source code or browser storage.
+                                                </p>
+                                                {manualConnectionMessage && (
+                                                    <p className="manual-database-message">
+                                                        {manualConnectionMessage}
+                                                    </p>
+                                                )}
+                                            </form>
+                                        )}
+                                    </>
                                 )}
-                            </form>
+                            </div>
                         )}
                     </article>
                 ))}
             </div>
 
-            <p className="last-checked">
-                {lastChecked ? `Last checked ${lastChecked}` : "Status has not been checked yet"}
-            </p>
+            <div className="dashboard-footer-row">
+                <p className="last-checked">
+                    {lastChecked ? `Last checked ${lastChecked}` : "Status has not been checked yet"}
+                </p>
+                <button
+                    className="dashboard-pipeline-button"
+                    type="button"
+                    onClick={onOpenPipeline}
+                >
+                    API pipeline test
+                </button>
+            </div>
         </section>
     );
 }

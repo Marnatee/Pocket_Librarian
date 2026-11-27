@@ -7,6 +7,7 @@ import "./App.css";
 import AppBanner from "./components/AppBanner";
 import HomePage from "./pages/HomePage";
 import MemberPage from "./pages/MemberPage";
+import PipelinePage from "./pages/PipelinePage";
 import StaffPage from "./pages/StaffPage";
 
 const BACKEND_HEALTH_TIMEOUT_MS = 3000;
@@ -367,6 +368,8 @@ function App() {
                 return currentUser?.role === "Staff"
                     ? <StaffPage currentUser={currentUser} />
                     : <HomePage />;
+            case "pipeline":
+                return <PipelinePage />;
             case "home":
             default:
                 return <HomePage />;
@@ -395,6 +398,7 @@ function App() {
                 onSignIn={signIn}
                 onSignUp={signUp}
                 onSignOut={signOut}
+                onOpenPipeline={() => setCurrentPage("pipeline")}
                 statuses={statuses}
                 isRefreshing={isRefreshing}
                 lastChecked={lastChecked}

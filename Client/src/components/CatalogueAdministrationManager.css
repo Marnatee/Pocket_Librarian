@@ -3,6 +3,27 @@
     gap: 1.25rem;
 }
 
+.catalogue-admin button {
+    padding: .55rem .8rem;
+    border: 1px solid #9fb4c0;
+    border-radius: .45rem;
+    background: #eef5f8;
+    color: #17384d;
+    cursor: pointer;
+    font: inherit;
+    font-size: .88rem;
+    font-weight: 700;
+}
+
+.catalogue-admin button:hover:not(:disabled) {
+    background: #dceaf0;
+}
+
+.catalogue-admin button:disabled {
+    cursor: wait;
+    opacity: .6;
+}
+
 .catalogue-admin-heading,
 .catalogue-admin-card-header,
 .catalogue-admin-toolbar,
@@ -26,8 +47,14 @@
 
 .catalogue-admin-tabs button.active,
 .catalogue-admin-actions .primary {
-    background: #173f5f;
+    border-color: #2563eb;
+    background: #2563eb;
     color: white;
+}
+
+.catalogue-admin-tabs button.active:hover:not(:disabled),
+.catalogue-admin-actions .primary:hover:not(:disabled) {
+    background: #1d4ed8;
 }
 
 .catalogue-admin-success,
@@ -110,7 +137,14 @@
 
 .catalogue-admin-actions .danger,
 .copy-row .danger {
-    color: #9b1c1c;
+    border-color: #b42318;
+    background: #b42318;
+    color: #ffffff;
+}
+
+.catalogue-admin-actions .danger:hover:not(:disabled),
+.copy-row .danger:hover:not(:disabled) {
+    background: #912018;
 }
 
 .copy-management {
