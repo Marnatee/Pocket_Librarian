@@ -73,7 +73,7 @@ function BookDonationForm() {
             <div className="member-feature-heading">
                 <div>
                     <p className="page-eyebrow">Member contribution</p>
-                    <h2>Book donation request</h2>
+                    <h2>Book donations</h2>
                 </div>
             </div>
             <p className="member-muted-text">

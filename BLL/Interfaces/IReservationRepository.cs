@@ -21,4 +21,6 @@ public interface IReservationRepository
     Task<bool> IsBookAvailableAsync(int bookId);
 
     Task<bool> DeleteReservationAsync(int reservationId);
+
+    Task<int> ClearReservationHistoryAsync(int userId);
 }

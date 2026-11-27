@@ -1,8 +1,8 @@
 /* Reservation Manager Styles */
 
 .reservation-manager {
-    padding: 2rem;
-    max-width: 900px;
+    padding: 0;
+    max-width: none;
     margin: 0 auto;
 }
 
@@ -15,104 +15,105 @@
 .reservation-header h2 {
     margin: 0 0 0.5rem 0;
     font-size: 1.8rem;
-    color: #333;
+    color: #17384d;
 }
 
 .reservation-header .user-id-info {
     margin: 0;
-    color: #666;
+    color: #5c6d77;
     font-size: 0.9rem;
 }
 
 /* Alert Messages */
-.alert {
+.reservation-manager .alert {
     padding: 1rem;
     margin-bottom: 1.5rem;
     border-radius: 4px;
     border-left: 4px solid;
 }
 
-.alert-error {
-    background-color: #f8d7da;
-    border-left-color: #dc3545;
-    color: #721c24;
+.reservation-manager .alert-error {
+    background-color: #fde8e8;
+    border-left-color: #b42318;
+    color: #912018;
 }
 
-.alert-success {
-    background-color: #d4edda;
-    border-left-color: #28a745;
-    color: #155724;
+.reservation-manager .alert-success {
+    background-color: #e5f5e9;
+    border-left-color: #15803d;
+    color: #166534;
 }
 
 /* Buttons */
-.btn {
+.reservation-manager .btn {
     padding: 0.6rem 1.2rem;
     border: none;
-    border-radius: 4px;
+    border-radius: 7px;
     cursor: pointer;
     font-size: 1rem;
     transition: background-color 0.3s ease;
     font-weight: 500;
 }
 
-.btn:disabled {
+.reservation-manager .btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
-.btn-primary {
-    background-color: #007bff;
+.reservation-manager .btn-primary {
+    background-color: #2563eb;
     color: white;
 }
 
-.btn-primary:hover:not(:disabled) {
-    background-color: #0056b3;
+.reservation-manager .btn-primary:hover:not(:disabled) {
+    background-color: #1d4ed8;
 }
 
-.btn-secondary {
-    background-color: #6c757d;
+.reservation-manager .btn-secondary {
+    background-color: #64748b;
     color: white;
 }
 
-.btn-secondary:hover:not(:disabled) {
-    background-color: #545b62;
+.reservation-manager .btn-secondary:hover:not(:disabled) {
+    background-color: #475569;
 }
 
-.btn-danger {
-    background-color: #dc3545;
+.reservation-manager .btn-danger {
+    background-color: #b42318;
     color: white;
 }
 
-.btn-danger:hover:not(:disabled) {
-    background-color: #c82333;
+.reservation-manager .btn-danger:hover:not(:disabled) {
+    background-color: #912018;
 }
 
 /* Checkout Section */
-.checkout-section {
-    background-color: #f8f9fa;
+.reservation-manager .checkout-section {
+    background-color: #eef5f8;
+    border: 1px solid #d5e3e9;
     padding: 1.5rem;
     border-radius: 4px;
     margin-bottom: 2rem;
 }
 
-.checkout-form {
+.reservation-manager .checkout-form {
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
-.form-group {
+.reservation-manager .form-group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
-.form-group label {
+.reservation-manager .form-group label {
     font-weight: 600;
-    color: #333;
+    color: #244b62;
 }
 
-.form-group input {
+.reservation-manager .form-group input {
     padding: 0.6rem;
     border: 1px solid #ced4da;
     border-radius: 4px;
@@ -120,13 +121,13 @@
     font-family: inherit;
 }
 
-.form-group input:focus {
+.reservation-manager .form-group input:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
 }
 
-.form-actions {
+.reservation-manager .form-actions {
     display: flex;
     gap: 1rem;
     justify-content: flex-start;
@@ -142,12 +143,12 @@
 .past-reservations-section h3 {
     margin-top: 0;
     margin-bottom: 1rem;
-    color: #333;
+    color: #17384d;
     font-size: 1.3rem;
 }
 
-.loading-text,
-.empty-message {
+.reservation-manager .loading-text,
+.reservation-manager .empty-message {
     color: #666;
     font-style: italic;
     padding: 1rem 0;
@@ -160,9 +161,9 @@
 }
 
 .reservation-card {
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    background-color: #ffffff;
+    border: 1px solid #cad7de;
+    border-radius: 10px;
     padding: 1.5rem;
     display: flex;
     justify-content: space-between;
@@ -172,11 +173,11 @@
 }
 
 .reservation-card:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 24px rgba(30, 66, 87, 0.1);
 }
 
 .reservation-card.past {
-    background-color: #f8f9fa;
+    background-color: #f7fafb;
     opacity: 0.8;
 }
 
@@ -188,7 +189,7 @@
     display: flex;
     justify-content: space-between;
     padding: 0.5rem 0;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #e2e9ed;
 }
 
 .info-row:last-child {
@@ -197,15 +198,15 @@
 
 .info-row .label {
     font-weight: 600;
-    color: #555;
+    color: #45606d;
     min-width: 150px;
 }
 
 .info-row .value {
-    color: #333;
+    color: #20313d;
 }
 
-.reservation-card .btn {
+.reservation-manager .reservation-card .btn {
     align-self: center;
     white-space: nowrap;
 }
@@ -215,21 +216,42 @@
     margin-top: 1rem;
 }
 
+.reservation-history-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.reservation-history-heading h3 {
+    margin-bottom: 0.35rem;
+}
+
+.history-description {
+    margin: 0;
+    color: #6b7c85;
+    font-size: 0.84rem;
+}
+
+.reservation-history-heading .btn {
+    flex-shrink: 0;
+}
+
 /* Responsive Design */
 @media (max-width: 600px) {
     .reservation-manager {
-        padding: 1rem;
+        padding: 0;
     }
 
     .reservation-card {
         flex-direction: column;
     }
 
-    .form-actions {
+    .reservation-manager .form-actions {
         flex-direction: column;
     }
 
-    .form-actions .btn {
+    .reservation-manager .form-actions .btn {
         width: 100%;
     }
 
@@ -240,5 +262,13 @@
 
     .info-row .label {
         min-width: auto;
+    }
+
+    .reservation-history-heading {
+        flex-direction: column;
+    }
+
+    .reservation-history-heading .btn {
+        width: 100%;
     }
 }

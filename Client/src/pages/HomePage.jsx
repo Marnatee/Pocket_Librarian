@@ -3,7 +3,6 @@
 
 import FeaturedBookCarousel from "../components/FeaturedBookCarousel";
 import CatalogueSearch from "../components/CatalogueSearch";
-import PipelineTest from "../components/PipelineTest";
 
 function HomePage() {
     return (
@@ -18,8 +17,6 @@ function HomePage() {
                 <FeaturedBookCarousel />
                 <CatalogueSearch />
             </div>
-
-            <PipelineTest />
         </section>
     );
 }

@@ -128,6 +128,14 @@ namespace Pocket_Librarian.BLL.Services
             return await _repository.DeleteReservationAsync(reservationId);
         }
 
+        public async Task<int> ClearReservationHistoryAsync(int userId)
+        {
+            if (userId <= 0)
+                throw new ArgumentException("UserId must be greater than 0", nameof(userId));
+
+            return await _repository.ClearReservationHistoryAsync(userId);
+        }
+
         
         public TimeSpan GetReservationDuration(Reservation reservation)
         {

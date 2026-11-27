@@ -7,7 +7,21 @@ import "./ReservationManager.css";
 
 const RESERVATION_API_BASE = "/api/reservation";
 
-function ReservationManager({ userId }) {
+const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
+
+function elapsedWholeDays(startDate, endDate = new Date()) {
+    const startTime = new Date(startDate).getTime();
+    const endTime = new Date(endDate).getTime();
+
+    if (!Number.isFinite(startTime) || !Number.isFinite(endTime)) {
+        return 0;
+    }
+
+    // A clock/time-zone mismatch should never show a negative duration to a member.
+    return Math.max(0, Math.floor((endTime - startTime) / MILLISECONDS_PER_DAY));
+}
+
+function ReservationManager({ userId, children }) {
     const [reservations, setReservations] = useState([]);
     const [activeReservations, setActiveReservations] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -15,6 +29,7 @@ function ReservationManager({ userId }) {
     const [success, setSuccess] = useState(null);
     const [showCheckoutForm, setShowCheckoutForm] = useState(false);
     const [bookIdInput, setBookIdInput] = useState("");
+    const [clearingHistory, setClearingHistory] = useState(false);
 
     // Fetch user's active reservations
     const fetchActiveReservations = useCallback(async () => {
@@ -146,6 +161,54 @@ function ReservationManager({ userId }) {
         }
     };
 
+    const pastReservations = reservations.filter((r) => r.dateReturned !== null);
+    const pendingReservations = reservations.filter(
+        (r) => r.dateReturned === null && r.reservationStatus === "Pending"
+    );
+
+    const clearReservationHistory = async () => {
+        if (pastReservations.length === 0 || clearingHistory) {
+            return;
+        }
+
+        if (!window.confirm("Clear all returned reservations from your history? This cannot be undone.")) {
+            return;
+        }
+
+        setClearingHistory(true);
+        setError(null);
+        setSuccess(null);
+
+        try {
+            const response = await fetch(
+                `${RESERVATION_API_BASE}/user/${userId}/history`,
+                {
+                    method: "DELETE",
+                    credentials: "include",
+                }
+            );
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(result.error || "Failed to clear reservation history");
+            }
+
+            setReservations((currentReservations) =>
+                currentReservations.filter((reservation) => reservation.dateReturned === null)
+            );
+            setSuccess(
+                `${result.deletedCount ?? pastReservations.length} reservation${
+                    (result.deletedCount ?? pastReservations.length) === 1 ? "" : "s"
+                } removed from your history.`
+            );
+        } catch (err) {
+            setError(err.message);
+            console.error("Error clearing reservation history:", err);
+        } finally {
+            setClearingHistory(false);
+        }
+    };
+
     // Load reservations on mount
     useEffect(() => {
         const loadReservations = window.setTimeout(() => {
@@ -155,11 +218,6 @@ function ReservationManager({ userId }) {
 
         return () => window.clearTimeout(loadReservations);
     }, [fetchActiveReservations, fetchAllReservations]);
-
-    const pastReservations = reservations.filter((r) => r.dateReturned !== null);
-    const pendingReservations = reservations.filter(
-        (r) => r.dateReturned === null && r.reservationStatus === "Pending"
-    );
 
     return (
         <div className="reservation-manager">
@@ -274,11 +332,7 @@ function ReservationManager({ userId }) {
                 ) : (
                     <div className="reservations-list">
                         {activeReservations.map((reservation) => {
-                            const daysCheckedOut = Math.floor(
-                                (new Date() -
-                                    new Date(reservation.dateReserved)) /
-                                    (1000 * 60 * 60 * 24)
-                            );
+                            const daysCheckedOut = elapsedWholeDays(reservation.dateReserved);
                             return (
                                 <div
                                     key={reservation.reservationId}
@@ -356,16 +410,35 @@ function ReservationManager({ userId }) {
                 )}
             </div>
 
+            {/* Other member features stay between active reservations and history. */}
+            {children}
+
             {/* Past Reservations Section */}
-            {pastReservations.length > 0 && (
-                <div className="past-reservations-section">
-                    <h3>Reservation History ({pastReservations.length})</h3>
+            <div className="past-reservations-section">
+                <div className="reservation-history-heading">
+                    <div>
+                        <h3>Reservation History ({pastReservations.length})</h3>
+                        <p className="history-description">
+                            Returned books are kept here until you choose to clear this history.
+                        </p>
+                    </div>
+                    <button
+                        className="btn btn-danger"
+                        type="button"
+                        onClick={clearReservationHistory}
+                        disabled={clearingHistory || pastReservations.length === 0}
+                    >
+                        {clearingHistory ? "Clearing..." : "Clear reservation history"}
+                    </button>
+                </div>
+                {pastReservations.length === 0 ? (
+                    <p className="empty-message">No returned reservations in your history.</p>
+                ) : (
                     <div className="reservations-list past-reservations">
                         {pastReservations.map((reservation) => {
-                            const duration = Math.floor(
-                                (new Date(reservation.dateReturned) -
-                                    new Date(reservation.dateReserved)) /
-                                    (1000 * 60 * 60 * 24)
+                            const duration = elapsedWholeDays(
+                                reservation.dateReserved,
+                                reservation.dateReturned
                             );
                             return (
                                 <div
@@ -440,8 +513,8 @@ function ReservationManager({ userId }) {
                             );
                         })}
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 }
