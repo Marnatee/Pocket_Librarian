@@ -64,7 +64,6 @@ namespace Pocket_Librarian.DAL.Repositories
                     b.TotalCopies,
                     b.CopiesAvailable,
                     b.PublicationYear,
-                    b.CoverImagePath,
                     b.SourceType
                 FROM dbo.Books b
                 WHERE
@@ -145,9 +144,6 @@ namespace Pocket_Librarian.DAL.Repositories
                         PublicationYear = reader.IsDBNull(reader.GetOrdinal("PublicationYear"))
                             ? null
                             : reader.GetInt32(reader.GetOrdinal("PublicationYear")),
-                        CoverImagePath = reader.IsDBNull(reader.GetOrdinal("CoverImagePath"))
-                            ? null
-                            : reader.GetString(reader.GetOrdinal("CoverImagePath")),
                         SourceType = reader.IsDBNull(reader.GetOrdinal("SourceType"))
                             ? "Library acquisition"
                             : reader.GetString(reader.GetOrdinal("SourceType"))
@@ -227,7 +223,7 @@ namespace Pocket_Librarian.DAL.Repositories
         {
             const string sql = """
                 SELECT BookID, ISBN, Title, Description, TotalCopies, CopiesAvailable,
-                       PublicationYear, CoverImagePath, SourceType
+                       PublicationYear, SourceType
                 FROM dbo.Books
                 ORDER BY Title, BookID;
                 """;
@@ -250,7 +246,7 @@ namespace Pocket_Librarian.DAL.Repositories
         {
             const string sql = """
                 SELECT BookID, ISBN, Title, Description, TotalCopies, CopiesAvailable,
-                       PublicationYear, CoverImagePath, SourceType
+                       PublicationYear, SourceType
                 FROM dbo.Books
                 WHERE BookID = @BookID;
                 """;
@@ -277,11 +273,11 @@ namespace Pocket_Librarian.DAL.Repositories
                 const string sql = """
                     INSERT INTO dbo.Books
                         (ISBN, Title, Description, TotalCopies, CopiesAvailable,
-                         PublicationYear, CoverImagePath, SourceType)
+                         PublicationYear, SourceType)
                     OUTPUT INSERTED.BookID
                     VALUES
                         (@ISBN, @Title, @Description, @TotalCopies, @CopiesAvailable,
-                         @PublicationYear, @CoverImagePath, @SourceType);
+                        @PublicationYear, @SourceType);
                     """;
                 await using SqlCommand command = new(sql, connection, transaction);
                 AddBookParameters(command, book);
@@ -312,7 +308,6 @@ namespace Pocket_Librarian.DAL.Repositories
                         TotalCopies = @TotalCopies,
                         CopiesAvailable = @CopiesAvailable,
                         PublicationYear = @PublicationYear,
-                        CoverImagePath = COALESCE(@CoverImagePath, CoverImagePath),
                         SourceType = @SourceType
                     WHERE BookID = @BookID;
                     """;
@@ -380,8 +375,7 @@ namespace Pocket_Librarian.DAL.Repositories
                 TotalCopies = reader.GetInt32(4),
                 CopiesAvailable = reader.GetInt32(5),
                 PublicationYear = reader.IsDBNull(6) ? null : reader.GetInt32(6),
-                CoverImagePath = reader.IsDBNull(7) ? null : reader.GetString(7),
-                SourceType = reader.IsDBNull(8) ? "Library acquisition" : reader.GetString(8)
+                SourceType = reader.IsDBNull(7) ? "Library acquisition" : reader.GetString(7)
             };
 
         private static void AddBookParameters(SqlCommand command, CatalogueBookMutation book)
@@ -392,7 +386,6 @@ namespace Pocket_Librarian.DAL.Repositories
             command.Parameters.Add("@TotalCopies", SqlDbType.Int).Value = book.TotalCopies;
             command.Parameters.Add("@CopiesAvailable", SqlDbType.Int).Value = book.CopiesAvailable;
             AddNullable(command, "@PublicationYear", SqlDbType.Int, null, book.PublicationYear);
-            AddNullable(command, "@CoverImagePath", SqlDbType.NVarChar, 500, book.CoverImagePath);
             command.Parameters.Add("@SourceType", SqlDbType.NVarChar, 100).Value = book.SourceType.Trim();
         }
 

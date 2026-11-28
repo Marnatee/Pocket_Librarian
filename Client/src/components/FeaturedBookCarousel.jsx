@@ -2,37 +2,58 @@
 //Displays the rotating Featured Book demonstration from the master branch.
 
 import { useEffect, useState } from "react";
+import { getBookCoverPath } from "../utils/bookCoverPath";
 
 const featuredBooks = [
     {
+        bookId: 1,
+        title: "Dune",
+        author: "Frank Herbert",
+    },
+    {
+        bookId: 2,
+        title: "Good Omens",
+        author: "Terry Pratchett and Neil Gaiman",
+    },
+    {
+        bookId: 3,
+        title: "The Hobbit",
+        author: "J. R. R. Tolkien",
+    },
+    {
+        bookId: 4,
+        title: "The Handmaid's Tale",
+        author: "Margaret Atwood",
+    },
+    {
+        bookId: 5,
         title: "One Piece, Volume 1",
         author: "Eiichiro Oda",
-        image: "/featured-books/81IgOp0fOiL._UF1000,1000_QL80_.jpg",
     },
     {
+        bookId: 6,
         title: "Berserk, Volume 1",
         author: "Kentaro Miura",
-        image: "/featured-books/Berserk_Vol_1.webp",
     },
     {
+        bookId: 7,
         title: "The Eye of the World",
         author: "Robert Jordan",
-        image: "/featured-books/WoT01_TheEyeOfTheWorld.jpg",
     },
     {
+        bookId: 8,
         title: "The Men Who Started the American Revolution",
         author: "A. J. Langguth",
-        image: "/featured-books/cvr9780671675622_9780671675622_hr.jpg",
     },
     {
+        bookId: 9,
         title: "Dungeon Crawler Carl, Volume 1",
         author: "Matt Dinniman",
-        image: "/featured-books/dungeon-crawler-carl-vol-1-graphic-novel-9781638493655_hr.jpg",
     },
     {
+        bookId: 10,
         title: "Unsouled",
         author: "Will Wight",
-        image: "/featured-books/unsouled-cover-art-by-evan-teuteberg-v0-q1f8r6d4pz881.webp",
     },
 ];
 
@@ -80,9 +101,9 @@ function FeaturedBookCarousel() {
             <div className="display-case">
                 <div className="display-case-window">
                     <img
-                        key={featuredBooks[featuredBookIndex].image}
+                        key={featuredBooks[featuredBookIndex].bookId}
                         className="featured-book-cover"
-                        src={featuredBooks[featuredBookIndex].image}
+                        src={getBookCoverPath(featuredBooks[featuredBookIndex].bookId)}
                         alt={`${featuredBooks[featuredBookIndex].title} book cover`}
                     />
                 </div>
@@ -100,7 +121,7 @@ function FeaturedBookCarousel() {
             <div className="featured-book-dots" aria-label="Choose a featured book">
                 {featuredBooks.map((book, index) => (
                     <button
-                        key={book.image}
+                        key={book.bookId}
                         className={index === featuredBookIndex ? "active" : ""}
                         type="button"
                         onClick={() => setFeaturedBookIndex(index)}

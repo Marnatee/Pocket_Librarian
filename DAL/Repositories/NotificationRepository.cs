@@ -111,6 +111,30 @@ public sealed class NotificationRepository : INotificationRepository
         return await command.ExecuteNonQueryAsync() == 1;
     }
 
+    public async Task<bool> DeleteForUserAsync(
+        int userId,
+        int notificationId)
+    {
+        await EnsureNotificationsTableAsync();
+
+        const string sql = """
+            DELETE FROM dbo.Notifications
+            WHERE NotificationID = @NotificationID
+              AND UserID = @UserID;
+            """;
+
+        await using SqlConnection connection =
+            new SqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        await using SqlCommand command =
+            new SqlCommand(sql, connection);
+        command.Parameters.Add("@NotificationID", SqlDbType.Int).Value = notificationId;
+        command.Parameters.Add("@UserID", SqlDbType.Int).Value = userId;
+
+        return await command.ExecuteNonQueryAsync() == 1;
+    }
+
     private async Task EnsureNotificationsTableAsync()
     {
         const string sql = """

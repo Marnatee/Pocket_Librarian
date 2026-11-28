@@ -163,55 +163,43 @@ public sealed class CatalogueAdministrationController : ControllerBase
     }
 
     [HttpPost("books")]
-    [RequestSizeLimit(5 * 1024 * 1024)]
     public async Task<IActionResult> CreateBook([FromForm] CatalogueBookForm form)
     {
-        string? imagePath = null;
         try
         {
-            imagePath = await _imageStorage.SaveAsync(form.CoverImage);
-            int bookId = await _catalogueService.CreateBookAsync(ToMutation(form, imagePath));
+            int bookId = await _catalogueService.CreateBookAsync(ToMutation(form));
             return Created($"/api/catalogue-admin/books/{bookId}", new { bookId });
         }
         catch (ArgumentException exception)
         {
-            _imageStorage.Delete(imagePath);
             return BadRequest(new { message = exception.Message });
         }
         catch (SqlException)
         {
-            _imageStorage.Delete(imagePath);
             return DatabaseUnavailable();
         }
     }
 
     [HttpPut("books/{bookId:int}")]
-    [RequestSizeLimit(5 * 1024 * 1024)]
     public async Task<IActionResult> UpdateBook(int bookId, [FromForm] CatalogueBookForm form)
     {
-        string? imagePath = null;
         try
         {
             CatalogueBook? current = await _catalogueService.GetBookAsync(bookId);
             if (current is null) return NotFound(new { message = "Book not found." });
-            imagePath = await _imageStorage.SaveAsync(form.CoverImage);
-            bool updated = await _catalogueService.UpdateBookAsync(bookId, ToMutation(form, imagePath));
+            bool updated = await _catalogueService.UpdateBookAsync(bookId, ToMutation(form));
             if (!updated)
             {
-                _imageStorage.Delete(imagePath);
                 return NotFound();
             }
-            if (imagePath is not null) _imageStorage.Delete(current.CoverImagePath);
             return Ok(new { message = "Catalogue record updated." });
         }
         catch (ArgumentException exception)
         {
-            _imageStorage.Delete(imagePath);
             return BadRequest(new { message = exception.Message });
         }
         catch (SqlException)
         {
-            _imageStorage.Delete(imagePath);
             return DatabaseUnavailable();
         }
     }
@@ -224,7 +212,6 @@ public sealed class CatalogueAdministrationController : ControllerBase
             CatalogueBook? current = await _catalogueService.GetBookAsync(bookId);
             if (current is null) return NotFound(new { message = "Book not found." });
             bool deleted = await _catalogueService.DeleteBookAsync(bookId);
-            if (deleted) _imageStorage.Delete(current.CoverImagePath);
             return deleted ? Ok(new { message = "Catalogue record deleted." }) : Conflict(new { message = "Book could not be deleted." });
         }
         catch (SqlException exception)
@@ -253,7 +240,7 @@ public sealed class CatalogueAdministrationController : ControllerBase
         return int.TryParse(value, out int id) ? id : throw new InvalidOperationException("A staff identity is required.");
     }
 
-    private static CatalogueBookMutation ToMutation(CatalogueBookForm form, string? imagePath) =>
+    private static CatalogueBookMutation ToMutation(CatalogueBookForm form) =>
         new()
         {
             Title = form.Title ?? string.Empty,
@@ -262,7 +249,6 @@ public sealed class CatalogueAdministrationController : ControllerBase
             Genre = form.Genre,
             PublicationYear = form.PublicationYear,
             Description = form.Description,
-            CoverImagePath = imagePath,
             SourceType = string.IsNullOrWhiteSpace(form.SourceType) ? "Library acquisition" : form.SourceType,
             TotalCopies = form.TotalCopies,
             CopiesAvailable = form.CopiesAvailable
@@ -309,5 +295,4 @@ public sealed class CatalogueBookForm
     public string? SourceType { get; set; }
     public int TotalCopies { get; set; }
     public int CopiesAvailable { get; set; }
-    public IFormFile? CoverImage { get; set; }
 }

@@ -65,6 +65,32 @@ public sealed class NotificationController : ControllerBase
         }
     }
 
+    [HttpDelete("{notificationId:int}")]
+    public async Task<IActionResult> Delete(int notificationId)
+    {
+        try
+        {
+            int userId = GetCurrentUserId();
+            bool deleted = await _service.DeleteForUserAsync(
+                userId,
+                notificationId);
+
+            return deleted
+                ? NoContent()
+                : NotFound(new { message = "Notification was not found." });
+        }
+        catch (SqlException)
+        {
+            return StatusCode(
+                StatusCodes.Status503ServiceUnavailable,
+                new { message = "The notification service could not reach the database." });
+        }
+        catch (ArgumentException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+    }
+
     [Authorize(Roles = "Staff")]
     [HttpPost("user/{userId:int}")]
     public async Task<IActionResult> CreateForUser(

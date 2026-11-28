@@ -11,7 +11,7 @@ This document records the database design shown in `Client/Documentation/Pocket_
 | `Users` | `UserID` (PK), `FirstName`, `LastName`, `Email`, `PasswordHash`, `Role` | Stores member and staff accounts. |
 | `Reservations` | `ReservationID` (PK), `UserID` (FK), `BookID` (FK), `DateReserved`, `DateReturned` | Stores the reservation history and connects members to books. |
 | `Notifications` | `NotificationID` (PK), `UserID` (FK), `Title`, `MessageText`, `CreatedDate`, `IsRead` | Stores member notifications and read status. |
-| `Books` | `BookID` (PK), `ISBN`, `Title`, `Description`, `PublicationYear`, `ConditionSummary`, `CoverImagePath`, `SourceType`, `TotalCopies`, `CopiesAvailable` | Stores catalogue records and aggregate availability. |
+| `Books` | `BookID` (PK), `ISBN`, `Title`, `Description`, `PublicationYear`, `ConditionSummary`, `SourceType`, `TotalCopies`, `CopiesAvailable` | Stores catalogue records and aggregate availability. |
 | `BookDonations` | Donation metadata, `VerificationStatus`, `ReviewNotes`, `ApprovedBookID`, `CoverImagePath` | Stores member submissions and the staff review history. |
 | `Authors` | `AuthorID` (PK), `FirstName`, `LastName` | Stores author records. |
 | `BookAuthors` | `BookID` (PK/FK), `AuthorID` (PK/FK) | Junction table for the many-to-many book/author relationship. |
@@ -44,9 +44,15 @@ Inventory is intentionally tracked at the catalogue-title level:
 `Books.CopiesAvailable` stores the number currently available. Individual
 barcodes, shelf locations, and physical-copy statuses are outside the current
 project scope.
-Cover images are stored as files under `Server/wwwroot/uploads/covers`; SQL
-stores the relative URL in `Books.CoverImagePath` or
-`BookDonations.CoverImagePath`.
+Curated catalogue covers are static client assets under
+`Client/public/featured-books/book-{BookID}.jpg`. The catalogue API returns the
+book's `BookID`; the React client constructs the image path from that ID. The
+catalogue search and staff catalogue records do not read or write an image path
+from `Books`. Member donation submissions may still retain their uploaded cover
+path in `BookDonations` while staff review the request.
+
+Run `Database/FeaturedBooks.sql` after the core setup script to add or verify
+the ten featured records and their author/genre links.
 
 ## Application architecture notes
 

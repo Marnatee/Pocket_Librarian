@@ -333,11 +333,11 @@ public sealed class DonationRepository : IDonationRepository
         const string sql = """
             INSERT INTO dbo.Books
                 (ISBN, Title, Description, TotalCopies, CopiesAvailable,
-                 PublicationYear, ConditionSummary, CoverImagePath, SourceType)
+                 PublicationYear, ConditionSummary, SourceType)
             OUTPUT INSERTED.BookID
             VALUES
                 (@ISBN, @Title, @Description, 0, 0,
-                 @PublicationYear, @ConditionSummary, @CoverImagePath, @SourceType);
+                 @PublicationYear, @ConditionSummary, @SourceType);
             """;
         await using var command = new SqlCommand(sql, connection, transaction);
         AddNullable(command, "@ISBN", SqlDbType.NVarChar, 20, donation.ISBN);
@@ -345,7 +345,6 @@ public sealed class DonationRepository : IDonationRepository
         AddNullable(command, "@Description", SqlDbType.NVarChar, -1, donation.Description);
         AddNullable(command, "@PublicationYear", SqlDbType.Int, null, donation.PublicationYear);
         AddNullable(command, "@ConditionSummary", SqlDbType.NVarChar, 100, donation.Condition);
-        AddNullable(command, "@CoverImagePath", SqlDbType.NVarChar, 500, donation.CoverImagePath);
         command.Parameters.Add("@SourceType", SqlDbType.NVarChar, 100).Value = donation.SourceType;
         return Convert.ToInt32(await command.ExecuteScalarAsync());
     }

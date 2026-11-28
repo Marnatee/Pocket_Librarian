@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./CatalogueSearch.css";
+import { getBookCoverPath } from "../utils/bookCoverPath";
 
 function CatalogueSearch() {
     // Stores the current catalogue search criteria entered by the user.
@@ -226,29 +227,41 @@ function CatalogueSearch() {
                                 className="catalogue-result"
                                 key={book.bookId}
                             >
-                                <h4>{book.title}</h4>
+                                <img
+                                    className="catalogue-result-cover"
+                                    src={getBookCoverPath(book.bookId)}
+                                    alt={`${book.title} book cover`}
+                                    loading="lazy"
+                                    onError={(event) => {
+                                        event.currentTarget.hidden = true;
+                                    }}
+                                />
 
-                                <p>
-                                    <strong>Author:</strong>{" "}
-                                    {book.authors.join(", ")}
-                                </p>
+                                <div className="catalogue-result-details">
+                                    <h4>{book.title}</h4>
 
-                                <p>
-                                    <strong>ISBN:</strong>{" "}
-                                    {book.isbn || "Not available"}
-                                </p>
+                                    <p>
+                                        <strong>Author:</strong>{" "}
+                                        {book.authors.join(", ")}
+                                    </p>
 
-                                <p>
-                                    <strong>Genre:</strong>{" "}
-                                    {book.genres.join(", ")}
-                                </p>
+                                    <p>
+                                        <strong>ISBN:</strong>{" "}
+                                        {book.isbn || "Not available"}
+                                    </p>
 
-                                <p>{book.description}</p>
+                                    <p>
+                                        <strong>Genre:</strong>{" "}
+                                        {book.genres.join(", ")}
+                                    </p>
 
-                                <p>
-                                    <strong>Availability:</strong>{" "}
-                                    {book.copiesAvailable} of {book.totalCopies} copies are available.
-                                </p>
+                                    <p>{book.description}</p>
+
+                                    <p>
+                                        <strong>Availability:</strong>{" "}
+                                        {book.copiesAvailable} of {book.totalCopies} copies are available.
+                                    </p>
+                                </div>
                             </article>
                         ))
                     )}

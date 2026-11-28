@@ -5,7 +5,7 @@ async function getApiMessage(response, fallback) {
     return data.message || fallback;
 }
 
-function MemberNotifications() {
+function MemberNotifications({ onOpenNotifications }) {
     const [notifications, setNotifications] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
@@ -76,6 +76,9 @@ function MemberNotifications() {
     const unreadCount = notifications.filter(
         (notification) => !notification.isRead
     ).length;
+    const unreadNotifications = notifications.filter(
+        (notification) => !notification.isRead
+    );
 
     return (
         <section className="member-feature-card" aria-labelledby="notifications-heading">
@@ -107,10 +110,14 @@ function MemberNotifications() {
                 <p className="member-muted-text">Your notification inbox is empty.</p>
             )}
 
+            {!isLoading && notifications.length > 0 && unreadNotifications.length === 0 && (
+                <p className="member-muted-text">You have read all saved notifications.</p>
+            )}
+
             <div className="notification-list">
-                {notifications.map((notification) => (
+                {unreadNotifications.map((notification) => (
                     <article
-                        className={`notification-card${notification.isRead ? " is-read" : ""}`}
+                        className="notification-card"
                         key={notification.notificationId}
                     >
                         <div>
@@ -131,6 +138,16 @@ function MemberNotifications() {
                         )}
                     </article>
                 ))}
+            </div>
+
+            <div className="notification-history-link-wrap">
+                <button
+                    type="button"
+                    className="notification-history-link"
+                    onClick={onOpenNotifications}
+                >
+                    View all notifications ({notifications.length}) →
+                </button>
             </div>
         </section>
     );

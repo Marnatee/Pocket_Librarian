@@ -7,7 +7,7 @@ import MemberProfileManagement from "../components/MemberProfileManagement";
 import ReservationManager from "../components/ReservationManager";
 import BookDonationForm from "../components/BookDonationForm";
 
-function MemberPage({ currentUser, onProfileUpdated }) {
+function MemberPage({ currentUser, onProfileUpdated, onOpenNotifications }) {
     const currentUserId = Number(currentUser?.userId);
     const [activeFeature, setActiveFeature] = useState(null);
 
@@ -34,7 +34,7 @@ function MemberPage({ currentUser, onProfileUpdated }) {
                 <ReservationManager userId={currentUserId}>
                     <div className="member-tools-grid">
                         <MemberProfileManagement onProfileUpdated={onProfileUpdated} />
-                        <MemberNotifications />
+                        <MemberNotifications onOpenNotifications={onOpenNotifications} />
                     </div>
                     <div className="member-donation-feature-wrap">
                         <button
@@ -44,6 +44,7 @@ function MemberPage({ currentUser, onProfileUpdated }) {
                         >
                             <h3>Book donations</h3>
                             <p>Submit a book for staff verification and possible addition to the catalogue</p>
+                            <span className="member-feature-link">Open donation form →</span>
                         </button>
                     </div>
                 </ReservationManager>
