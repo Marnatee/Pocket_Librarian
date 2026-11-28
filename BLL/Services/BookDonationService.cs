@@ -24,7 +24,7 @@ public sealed class BookDonationService
         submission.SourceType = RequiredText(submission.SourceType, "Source type", 100);
 
         if (submission.UserId <= 0)
-            throw new ArgumentException("A signed-in member account is required.");
+            throw new ArgumentException("A signed-in member or staff account is required.");
         if (submission.NumberOfCopies is < 1 or > 1000)
             throw new ArgumentException("Number of copies must be between 1 and 1,000.");
         if (submission.PublicationYear is < 0 or > 9999)

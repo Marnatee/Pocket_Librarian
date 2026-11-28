@@ -132,8 +132,7 @@ public sealed class DonationRepository : IDonationRepository
                 throw new InvalidOperationException("The selected catalogue book could not be found.");
 
             await AddAuthorAndGenreLinksAsync(connection, transaction, bookId, donation.Author, donation.Genre);
-            await AddCopiesAsync(connection, transaction, bookId, donation.CopiesDonated, donation.Condition);
-            await RefreshInventoryAsync(connection, transaction, bookId);
+            await AddAggregateCopiesAsync(connection, transaction, bookId, donation.CopiesDonated);
 
             const string reviewSql = """
                 UPDATE dbo.BookDonations
@@ -359,27 +358,23 @@ public sealed class DonationRepository : IDonationRepository
         return Convert.ToInt32(await command.ExecuteScalarAsync()) == 1;
     }
 
-    private static async Task AddCopiesAsync(
+    private static async Task AddAggregateCopiesAsync(
         SqlConnection connection,
         SqlTransaction transaction,
         int bookId,
-        int count,
-        string condition)
+        int count)
     {
         const string sql = """
-            INSERT INTO dbo.BookCopies
-                (BookID, Condition, Status, Location, DateAcquired, DateModified)
-            VALUES
-                (@BookID, @Condition, 'Available', @Location, SYSUTCDATETIME(), SYSUTCDATETIME());
+            UPDATE dbo.Books
+            SET TotalCopies = TotalCopies + @Count,
+                CopiesAvailable = CopiesAvailable + @Count
+            WHERE BookID = @BookID;
             """;
-        for (int i = 0; i < count; i++)
-        {
-            await using var command = new SqlCommand(sql, connection, transaction);
-            command.Parameters.Add("@BookID", SqlDbType.Int).Value = bookId;
-            command.Parameters.Add("@Condition", SqlDbType.NVarChar, 30).Value = condition;
-            command.Parameters.Add("@Location", SqlDbType.NVarChar, 255).Value = "Donation intake";
-            await command.ExecuteNonQueryAsync();
-        }
+        await using var command = new SqlCommand(sql, connection, transaction);
+        command.Parameters.Add("@BookID", SqlDbType.Int).Value = bookId;
+        command.Parameters.Add("@Count", SqlDbType.Int).Value = count;
+        if (await command.ExecuteNonQueryAsync() != 1)
+            throw new InvalidOperationException("The catalogue inventory could not be updated.");
     }
 
     private static async Task AddAuthorAndGenreLinksAsync(
@@ -431,27 +426,6 @@ public sealed class DonationRepository : IDonationRepository
             command.Parameters.Add("@BookID", SqlDbType.Int).Value = bookId;
             await command.ExecuteNonQueryAsync();
         }
-    }
-
-    private static async Task RefreshInventoryAsync(SqlConnection connection, SqlTransaction transaction, int bookId)
-    {
-        const string sql = """
-            UPDATE b
-            SET TotalCopies = x.TotalCopies,
-                CopiesAvailable = x.AvailableCopies
-            FROM dbo.Books b
-            CROSS APPLY
-            (
-                SELECT COUNT(*) AS TotalCopies,
-                       SUM(CASE WHEN Status = 'Available' THEN 1 ELSE 0 END) AS AvailableCopies
-                FROM dbo.BookCopies
-                WHERE BookID = @BookID
-            ) x
-            WHERE b.BookID = @BookID;
-            """;
-        await using var command = new SqlCommand(sql, connection, transaction);
-        command.Parameters.Add("@BookID", SqlDbType.Int).Value = bookId;
-        await command.ExecuteNonQueryAsync();
     }
 
     private static void AddDonationParameters(SqlCommand command, Donation donation, bool includeId = true)

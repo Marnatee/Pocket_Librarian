@@ -29,7 +29,7 @@ public sealed class BookDonationController : ControllerBase
         _imageStorage = imageStorage;
     }
 
-    [Authorize(Roles = "Member")]
+    [Authorize(Roles = "Member,Staff")]
     [HttpPost]
     [RequestSizeLimit(5 * 1024 * 1024)]
     public async Task<IActionResult> Submit([FromForm] SubmitBookDonationForm form)
@@ -37,7 +37,7 @@ public sealed class BookDonationController : ControllerBase
         int? userId = GetCurrentUserId();
         if (userId is null)
         {
-            return Unauthorized(new { message = "A signed-in member account is required." });
+            return Unauthorized(new { message = "A signed-in member or staff account is required." });
         }
 
         if (form.CoverImage is not null

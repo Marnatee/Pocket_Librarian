@@ -27,9 +27,7 @@
 .catalogue-admin-heading,
 .catalogue-admin-card-header,
 .catalogue-admin-toolbar,
-.catalogue-admin-actions,
-.catalogue-admin-copy-add,
-.copy-row {
+.catalogue-admin-actions {
     display: flex;
     gap: .75rem;
     align-items: center;
@@ -114,11 +112,7 @@
 
 .catalogue-admin-form-grid input,
 .catalogue-admin-form-grid select,
-.catalogue-admin-form-grid textarea,
-.catalogue-admin-copy-add input,
-.catalogue-admin-copy-add select,
-.copy-row input,
-.copy-row select {
+.catalogue-admin-form-grid textarea {
     min-width: 0;
     padding: .55rem;
     border: 1px solid #bdc7d4;
@@ -135,33 +129,14 @@
     margin-top: .5rem;
 }
 
-.catalogue-admin-actions .danger,
-.copy-row .danger {
+.catalogue-admin-actions .danger {
     border-color: #b42318;
     background: #b42318;
     color: #ffffff;
 }
 
-.catalogue-admin-actions .danger:hover:not(:disabled),
-.copy-row .danger:hover:not(:disabled) {
+.catalogue-admin-actions .danger:hover:not(:disabled) {
     background: #912018;
-}
-
-.copy-management {
-    display: grid;
-    gap: .6rem;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #e3e8ef;
-}
-
-.catalogue-admin-copy-add {
-    flex-wrap: wrap;
-}
-
-.copy-row {
-    display: grid;
-    grid-template-columns: auto repeat(4, minmax(0, 1fr)) auto auto;
 }
 
 @media (max-width: 760px) {
@@ -179,7 +154,4 @@
         grid-column: auto;
     }
 
-    .copy-row {
-        grid-template-columns: 1fr;
-    }
 }

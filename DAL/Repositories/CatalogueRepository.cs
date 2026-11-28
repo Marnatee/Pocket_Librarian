@@ -280,7 +280,7 @@ namespace Pocket_Librarian.DAL.Repositories
                          PublicationYear, CoverImagePath, SourceType)
                     OUTPUT INSERTED.BookID
                     VALUES
-                        (@ISBN, @Title, @Description, 0, 0,
+                        (@ISBN, @Title, @Description, @TotalCopies, @CopiesAvailable,
                          @PublicationYear, @CoverImagePath, @SourceType);
                     """;
                 await using SqlCommand command = new(sql, connection, transaction);
@@ -309,6 +309,8 @@ namespace Pocket_Librarian.DAL.Repositories
                     SET ISBN = @ISBN,
                         Title = @Title,
                         Description = @Description,
+                        TotalCopies = @TotalCopies,
+                        CopiesAvailable = @CopiesAvailable,
                         PublicationYear = @PublicationYear,
                         CoverImagePath = COALESCE(@CoverImagePath, CoverImagePath),
                         SourceType = @SourceType
@@ -344,7 +346,13 @@ namespace Pocket_Librarian.DAL.Repositories
                 }
 
                 const string sql = """
-                    DELETE FROM dbo.BookCopies WHERE BookID = @BookID;
+                    IF OBJECT_ID(N'dbo.BookDonations', N'U') IS NOT NULL
+                       AND COL_LENGTH(N'dbo.BookDonations', N'ApprovedBookID') IS NOT NULL
+                        UPDATE dbo.BookDonations
+                        SET ApprovedBookID = NULL
+                        WHERE ApprovedBookID = @BookID;
+                    IF OBJECT_ID(N'dbo.BookCopies', N'U') IS NOT NULL
+                        DELETE FROM dbo.BookCopies WHERE BookID = @BookID;
                     DELETE FROM dbo.BookAuthors WHERE BookID = @BookID;
                     DELETE FROM dbo.BookGenres WHERE BookID = @BookID;
                     DELETE FROM dbo.Books WHERE BookID = @BookID;
@@ -381,6 +389,8 @@ namespace Pocket_Librarian.DAL.Repositories
             AddNullable(command, "@ISBN", SqlDbType.NVarChar, 20, book.ISBN);
             command.Parameters.Add("@Title", SqlDbType.NVarChar, 255).Value = book.Title.Trim();
             AddNullable(command, "@Description", SqlDbType.NVarChar, -1, book.Description);
+            command.Parameters.Add("@TotalCopies", SqlDbType.Int).Value = book.TotalCopies;
+            command.Parameters.Add("@CopiesAvailable", SqlDbType.Int).Value = book.CopiesAvailable;
             AddNullable(command, "@PublicationYear", SqlDbType.Int, null, book.PublicationYear);
             AddNullable(command, "@CoverImagePath", SqlDbType.NVarChar, 500, book.CoverImagePath);
             command.Parameters.Add("@SourceType", SqlDbType.NVarChar, 100).Value = book.SourceType.Trim();

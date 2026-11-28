@@ -41,8 +41,6 @@ builder.Services.AddScoped<IBookDonationRepository, BookDonationRepository>();
 builder.Services.AddScoped<BookDonationService>();
 builder.Services.AddScoped<IDonationRepository, DonationRepository>();
 builder.Services.AddScoped<DonationService>();
-builder.Services.AddScoped<IBookCopyRepository, BookCopyRepository>();
-builder.Services.AddScoped<BookCopyService>();
 builder.Services.AddScoped<CatalogueAdminService>();
 builder.Services.AddSingleton<CoverImageStorage>();
 

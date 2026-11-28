@@ -13,7 +13,6 @@ This document records the database design shown in `Client/Documentation/Pocket_
 | `Notifications` | `NotificationID` (PK), `UserID` (FK), `Title`, `MessageText`, `CreatedDate`, `IsRead` | Stores member notifications and read status. |
 | `Books` | `BookID` (PK), `ISBN`, `Title`, `Description`, `PublicationYear`, `ConditionSummary`, `CoverImagePath`, `SourceType`, `TotalCopies`, `CopiesAvailable` | Stores catalogue records and aggregate availability. |
 | `BookDonations` | Donation metadata, `VerificationStatus`, `ReviewNotes`, `ApprovedBookID`, `CoverImagePath` | Stores member submissions and the staff review history. |
-| `BookCopies` | `CopyID` (PK), `BookID` (FK), `Barcode`, `Condition`, `Status`, `Location`, reservation/checkout fields | Stores each physical copy independently. |
 | `Authors` | `AuthorID` (PK), `FirstName`, `LastName` | Stores author records. |
 | `BookAuthors` | `BookID` (PK/FK), `AuthorID` (PK/FK) | Junction table for the many-to-many book/author relationship. |
 | `Genres` | `GenreID` (PK), `GenreName` | Stores genre records. |
@@ -35,15 +34,16 @@ This document records the database design shown in `Client/Documentation/Pocket_
 
 ## Book donations
 
-Run `Database/CatalogueAdministrationFeature.sql` after the core database
-exists. The script is rerunnable and adds the catalogue metadata, donation
-workflow fields, and the `BookCopies` table. The application does not modify
-the catalogue when a member submits a request. Staff approval performs the
-donation-to-catalogue change in one database transaction.
+Run the current Pocket Librarian database setup script after the core database
+exists. The application does not modify the catalogue when a member submits a
+request. Staff approval performs the donation-to-catalogue change in one
+database transaction.
 
-`BookCopies` is the source of truth for individual physical-copy condition,
-status, location, reservation, and checkout data. `Books.TotalCopies` and
-`Books.CopiesAvailable` are maintained aggregate values for catalogue search.
+Inventory is intentionally tracked at the catalogue-title level:
+`Books.TotalCopies` stores the number of copies owned and
+`Books.CopiesAvailable` stores the number currently available. Individual
+barcodes, shelf locations, and physical-copy statuses are outside the current
+project scope.
 Cover images are stored as files under `Server/wwwroot/uploads/covers`; SQL
 stores the relative URL in `Books.CoverImagePath` or
 `BookDonations.CoverImagePath`.
