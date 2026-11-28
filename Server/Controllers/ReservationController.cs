@@ -172,6 +172,36 @@ namespace Pocket_Librarian.Server.Controllers
         }
 
     
+        [HttpPut("{id}/checkout")]
+        public async Task<ActionResult<object>> CheckoutBook(int id)
+        {
+            try
+            {
+                int? currentUserId = GetCurrentUserId();
+                if (currentUserId is null)
+                {
+                    return Unauthorized();
+                }
+
+                bool success = await _service.CheckoutBookAsync(currentUserId.Value, id);
+                return success
+                    ? Ok(new { success = true, message = "Book checked out successfully." })
+                    : Conflict(new { error = "The reservation is not ready for checkout." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while checking out the book", details = ex.Message });
+            }
+        }
+
         [HttpPut("{id}/return")]
         public async Task<ActionResult<object>> ReturnBook(int id)
         {
@@ -196,7 +226,7 @@ namespace Pocket_Librarian.Server.Controllers
                     return Ok(new
                     {
                         success = true,
-                        message = "Book returned successfully"
+                        message = "Return request submitted. Staff will process the physical return."
                     });
                 }
                 else
@@ -219,6 +249,7 @@ namespace Pocket_Librarian.Server.Controllers
         }
 
     
+        [Authorize(Roles = "Staff")]
         [HttpPut("{id}")]
         public async Task<ActionResult<object>> UpdateReservation(int id, [FromBody] Reservation reservation)
         {
@@ -260,36 +291,30 @@ namespace Pocket_Librarian.Server.Controllers
         }
 
     
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<object>> DeleteReservation(int id)
+        [HttpPut("{id}/cancel")]
+        public async Task<ActionResult<object>> CancelReservation(int id)
         {
             try
             {
-                var existingReservation = await _service.GetReservationByIdAsync(id);
-
-                if (existingReservation == null)
+                int? currentUserId = GetCurrentUserId();
+                if (currentUserId is null)
                 {
-                    return NotFound(new { error = "Reservation not found" });
+                    return Unauthorized();
                 }
 
-                if (!CanAccessUserReservation(existingReservation.UserId))
-                {
-                    return Forbid();
-                }
-
-                bool success = await _service.DeleteReservationAsync(id);
+                bool success = await _service.CancelReservationAsync(currentUserId.Value, id);
 
                 if (success)
                 {
                     return Ok(new
                     {
                         success = true,
-                        message = "Reservation deleted successfully"
+                        message = "Reservation cancelled. Its history was preserved."
                     });
                 }
                 else
                 {
-                    return NotFound(new { error = "Reservation not found" });
+                    return Conflict(new { error = "This reservation cannot be cancelled in its current state." });
                 }
             }
             catch (ArgumentException ex)
@@ -298,7 +323,7 @@ namespace Pocket_Librarian.Server.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "An error occurred while deleting the reservation", details = ex.Message });
+                return StatusCode(500, new { error = "An error occurred while cancelling the reservation", details = ex.Message });
             }
         }
 

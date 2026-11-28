@@ -223,10 +223,10 @@ function FulfillmentQueueManager() {
                                     ? "Processing..."
                                     : currentTask.status === "Completed"
                                     ? "Task Completed"
-                                    : "Mark as Fulfilled"}
+                                    : "Mark ready for pickup"}
                             </button>
                             <p className="action-hint">
-                                Click "Mark as Fulfilled" when you have found the book and set it aside for pickup.
+                                Click "Mark ready for pickup" when you have found the book and set it aside for pickup.
                                 The member will be notified to collect their book.
                             </p>
                         </div>

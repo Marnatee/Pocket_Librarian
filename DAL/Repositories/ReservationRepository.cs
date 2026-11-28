@@ -4,6 +4,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Pocket_Librarian.BLL.Interfaces;
 using Pocket_Librarian.BLL.Models;
+using Pocket_Librarian.DAL;
 
 namespace Pocket_Librarian.DAL.Repositories
 {
@@ -32,11 +33,13 @@ namespace Pocket_Librarian.DAL.Repositories
         public void SetManualConnectionString(string connectionString)
         {
             _manualConnectionString = connectionString;
+            DatabaseConnectionState.SetManualConnectionString(connectionString);
         }
 
         private string GetActiveConnectionString()
         {
-            return _manualConnectionString ?? _configuredConnectionString;
+            return DatabaseConnectionState.GetActiveConnectionString(
+                _manualConnectionString ?? _configuredConnectionString);
         }
 
         
@@ -55,7 +58,8 @@ namespace Pocket_Librarian.DAL.Repositories
                         FROM dbo.Reservations WITH (UPDLOCK, HOLDLOCK)
                         WHERE UserID = @UserId
                           AND BookID = @BookId
-                          AND DateReturned IS NULL";
+                          AND DateReturned IS NULL
+                          AND ReservationStatus NOT IN ('Cancelled', 'Returned')";
 
                     using (SqlCommand duplicateCommand = new SqlCommand(
                         duplicateQuery, connection, transaction))
@@ -99,6 +103,9 @@ namespace Pocket_Librarian.DAL.Repositories
                             "No copies of this book are currently available.");
                     }
 
+                    // Aggregate inventory reserves one available copy for the
+                    // reservation. Fulfillment changes only the reservation
+                    // status; it must not decrement the same copy a second time.
                     string decrementQuery = @"
                         UPDATE dbo.Books
                         SET CopiesAvailable = CopiesAvailable - 1
@@ -112,7 +119,7 @@ namespace Pocket_Librarian.DAL.Repositories
                         if (await decrementCommand.ExecuteNonQueryAsync() != 1)
                         {
                             throw new InvalidOperationException(
-                                "The book became unavailable before checkout completed.");
+                                "The book became unavailable before the reservation was created.");
                         }
                     }
 
@@ -316,7 +323,7 @@ namespace Pocket_Librarian.DAL.Repositories
 
                     string query = ReservationSelectSql + @"
                         WHERE r.DateReturned IS NULL
-                          AND r.ReservationStatus = 'Fulfilled'
+                          AND r.ReservationStatus IN ('ReadyForPickup', 'CheckedOut')
                         ORDER BY r.DateReserved ASC";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -374,6 +381,32 @@ namespace Pocket_Librarian.DAL.Repositories
             }
         }
 
+        public async Task<bool> CheckoutReservationAsync(int userId, int reservationId)
+        {
+            try
+            {
+                using SqlConnection connection = new SqlConnection(GetActiveConnectionString());
+                await connection.OpenAsync();
+
+                const string query = @"
+                    UPDATE dbo.Reservations
+                    SET ReservationStatus = 'CheckedOut'
+                    WHERE ReservationID = @ReservationID
+                      AND UserID = @UserID
+                      AND DateReturned IS NULL
+                      AND ReservationStatus = 'ReadyForPickup'";
+
+                using SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@ReservationID", reservationId);
+                command.Parameters.AddWithValue("@UserID", userId);
+                return await command.ExecuteNonQueryAsync() == 1;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Error checking out reservation in database", ex);
+            }
+        }
+
         public async Task<bool> ReturnReservationAsync(int reservationId)
         {
             try
@@ -405,25 +438,24 @@ namespace Pocket_Librarian.DAL.Repositories
                     bookId = reader.GetInt32(0);
                     bookTitle = reader.GetString(1);
                     string reservationStatus = reader.GetString(2);
-                    if (!string.Equals(reservationStatus, "Fulfilled", StringComparison.OrdinalIgnoreCase))
+                    if (!string.Equals(reservationStatus, "CheckedOut", StringComparison.OrdinalIgnoreCase))
                     {
                         throw new InvalidOperationException(
-                            "This reservation cannot be returned until staff fulfills it.");
+                            "This reservation cannot be returned until the member checks out the book.");
                     }
                 }
 
                 const string returnQuery = @"
                     UPDATE dbo.Reservations
-                    SET DateReturned = @DateReturned,
-                        ReservationStatus = 'Returned'
+                    SET ReservationStatus = 'ReturnPending'
                     WHERE ReservationID = @ReservationID
-                      AND DateReturned IS NULL";
+                      AND DateReturned IS NULL
+                      AND ReservationStatus = 'CheckedOut'";
 
                 using (SqlCommand returnCommand = new SqlCommand(
                     returnQuery, connection, transaction))
                 {
                     returnCommand.Parameters.AddWithValue("@ReservationID", reservationId);
-                    returnCommand.Parameters.AddWithValue("@DateReturned", DateTime.UtcNow);
 
                     if (await returnCommand.ExecuteNonQueryAsync() != 1)
                     {
@@ -502,7 +534,7 @@ namespace Pocket_Librarian.DAL.Repositories
             }
         }
 
-        public async Task<bool> DeleteReservationAsync(int reservationId)
+        public async Task<bool> CancelReservationAsync(int userId, int reservationId)
         {
             try
             {
@@ -511,16 +543,18 @@ namespace Pocket_Librarian.DAL.Repositories
                 using SqlTransaction transaction = connection.BeginTransaction();
 
                 const string findReservationQuery = @"
-                    SELECT BookID, DateReturned
+                    SELECT BookID, ReservationStatus, DateReturned
                     FROM dbo.Reservations WITH (UPDLOCK, ROWLOCK)
-                    WHERE ReservationID = @ReservationID";
+                    WHERE ReservationID = @ReservationID
+                      AND UserID = @UserID";
 
                 int bookId;
-                bool isActive;
+                string reservationStatus;
                 using (SqlCommand findReservationCommand = new SqlCommand(
                     findReservationQuery, connection, transaction))
                 {
                     findReservationCommand.Parameters.AddWithValue("@ReservationID", reservationId);
+                    findReservationCommand.Parameters.AddWithValue("@UserID", userId);
 
                     using SqlDataReader reader = await findReservationCommand.ExecuteReaderAsync();
                     if (!await reader.ReadAsync())
@@ -529,56 +563,69 @@ namespace Pocket_Librarian.DAL.Repositories
                     }
 
                     bookId = reader.GetInt32(0);
-                    isActive = reader.IsDBNull(1);
-                }
-
-                // FulfillmentTasks references this reservation. A reservation
-                // deletion is therefore also a cancellation of its fulfillment
-                // history, and must remove the dependent task first.
-                const string deleteFulfillmentTaskQuery = @"
-                    DELETE FROM dbo.FulfillmentTasks
-                    WHERE ReservationID = @ReservationID";
-
-                using (SqlCommand deleteFulfillmentTaskCommand = new SqlCommand(
-                    deleteFulfillmentTaskQuery, connection, transaction))
-                {
-                    deleteFulfillmentTaskCommand.Parameters.AddWithValue("@ReservationID", reservationId);
-                    await deleteFulfillmentTaskCommand.ExecuteNonQueryAsync();
-                }
-
-                const string deleteQuery = @"
-                    DELETE FROM dbo.Reservations
-                    WHERE ReservationID = @ReservationID";
-
-                using (SqlCommand deleteCommand = new SqlCommand(
-                    deleteQuery, connection, transaction))
-                {
-                    deleteCommand.Parameters.AddWithValue("@ReservationID", reservationId);
-
-                    if (await deleteCommand.ExecuteNonQueryAsync() != 1)
+                    reservationStatus = reader.GetString(1);
+                    if (!reader.IsDBNull(2))
                     {
                         return false;
                     }
                 }
 
-                if (isActive)
+                if (!string.Equals(reservationStatus, "Pending", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(reservationStatus, "ReadyForPickup", StringComparison.OrdinalIgnoreCase))
                 {
-                    const string incrementQuery = @"
-                        UPDATE dbo.Books
-                        SET CopiesAvailable = CASE
-                            WHEN CopiesAvailable < TotalCopies THEN CopiesAvailable + 1
-                            ELSE TotalCopies
-                        END
-                        WHERE BookID = @BookID";
+                    return false;
+                }
 
-                    using SqlCommand incrementCommand = new SqlCommand(
-                        incrementQuery, connection, transaction);
+                const string cancelQuery = @"
+                    UPDATE dbo.Reservations
+                    SET ReservationStatus = 'Cancelled'
+                    WHERE ReservationID = @ReservationID
+                      AND UserID = @UserID
+                      AND DateReturned IS NULL
+                      AND ReservationStatus IN ('Pending', 'ReadyForPickup')";
+
+                using (SqlCommand cancelCommand = new SqlCommand(
+                    cancelQuery, connection, transaction))
+                {
+                    cancelCommand.Parameters.AddWithValue("@ReservationID", reservationId);
+                    cancelCommand.Parameters.AddWithValue("@UserID", userId);
+
+                    if (await cancelCommand.ExecuteNonQueryAsync() != 1)
+                    {
+                        return false;
+                    }
+                }
+
+                const string cancelTaskQuery = @"
+                    UPDATE dbo.FulfillmentTasks
+                    SET Status = 'Cancelled'
+                    WHERE ReservationID = @ReservationID
+                      AND Status IN ('Pending', 'InProgress')";
+
+                using (SqlCommand cancelTaskCommand = new SqlCommand(
+                    cancelTaskQuery, connection, transaction))
+                {
+                    cancelTaskCommand.Parameters.AddWithValue("@ReservationID", reservationId);
+                    await cancelTaskCommand.ExecuteNonQueryAsync();
+                }
+
+                const string incrementQuery = @"
+                    UPDATE dbo.Books
+                    SET CopiesAvailable = CASE
+                        WHEN CopiesAvailable < TotalCopies THEN CopiesAvailable + 1
+                        ELSE TotalCopies
+                    END
+                    WHERE BookID = @BookID";
+
+                using (SqlCommand incrementCommand = new SqlCommand(
+                    incrementQuery, connection, transaction))
+                {
                     incrementCommand.Parameters.AddWithValue("@BookID", bookId);
 
                     if (await incrementCommand.ExecuteNonQueryAsync() != 1)
                     {
                         throw new InvalidOperationException(
-                            "The reservation was deleted, but the book inventory could not be updated.");
+                            "The reservation was cancelled, but the book inventory could not be updated.");
                     }
                 }
 
@@ -591,7 +638,7 @@ namespace Pocket_Librarian.DAL.Repositories
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Error deleting reservation from database", ex);
+                throw new InvalidOperationException("Error cancelling reservation in database", ex);
             }
         }
 

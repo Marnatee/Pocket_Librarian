@@ -9,10 +9,14 @@ This document records the database design shown in `Client/Documentation/Pocket_
 | Table | Columns shown in the diagram | Purpose |
 | --- | --- | --- |
 | `Users` | `UserID` (PK), `FirstName`, `LastName`, `Email`, `PasswordHash`, `Role` | Stores member and staff accounts. |
-| `Reservations` | `ReservationID` (PK), `UserID` (FK), `BookID` (FK), `DateReserved`, `DateReturned` | Stores the reservation history and connects members to books. |
+| `Reservations` | `ReservationID` (PK), `UserID` (FK), `BookID` (FK), `DateReserved`, `DateReturned`, `ReservationStatus` | Stores reservation history and its explicit checkout/return lifecycle. |
 | `Notifications` | `NotificationID` (PK), `UserID` (FK), `Title`, `MessageText`, `CreatedDate`, `IsRead` | Stores member notifications and read status. |
 | `Books` | `BookID` (PK), `ISBN`, `Title`, `Description`, `PublicationYear`, `ConditionSummary`, `SourceType`, `TotalCopies`, `CopiesAvailable` | Stores catalogue records and aggregate availability. |
 | `BookDonations` | Donation metadata, `VerificationStatus`, `ReviewNotes`, `ApprovedBookID`, `CoverImagePath` | Stores member submissions and the staff review history. |
+| `FulfillmentTasks` | Reservation/member/book reference, staff assignment, status, timestamps | Tracks staff preparation of a reserved book. |
+| `ReturnTasks` | Reservation/book reference, staff assignment, shelf, status, timestamps | Tracks staff processing of a physical return. |
+| `ReturnActions` | Return task, action type, staff, optional found-book/support details | Preserves how staff resolved a return task. |
+| `SupportTickets` | Return task/book reference, description, status, resolution details | Preserves return issues requiring follow-up. |
 | `Authors` | `AuthorID` (PK), `FirstName`, `LastName` | Stores author records. |
 | `BookAuthors` | `BookID` (PK/FK), `AuthorID` (PK/FK) | Junction table for the many-to-many book/author relationship. |
 | `Genres` | `GenreID` (PK), `GenreName` | Stores genre records. |
@@ -35,7 +39,12 @@ This document records the database design shown in `Client/Documentation/Pocket_
 ## Book donations
 
 Run the current Pocket Librarian database setup script after the core database
-exists. The application does not modify the catalogue when a member submits a
+exists. The repository now includes `Database/WorkflowAndInventoryMigration.sql`
+as the maintained migration for the reservation, fulfillment, return,
+notification, and support-ticket tables. Run that migration before
+`Database/FeaturedBooks.sql`. It is idempotent and can be run again safely.
+
+The application does not modify the catalogue when a member submits a
 request. Staff approval performs the donation-to-catalogue change in one
 database transaction.
 
@@ -64,4 +73,10 @@ The backend always runs locally through ASP.NET Core. The database connection ma
 
 The dashboard also includes a demo-only manual connection form. It sends a supplied connection string to the local API over the running HTTPS connection, tests `dbo.Books`, and keeps a successful manual target in server memory for the current process only. It is not written to source code, browser storage, or the repository. The user must supply the full connection information required by the chosen local or Azure SQL authentication method.
 
-Member notifications are created lazily the first time an authenticated notification request is made. The API creates `dbo.Notifications` with a foreign key to `dbo.Users(UserID)` when the table does not already exist; it does not require the backend to connect to SQL Server during application startup.
+Member notifications are created by the fulfillment transaction when staff marks
+a reservation ready for pickup. The migration also creates `dbo.Notifications`
+up front; the repository retains a lazy-create fallback for older installations.
+
+The diagnostics page's successful manual connection is held in server memory for
+the current process and is now shared by all repositories, not only the pipeline
+test repository.

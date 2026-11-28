@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Pocket_Librarian.BLL.Interfaces;
 using Pocket_Librarian.BLL.Models;
+using Pocket_Librarian.DAL;
 
 namespace Pocket_Librarian.DAL.Repositories;
 
@@ -29,7 +30,7 @@ public sealed class NotificationRepository : INotificationRepository
             """;
 
         await using SqlConnection connection =
-            new SqlConnection(_connectionString);
+            new SqlConnection(DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
 
         await using SqlCommand command =
@@ -74,7 +75,7 @@ public sealed class NotificationRepository : INotificationRepository
             """;
 
         await using SqlConnection connection =
-            new SqlConnection(_connectionString);
+            new SqlConnection(DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
 
         await using SqlCommand command =
@@ -100,7 +101,7 @@ public sealed class NotificationRepository : INotificationRepository
             """;
 
         await using SqlConnection connection =
-            new SqlConnection(_connectionString);
+            new SqlConnection(DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
 
         await using SqlCommand command =
@@ -124,7 +125,7 @@ public sealed class NotificationRepository : INotificationRepository
             """;
 
         await using SqlConnection connection =
-            new SqlConnection(_connectionString);
+            new SqlConnection(DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
 
         await using SqlCommand command =
@@ -163,7 +164,7 @@ public sealed class NotificationRepository : INotificationRepository
             """;
 
         await using SqlConnection connection =
-            new SqlConnection(_connectionString);
+            new SqlConnection(DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
 
         await using SqlCommand command =
