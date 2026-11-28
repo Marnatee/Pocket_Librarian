@@ -6,12 +6,10 @@ namespace Pocket_Librarian.BLL.Services;
 public sealed class CatalogueAdminService
 {
     private readonly ICatalogueRepository _catalogueRepository;
-    private readonly BookCopyService _bookCopyService;
 
-    public CatalogueAdminService(ICatalogueRepository catalogueRepository, BookCopyService bookCopyService)
+    public CatalogueAdminService(ICatalogueRepository catalogueRepository)
     {
         _catalogueRepository = catalogueRepository;
-        _bookCopyService = bookCopyService;
     }
 
     public Task<List<CatalogueBook>> GetBooksAsync() => _catalogueRepository.GetAllBooksAsync();
@@ -41,20 +39,6 @@ public sealed class CatalogueAdminService
         return _catalogueRepository.DeleteBookAsync(bookId);
     }
 
-    public Task<List<BookCopy>> GetCopiesAsync(int bookId) =>
-        _bookCopyService.GetCopiesByBookIdAsync(bookId);
-
-    public Task<int> AddCopyAsync(int bookId, string? barcode, string condition, string? location) =>
-        _bookCopyService.CreateCopyAsync(bookId, barcode, condition, location);
-
-    public Task<List<int>> AddCopiesAsync(int bookId, int count, string condition, string? location) =>
-        _bookCopyService.CreateCopiesAsync(bookId, count, condition, location);
-
-    public Task<bool> UpdateCopyAsync(int copyId, string condition, string? location, string? notes, string? status) =>
-        _bookCopyService.UpdateCopyAsync(copyId, condition, location, notes, status);
-
-    public Task<bool> DeleteCopyAsync(int copyId) => _bookCopyService.DeleteCopyAsync(copyId);
-
     private static void ValidateId(int id, string name)
     {
         if (id <= 0) throw new ArgumentException($"{name} must be greater than 0.", name);
@@ -70,5 +54,8 @@ public sealed class CatalogueAdminService
         if (book.Genre?.Length > 100) throw new ArgumentException("Genre cannot exceed 100 characters.");
         if (book.PublicationYear is < 0 or > 9999) throw new ArgumentException("Publication year is invalid.");
         if (string.IsNullOrWhiteSpace(book.SourceType)) throw new ArgumentException("Source type is required.");
+        if (book.TotalCopies < 0) throw new ArgumentException("Total copies cannot be negative.");
+        if (book.CopiesAvailable < 0 || book.CopiesAvailable > book.TotalCopies)
+            throw new ArgumentException("Available copies must be between zero and total copies.");
     }
 }

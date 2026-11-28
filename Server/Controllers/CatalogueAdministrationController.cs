@@ -227,53 +227,12 @@ public sealed class CatalogueAdministrationController : ControllerBase
             if (deleted) _imageStorage.Delete(current.CoverImagePath);
             return deleted ? Ok(new { message = "Catalogue record deleted." }) : Conflict(new { message = "Book could not be deleted." });
         }
-        catch (SqlException) { return DatabaseUnavailable(); }
-    }
-
-    [HttpGet("books/{bookId:int}/copies")]
-    public async Task<IActionResult> GetCopies(int bookId)
-    {
-        try { return Ok(await _catalogueService.GetCopiesAsync(bookId)); }
-        catch (ArgumentException exception) { return BadRequest(new { message = exception.Message }); }
-        catch (SqlException) { return DatabaseUnavailable(); }
-    }
-
-    [HttpPost("books/{bookId:int}/copies")]
-    public async Task<IActionResult> AddCopies(int bookId, [FromBody] AddCopiesRequest request)
-    {
-        try
+        catch (SqlException exception)
         {
-            List<int> ids = await _catalogueService.AddCopiesAsync(
-                bookId, request.Count, request.Condition, request.Location);
-            return Ok(new { copyIds = ids });
+            return exception.Number == 547
+                ? Conflict(new { message = "This book still has related reservation or workflow records and cannot be deleted." })
+                : DatabaseUnavailable();
         }
-        catch (ArgumentException exception) { return BadRequest(new { message = exception.Message }); }
-        catch (SqlException) { return DatabaseUnavailable(); }
-    }
-
-    [HttpPut("copies/{copyId:int}")]
-    public async Task<IActionResult> UpdateCopy(int copyId, [FromBody] UpdateCopyRequest request)
-    {
-        try
-        {
-            bool updated = await _catalogueService.UpdateCopyAsync(
-                copyId, request.Condition, request.Location, request.Notes, request.Status);
-            return updated ? Ok(new { message = "Copy updated." }) : NotFound(new { message = "Copy not found." });
-        }
-        catch (ArgumentException exception) { return BadRequest(new { message = exception.Message }); }
-        catch (SqlException) { return DatabaseUnavailable(); }
-    }
-
-    [HttpDelete("copies/{copyId:int}")]
-    public async Task<IActionResult> DeleteCopy(int copyId)
-    {
-        try
-        {
-            bool deleted = await _catalogueService.DeleteCopyAsync(copyId);
-            return deleted ? Ok(new { message = "Copy deleted." }) : Conflict(new { message = "Copy could not be deleted. Checked-out copies must be returned first." });
-        }
-        catch (ArgumentException exception) { return BadRequest(new { message = exception.Message }); }
-        catch (SqlException) { return DatabaseUnavailable(); }
     }
 
     private async Task<IActionResult> RunDonationActionAsync(Func<Task<bool>> action)
@@ -304,7 +263,9 @@ public sealed class CatalogueAdministrationController : ControllerBase
             PublicationYear = form.PublicationYear,
             Description = form.Description,
             CoverImagePath = imagePath,
-            SourceType = string.IsNullOrWhiteSpace(form.SourceType) ? "Library acquisition" : form.SourceType
+            SourceType = string.IsNullOrWhiteSpace(form.SourceType) ? "Library acquisition" : form.SourceType,
+            TotalCopies = form.TotalCopies,
+            CopiesAvailable = form.CopiesAvailable
         };
 
     private ObjectResult DatabaseUnavailable() =>
@@ -346,20 +307,7 @@ public sealed class CatalogueBookForm
     public int? PublicationYear { get; set; }
     public string? Description { get; set; }
     public string? SourceType { get; set; }
+    public int TotalCopies { get; set; }
+    public int CopiesAvailable { get; set; }
     public IFormFile? CoverImage { get; set; }
-}
-
-public sealed class AddCopiesRequest
-{
-    public int Count { get; set; } = 1;
-    public string Condition { get; set; } = "Good";
-    public string? Location { get; set; }
-}
-
-public sealed class UpdateCopyRequest
-{
-    public string Condition { get; set; } = "Good";
-    public string? Status { get; set; }
-    public string? Location { get; set; }
-    public string? Notes { get; set; }
 }

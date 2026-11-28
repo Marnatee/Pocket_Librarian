@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import "./CatalogueAdministrationManager.css";
 
 const conditions = ["Like New", "Good", "Fair", "Poor"];
-const copyStatuses = ["Available", "Checked Out", "Damaged", "Lost", "Removed"];
 const sourceTypes = ["Member donation", "Publisher donation", "Library acquisition", "Inheritance", "Other"];
 
 const blankBook = {
@@ -12,6 +11,8 @@ const blankBook = {
     genre: "",
     publicationYear: "",
     description: "",
+    totalCopies: 0,
+    copiesAvailable: 0,
     sourceType: "Library acquisition",
     coverImage: null,
 };
@@ -22,7 +23,6 @@ function CatalogueAdministrationManager() {
     const [donations, setDonations] = useState([]);
     const [donationEdits, setDonationEdits] = useState({});
     const [books, setBooks] = useState([]);
-    const [copies, setCopies] = useState({});
     const [bookForm, setBookForm] = useState(blankBook);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
@@ -164,76 +164,11 @@ function CatalogueAdministrationManager() {
     }
 
     async function deleteBook(book) {
-        if (!window.confirm("Delete \"" + book.title + "\" and its physical copies?")) return;
+        if (!window.confirm("Delete \"" + book.title + "\" from the catalogue?")) return;
         await runAction(
             () => request("/api/catalogue-admin/books/" + book.bookId, { method: "DELETE" }),
             "Catalogue record deleted.",
             loadBooks
-        );
-    }
-
-    async function loadCopies(bookId) {
-        try {
-            const data = await request("/api/catalogue-admin/books/" + bookId + "/copies");
-            setCopies((current) => ({ ...current, [bookId]: data }));
-        } catch (requestError) {
-            setError(requestError.message);
-        }
-    }
-
-    async function addCopies(bookId, event) {
-        event.preventDefault();
-        const form = new FormData(event.currentTarget);
-        await runAction(
-            () => request("/api/catalogue-admin/books/" + bookId + "/copies", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    count: Number(form.get("count")),
-                    condition: form.get("condition"),
-                    location: form.get("location") || null,
-                }),
-            }),
-            "Physical copies added.",
-            async () => {
-                event.currentTarget.reset();
-                await loadCopies(bookId);
-                await loadBooks();
-            }
-        );
-    }
-
-    async function updateCopy(copy, event) {
-        event.preventDefault();
-        const form = new FormData(event.currentTarget);
-        await runAction(
-            () => request("/api/catalogue-admin/copies/" + copy.copyId, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    condition: form.get("condition"),
-                    status: form.get("status"),
-                    location: form.get("location") || null,
-                    notes: form.get("notes") || null,
-                }),
-            }),
-            "Copy updated.",
-            async () => {
-                await loadCopies(copy.bookId);
-                await loadBooks();
-            }
-        );
-    }
-
-    async function deleteCopy(copy) {
-        if (!window.confirm("Delete this physical copy?")) return;
-        await runAction(
-            () => request("/api/catalogue-admin/copies/" + copy.copyId, { method: "DELETE" }),
-            "Copy deleted.",
-            async () => {
-                await loadCopies(copy.bookId);
-                await loadBooks();
-            }
         );
     }
 
@@ -255,7 +190,7 @@ function CatalogueAdministrationManager() {
                 <div>
                     <p className="page-eyebrow">Staff feature</p>
                     <h2>Catalogue administration</h2>
-                    <p>Review donations, maintain catalogue records, and manage each physical copy.</p>
+                    <p>Review donations, maintain catalogue records, and manage aggregate availability.</p>
                 </div>
                 <div className="catalogue-admin-tabs" role="tablist">
                     <button type="button" className={section === "donations" ? "active" : ""} onClick={() => setSection("donations")}>Donations</button>
@@ -329,6 +264,8 @@ function CatalogueAdministrationManager() {
                         <label>ISBN<input value={bookForm.isbn} onChange={(event) => setBookForm({ ...bookForm, isbn: event.target.value })} /></label>
                         <label>Genre<input value={bookForm.genre} onChange={(event) => setBookForm({ ...bookForm, genre: event.target.value })} /></label>
                         <label>Publication year<input type="number" value={bookForm.publicationYear} onChange={(event) => setBookForm({ ...bookForm, publicationYear: event.target.value })} /></label>
+                        <label>Total copies<input name="totalCopies" type="number" min="0" value={bookForm.totalCopies} onChange={(event) => setBookForm({ ...bookForm, totalCopies: event.target.value, copiesAvailable: event.target.value })} /></label>
+                        <label>Available copies<input name="copiesAvailable" type="number" min="0" max={bookForm.totalCopies} value={bookForm.copiesAvailable} onChange={(event) => setBookForm({ ...bookForm, copiesAvailable: event.target.value })} /></label>
                         <label>Source type<select value={bookForm.sourceType} onChange={(event) => setBookForm({ ...bookForm, sourceType: event.target.value })}>{sourceTypes.map((value) => <option key={value}>{value}</option>)}</select></label>
                         <label className="wide">Description<textarea value={bookForm.description} onChange={(event) => setBookForm({ ...bookForm, description: event.target.value })} /></label>
                         <label className="wide">Cover image<input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => setBookForm({ ...bookForm, coverImage: event.target.files?.[0] || null })} /></label>
@@ -344,37 +281,16 @@ function CatalogueAdministrationManager() {
                                     <label>ISBN<input name="isbn" defaultValue={book.isbn || ""} /></label>
                                     <label>Genre<input name="genre" defaultValue={book.genres?.join(", ") || ""} /></label>
                                     <label>Publication year<input name="publicationYear" type="number" defaultValue={book.publicationYear || ""} /></label>
+                                    <label>Total copies<input name="totalCopies" type="number" min="0" defaultValue={book.totalCopies} /></label>
+                                    <label>Available copies<input name="copiesAvailable" type="number" min="0" max={book.totalCopies} defaultValue={book.copiesAvailable} /></label>
                                     <label>Source type<select name="sourceType" defaultValue={book.sourceType || "Library acquisition"}>{sourceTypes.map((value) => <option key={value}>{value}</option>)}</select></label>
                                     <label className="wide">Description<textarea name="description" defaultValue={book.description || ""} /></label>
                                     <label className="wide">Replace cover image<input name="coverImage" type="file" accept="image/jpeg,image/png,image/webp" /></label>
                                     <div className="catalogue-admin-actions wide">
                                         <button className="primary" type="submit">Save record</button>
                                         <button type="button" className="danger" onClick={() => deleteBook(book)}>Delete record</button>
-                                        <button type="button" onClick={() => loadCopies(book.bookId)}>Load physical copies</button>
                                     </div>
                                 </form>
-                                {copies[book.bookId] && (
-                                    <div className="copy-management">
-                                        <h4>Physical copies ({copies[book.bookId].length})</h4>
-                                        <form className="catalogue-admin-copy-add" onSubmit={(event) => addCopies(book.bookId, event)}>
-                                            <input name="count" type="number" min="1" max="1000" defaultValue="1" aria-label="Number of copies" />
-                                            <select name="condition" defaultValue="Good" aria-label="Copy condition">{conditions.map((value) => <option key={value}>{value}</option>)}</select>
-                                            <input name="location" placeholder="Location" aria-label="Location" />
-                                            <button type="submit">Add copies</button>
-                                        </form>
-                                        {copies[book.bookId].map((copy) => (
-                                            <form className="copy-row" key={copy.copyId} onSubmit={(event) => updateCopy(copy, event)}>
-                                                <strong>Copy #{copy.copyId}</strong>
-                                                <select name="condition" defaultValue={copy.condition}>{conditions.map((value) => <option key={value}>{value}</option>)}</select>
-                                                <select name="status" defaultValue={copy.status}>{copyStatuses.map((value) => <option key={value}>{value}</option>)}</select>
-                                                <input name="location" defaultValue={copy.location || ""} placeholder="Location" />
-                                                <input name="notes" defaultValue={copy.notes || ""} placeholder="Notes" />
-                                                <button type="submit">Save</button>
-                                                <button type="button" className="danger" onClick={() => deleteCopy(copy)}>Delete</button>
-                                            </form>
-                                        ))}
-                                    </div>
-                                )}
                             </article>
                         ))}
                     </div>

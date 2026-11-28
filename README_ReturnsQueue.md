@@ -19,8 +19,6 @@ Run `Database/FulfillmentQueue.sql` and `Database/ReturnsQueue.sql` after the
 core database tables exist. The fulfillment script adds the reservation status
 used to prevent a member from returning a book before staff has fulfilled it.
 The returns script creates the return-task, action-history, and support-ticket
-tables. The
-current implementation uses the project’s aggregate `Books` inventory fields
-(`TotalCopies` and `CopiesAvailable`). If the database is later changed to
-track individual `BookCopies`, the queue should be changed to store `CopyID`
-and update that physical copy instead.
+tables. The current implementation uses the project’s aggregate `Books`
+inventory fields (`TotalCopies` and `CopiesAvailable`). Individual
+physical-copy tracking is outside the current project scope.

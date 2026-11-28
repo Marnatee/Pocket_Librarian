@@ -67,5 +67,7 @@
         public string? Description { get; set; }
         public string? CoverImagePath { get; set; }
         public string SourceType { get; set; } = "Library acquisition";
+        public int TotalCopies { get; set; }
+        public int CopiesAvailable { get; set; }
     }
 }
