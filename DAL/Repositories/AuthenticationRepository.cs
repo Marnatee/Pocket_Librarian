@@ -1,5 +1,6 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Pocket_Librarian.DAL;
 using System.Data;
 using Pocket_Librarian.BLL.Interfaces;
 using Pocket_Librarian.BLL.Models;
@@ -18,7 +19,8 @@ public class AuthenticationRepository : IAuthenticationRepository
 
     public bool EmailExists(string email)
     {
-        using SqlConnection connection = new SqlConnection(_connectionString);
+        using SqlConnection connection = new SqlConnection(
+            DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         using SqlCommand command = new SqlCommand(
             "SELECT COUNT(1) FROM dbo.Users WHERE Email = @Email;",
             connection);
@@ -42,7 +44,8 @@ public class AuthenticationRepository : IAuthenticationRepository
                 (@FirstName, @LastName, @Email, @PasswordHash, 'Member');
             """;
 
-        using SqlConnection connection = new SqlConnection(_connectionString);
+        using SqlConnection connection = new SqlConnection(
+            DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         using SqlCommand command = new SqlCommand(sql, connection);
 
         command.Parameters.Add("@FirstName", SqlDbType.NVarChar, 50).Value = firstName;
@@ -62,7 +65,8 @@ public class AuthenticationRepository : IAuthenticationRepository
             WHERE Email = @Email;
             """;
 
-        using SqlConnection connection = new SqlConnection(_connectionString);
+        using SqlConnection connection = new SqlConnection(
+            DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         using SqlCommand command = new SqlCommand(sql, connection);
         command.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = email;
 

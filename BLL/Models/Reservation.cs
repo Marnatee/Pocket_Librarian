@@ -17,9 +17,8 @@ namespace Pocket_Librarian.BLL.Models
         
         public DateTime? DateReturned { get; set; }
 
-        // Pending means the member requested the book and staff has not yet
-        // located it. Fulfilled means it is ready/checked out. Returned means
-        // the member has returned it and the returns queue is processing it.
+        // Pending -> ReadyForPickup -> CheckedOut -> ReturnPending -> Returned.
+        // Cancelled preserves a cancelled request instead of deleting history.
         public string ReservationStatus { get; set; } = "Pending";
 
         // Joined display values returned by reservation read queries.

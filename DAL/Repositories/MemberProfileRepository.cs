@@ -1,6 +1,7 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Pocket_Librarian.DAL;
 using Pocket_Librarian.BLL.Interfaces;
 using Pocket_Librarian.BLL.Models;
 
@@ -26,7 +27,7 @@ public sealed class MemberProfileRepository : IMemberProfileRepository
             """;
 
         await using SqlConnection connection =
-            new SqlConnection(_connectionString);
+            new SqlConnection(DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
 
         await using SqlCommand command =
@@ -63,7 +64,7 @@ public sealed class MemberProfileRepository : IMemberProfileRepository
             """;
 
         await using SqlConnection connection =
-            new SqlConnection(_connectionString);
+            new SqlConnection(DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
 
         await using SqlCommand command =
@@ -88,7 +89,7 @@ public sealed class MemberProfileRepository : IMemberProfileRepository
             """;
 
         await using SqlConnection connection =
-            new SqlConnection(_connectionString);
+            new SqlConnection(DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
 
         await using SqlCommand command =

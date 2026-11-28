@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Pocket_Librarian.BLL.Interfaces;
 using Pocket_Librarian.BLL.Models;
+using Pocket_Librarian.DAL;
 using System.Data;
 
 namespace Pocket_Librarian.DAL.Repositories
@@ -30,7 +31,8 @@ namespace Pocket_Librarian.DAL.Repositories
                 ORDER BY GenreName;
                 """;
 
-            using SqlConnection connection = new SqlConnection(_connectionString);
+            using SqlConnection connection = new SqlConnection(
+                DatabaseConnectionState.GetActiveConnectionString(_connectionString));
             using SqlCommand command = new SqlCommand(sql, connection);
 
             connection.Open();
@@ -96,7 +98,8 @@ namespace Pocket_Librarian.DAL.Repositories
                 ORDER BY b.Title;
                 """;
 
-            using SqlConnection connection = new SqlConnection(_connectionString);
+            using SqlConnection connection = new SqlConnection(
+                DatabaseConnectionState.GetActiveConnectionString(_connectionString));
             using SqlCommand command = new SqlCommand(sql, connection);
 
             command.Parameters.AddWithValue("@Title", criteria.Title);
@@ -227,7 +230,8 @@ namespace Pocket_Librarian.DAL.Repositories
                 FROM dbo.Books
                 ORDER BY Title, BookID;
                 """;
-            await using SqlConnection connection = new(_connectionString);
+            await using SqlConnection connection = new(
+                DatabaseConnectionState.GetActiveConnectionString(_connectionString));
             await connection.OpenAsync();
             await using SqlCommand command = new(sql, connection);
             await using SqlDataReader reader = await command.ExecuteReaderAsync();
@@ -250,7 +254,8 @@ namespace Pocket_Librarian.DAL.Repositories
                 FROM dbo.Books
                 WHERE BookID = @BookID;
                 """;
-            await using SqlConnection connection = new(_connectionString);
+            await using SqlConnection connection = new(
+                DatabaseConnectionState.GetActiveConnectionString(_connectionString));
             await connection.OpenAsync();
             await using SqlCommand command = new(sql, connection);
             command.Parameters.Add("@BookID", SqlDbType.Int).Value = bookId;
@@ -265,7 +270,8 @@ namespace Pocket_Librarian.DAL.Repositories
 
         public async Task<int> CreateBookAsync(CatalogueBookMutation book)
         {
-            await using SqlConnection connection = new(_connectionString);
+            await using SqlConnection connection = new(
+                DatabaseConnectionState.GetActiveConnectionString(_connectionString));
             await connection.OpenAsync();
             await using SqlTransaction transaction = (SqlTransaction)await connection.BeginTransactionAsync();
             try
@@ -295,7 +301,8 @@ namespace Pocket_Librarian.DAL.Repositories
 
         public async Task<bool> UpdateBookAsync(int bookId, CatalogueBookMutation book)
         {
-            await using SqlConnection connection = new(_connectionString);
+            await using SqlConnection connection = new(
+                DatabaseConnectionState.GetActiveConnectionString(_connectionString));
             await connection.OpenAsync();
             await using SqlTransaction transaction = (SqlTransaction)await connection.BeginTransactionAsync();
             try
@@ -329,7 +336,8 @@ namespace Pocket_Librarian.DAL.Repositories
 
         public async Task<bool> DeleteBookAsync(int bookId)
         {
-            await using SqlConnection connection = new(_connectionString);
+            await using SqlConnection connection = new(
+                DatabaseConnectionState.GetActiveConnectionString(_connectionString));
             await connection.OpenAsync();
             await using SqlTransaction transaction = (SqlTransaction)await connection.BeginTransactionAsync();
             try

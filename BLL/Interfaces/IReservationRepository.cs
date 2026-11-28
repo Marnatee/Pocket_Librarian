@@ -16,11 +16,17 @@ public interface IReservationRepository
 
     Task<bool> UpdateReservationAsync(Reservation reservation);
 
+    Task<bool> CheckoutReservationAsync(
+        int userId,
+        int reservationId);
+
     Task<bool> ReturnReservationAsync(int reservationId);
 
-    Task<bool> IsBookAvailableAsync(int bookId);
+    Task<bool> CancelReservationAsync(
+        int userId,
+        int reservationId);
 
-    Task<bool> DeleteReservationAsync(int reservationId);
+    Task<bool> IsBookAvailableAsync(int bookId);
 
     Task<int> ClearReservationHistoryAsync(int userId);
 }

@@ -4,6 +4,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Pocket_Librarian.BLL.Interfaces;
+using Pocket_Librarian.DAL;
 
 
 namespace Pocket_Librarian.DAL.Repositories
@@ -22,11 +23,11 @@ namespace Pocket_Librarian.DAL.Repositories
 
         public (bool Connected, string Message, string Details) TestDataAccess()
         {
-            string activeConnectionString =
-                _manualConnectionString ?? _configuredConnectionString;
+            string activeConnectionString = DatabaseConnectionState.GetActiveConnectionString(
+                _manualConnectionString ?? _configuredConnectionString);
 
             string connectionSource =
-                _manualConnectionString is null ? "Configured" : "Manual";
+                DatabaseConnectionState.ManualConnectionString is null ? "Configured" : "Manual";
 
             return TestConnection(activeConnectionString, connectionSource);
         }
@@ -39,6 +40,7 @@ namespace Pocket_Librarian.DAL.Repositories
             if (result.Connected)
             {
                 _manualConnectionString = connectionString;
+                DatabaseConnectionState.SetManualConnectionString(connectionString);
             }
 
             return result;

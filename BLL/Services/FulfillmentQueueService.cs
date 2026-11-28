@@ -9,14 +9,10 @@ namespace Pocket_Librarian.BLL.Services;
 public class FulfillmentQueueService
 {
     private readonly IFulfillmentQueueRepository _repository;
-    private readonly NotificationService _notificationService;
 
-    public FulfillmentQueueService(
-        IFulfillmentQueueRepository repository,
-        NotificationService notificationService)
+    public FulfillmentQueueService(IFulfillmentQueueRepository repository)
     {
         _repository = repository;
-        _notificationService = notificationService;
     }
 
 
@@ -100,7 +96,9 @@ public class FulfillmentQueueService
 
 
     // Mark a fulfillment task as fulfilled (book located and ready for pickup).
-    // Sends a notification to the member that their book is ready.
+    // The repository updates the reservation and creates the notification in
+    // the same SQL transaction, so fulfillment cannot silently succeed without
+    // the member notification.
 
     public async Task<FulfillmentTask?> MarkTaskFulfilledAsync(int fulfillmentTaskId, int staffId)
     {
@@ -109,23 +107,6 @@ public class FulfillmentQueueService
         if (task is null)
         {
             return null;
-        }
-
-        try
-        {
-            await _notificationService.CreateForUserAsync(
-                task.UserId,
-                new CreateNotificationRequest
-                {
-                    Title = "Book ready for pickup",
-                    MessageText = $"{task.BookTitle} has been located and is ready for you to pick up."
-                });
-        }
-        catch (Exception exception)
-        {
-            // Do not undo a completed physical fulfillment if notification
-            // storage is temporarily unavailable.
-            _ = exception;
         }
 
         return task;

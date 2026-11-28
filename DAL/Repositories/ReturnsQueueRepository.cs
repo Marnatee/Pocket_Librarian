@@ -6,6 +6,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Pocket_Librarian.BLL.Interfaces;
 using Pocket_Librarian.BLL.Models;
+using Pocket_Librarian.DAL;
 
 namespace Pocket_Librarian.DAL.Repositories;
 
@@ -22,9 +23,11 @@ public class ReturnsQueueRepository : IReturnsQueueRepository
     public void SetManualConnectionString(string connectionString)
     {
         _manualConnectionString = connectionString;
+        DatabaseConnectionState.SetManualConnectionString(connectionString);
     }
 
-    private string GetActiveConnectionString() => _manualConnectionString ?? _configuredConnectionString;
+    private string GetActiveConnectionString() => DatabaseConnectionState.GetActiveConnectionString(
+        _manualConnectionString ?? _configuredConnectionString);
 
     public Task<List<ReturnTask>> GetPendingTasksForStaffAsync(int staffId)
     {
@@ -208,6 +211,14 @@ public class ReturnsQueueRepository : IReturnsQueueRepository
                     return Failure("Unsupported return action.");
             }
 
+            if (task.ReservationId.HasValue)
+            {
+                await FinalizeReservationReturnWithinTransactionAsync(
+                    connection,
+                    transaction,
+                    task.ReservationId.Value);
+            }
+
             await InsertReturnActionAsync(connection, transaction, returnTaskId, action);
             await CompleteTaskWithinTransactionAsync(connection, transaction, returnTaskId, staffId);
             transaction.Commit();
@@ -382,6 +393,28 @@ public class ReturnsQueueRepository : IReturnsQueueRepository
         if (await command.ExecuteNonQueryAsync() != 1)
         {
             throw new InvalidOperationException("The return task could not be completed.");
+        }
+    }
+
+    private static async Task FinalizeReservationReturnWithinTransactionAsync(
+        SqlConnection connection,
+        SqlTransaction transaction,
+        int reservationId)
+    {
+        const string query = @"
+            UPDATE dbo.Reservations
+            SET DateReturned = GETUTCDATE(),
+                ReservationStatus = 'Returned'
+            WHERE ReservationID = @ReservationId
+              AND DateReturned IS NULL
+              AND ReservationStatus = 'ReturnPending'";
+
+        await using SqlCommand command = new(query, connection, transaction);
+        command.Parameters.AddWithValue("@ReservationId", reservationId);
+        if (await command.ExecuteNonQueryAsync() != 1)
+        {
+            throw new InvalidOperationException(
+                "The return task was not linked to a return-pending reservation.");
         }
     }
 

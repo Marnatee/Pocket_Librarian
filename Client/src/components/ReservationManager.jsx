@@ -124,7 +124,7 @@ function ReservationManager({ userId, children }) {
         }
     };
 
-    // Return a fulfilled book.
+    // Submit a return request for a checked-out book.
     const handleReturnBook = async (reservationId) => {
         setLoading(true);
         setError(null);
@@ -148,7 +148,7 @@ function ReservationManager({ userId, children }) {
                 );
             }
 
-            setSuccess("Book returned successfully!");
+            setSuccess("Return request submitted. Staff will process the physical return.");
 
             // Refresh reservations
             await fetchActiveReservations();
@@ -161,13 +161,82 @@ function ReservationManager({ userId, children }) {
         }
     };
 
-    const pastReservations = reservations.filter((r) => r.dateReturned !== null);
+    const handleCheckoutReservation = async (reservationId) => {
+        setLoading(true);
+        setError(null);
+        setSuccess(null);
+
+        try {
+            const response = await fetch(
+                `${RESERVATION_API_BASE}/${reservationId}/checkout`,
+                { method: "PUT", headers: { "Content-Type": "application/json" } }
+            );
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(result.error || "Failed to check out the book");
+            }
+
+            setSuccess("Book checked out successfully.");
+            await fetchActiveReservations();
+            await fetchAllReservations();
+        } catch (err) {
+            setError(err.message);
+            console.error("Error checking out reservation:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCancelReservation = async (reservationId) => {
+        if (!window.confirm("Cancel this reservation? Its cancellation record will be preserved.")) {
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+        setSuccess(null);
+
+        try {
+            const response = await fetch(
+                `${RESERVATION_API_BASE}/${reservationId}/cancel`,
+                { method: "PUT", headers: { "Content-Type": "application/json" } }
+            );
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(result.error || "Failed to cancel the reservation");
+            }
+
+            setSuccess("Reservation cancelled. The cancellation was preserved in your history.");
+            await fetchActiveReservations();
+            await fetchAllReservations();
+        } catch (err) {
+            setError(err.message);
+            console.error("Error cancelling reservation:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const returnedReservations = reservations.filter((r) => r.dateReturned !== null);
+    const cancelledReservations = reservations.filter(
+        (r) => r.dateReturned === null && r.reservationStatus === "Cancelled"
+    );
+    const pastReservations = [...returnedReservations, ...cancelledReservations];
     const pendingReservations = reservations.filter(
         (r) => r.dateReturned === null && r.reservationStatus === "Pending"
     );
+    const readyReservations = activeReservations.filter(
+        (r) => r.reservationStatus === "ReadyForPickup"
+    );
+    const checkedOutReservations = activeReservations.filter(
+        (r) => r.reservationStatus === "CheckedOut"
+    );
+    const returnPendingReservations = reservations.filter(
+        (r) => r.dateReturned === null && r.reservationStatus === "ReturnPending"
+    );
 
     const clearReservationHistory = async () => {
-        if (pastReservations.length === 0 || clearingHistory) {
+        if (returnedReservations.length === 0 || clearingHistory) {
             return;
         }
 
@@ -197,8 +266,8 @@ function ReservationManager({ userId, children }) {
                 currentReservations.filter((reservation) => reservation.dateReturned === null)
             );
             setSuccess(
-                `${result.deletedCount ?? pastReservations.length} reservation${
-                    (result.deletedCount ?? pastReservations.length) === 1 ? "" : "s"
+                `${result.deletedCount ?? returnedReservations.length} reservation${
+                    (result.deletedCount ?? returnedReservations.length) === 1 ? "" : "s"
                 } removed from your history.`
             );
         } catch (err) {
@@ -263,6 +332,57 @@ function ReservationManager({ userId, children }) {
                                         <span className="value">Waiting for staff to prepare the book</span>
                                     </div>
                                 </div>
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => handleCancelReservation(reservation.reservationId)}
+                                    disabled={loading}
+                                >
+                                    Cancel reservation
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {readyReservations.length > 0 && (
+                <div className="reservations-section">
+                    <h3>Ready for Pickup ({readyReservations.length})</h3>
+                    <div className="reservations-list">
+                        {readyReservations.map((reservation) => (
+                            <div key={reservation.reservationId} className="reservation-card">
+                                <div className="reservation-info">
+                                    <div className="info-row">
+                                        <span className="label">Book:</span>
+                                        <span className="value">
+                                            {reservation.bookTitle || `Book ${reservation.bookId}`}
+                                        </span>
+                                    </div>
+                                    <div className="info-row">
+                                        <span className="label">Reservation ID:</span>
+                                        <span className="value">{reservation.reservationId}</span>
+                                    </div>
+                                    <div className="info-row">
+                                        <span className="label">Status:</span>
+                                        <span className="value">Staff has located this book for pickup</span>
+                                    </div>
+                                </div>
+                                <div className="form-actions">
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={() => handleCheckoutReservation(reservation.reservationId)}
+                                        disabled={loading}
+                                    >
+                                        Check out book
+                                    </button>
+                                    <button
+                                        className="btn btn-secondary"
+                                        onClick={() => handleCancelReservation(reservation.reservationId)}
+                                        disabled={loading}
+                                    >
+                                        Cancel reservation
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -302,7 +422,7 @@ function ReservationManager({ userId, children }) {
                                 className="btn btn-primary"
                                 disabled={loading}
                             >
-                                {loading ? "Processing..." : "Checkout"}
+                                {loading ? "Processing..." : "Reserve"}
                             </button>
                             <button
                                 type="button"
@@ -322,16 +442,16 @@ function ReservationManager({ userId, children }) {
 
             {/* Active Reservations Section */}
             <div className="reservations-section">
-                <h3>Currently Checked Out ({activeReservations.length})</h3>
-                {loading && activeReservations.length === 0 ? (
+                <h3>Currently Checked Out ({checkedOutReservations.length})</h3>
+                {loading && checkedOutReservations.length === 0 ? (
                     <p className="loading-text">Loading...</p>
-                ) : activeReservations.length === 0 ? (
+                ) : checkedOutReservations.length === 0 ? (
                     <p className="empty-message">
                         You have no books currently checked out.
                     </p>
                 ) : (
                     <div className="reservations-list">
-                        {activeReservations.map((reservation) => {
+                        {checkedOutReservations.map((reservation) => {
                             const daysCheckedOut = elapsedWholeDays(reservation.dateReserved);
                             return (
                                 <div
@@ -410,6 +530,30 @@ function ReservationManager({ userId, children }) {
                 )}
             </div>
 
+            {returnPendingReservations.length > 0 && (
+                <div className="reservations-section">
+                    <h3>Return Pending ({returnPendingReservations.length})</h3>
+                    <div className="reservations-list">
+                        {returnPendingReservations.map((reservation) => (
+                            <div key={reservation.reservationId} className="reservation-card">
+                                <div className="reservation-info">
+                                    <div className="info-row">
+                                        <span className="label">Book:</span>
+                                        <span className="value">
+                                            {reservation.bookTitle || `Book ${reservation.bookId}`}
+                                        </span>
+                                    </div>
+                                    <div className="info-row">
+                                        <span className="label">Status:</span>
+                                        <span className="value">Staff is processing the physical return</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Other member features stay between active reservations and history. */}
             {children}
 
@@ -419,23 +563,24 @@ function ReservationManager({ userId, children }) {
                     <div>
                         <h3>Reservation History ({pastReservations.length})</h3>
                         <p className="history-description">
-                            Returned books are kept here until you choose to clear this history.
+                            Returned and cancelled reservations are kept here for reference.
                         </p>
                     </div>
                     <button
                         className="btn btn-danger"
                         type="button"
                         onClick={clearReservationHistory}
-                        disabled={clearingHistory || pastReservations.length === 0}
+                        disabled={clearingHistory || returnedReservations.length === 0}
                     >
                         {clearingHistory ? "Clearing..." : "Clear reservation history"}
                     </button>
                 </div>
                 {pastReservations.length === 0 ? (
-                    <p className="empty-message">No returned reservations in your history.</p>
+                    <p className="empty-message">No returned or cancelled reservations in your history.</p>
                 ) : (
                     <div className="reservations-list past-reservations">
                         {pastReservations.map((reservation) => {
+                            const isCancelled = reservation.reservationStatus === "Cancelled";
                             const duration = elapsedWholeDays(
                                 reservation.dateReserved,
                                 reservation.dateReturned
@@ -491,23 +636,29 @@ function ReservationManager({ userId, children }) {
                                             </span>
                                         </div>
                                         <div className="info-row">
-                                            <span className="label">
-                                                Returned:
-                                            </span>
+                                            <span className="label">Status:</span>
                                             <span className="value">
-                                                {new Date(
-                                                    reservation.dateReturned
-                                                ).toLocaleDateString()}
+                                                {isCancelled
+                                                    ? "Cancelled"
+                                                    : "Returned"}
                                             </span>
                                         </div>
-                                        <div className="info-row">
-                                            <span className="label">
-                                                Duration:
-                                            </span>
-                                            <span className="value">
-                                                {duration} days
-                                            </span>
-                                        </div>
+                                        {!isCancelled && (
+                                            <>
+                                                <div className="info-row">
+                                                    <span className="label">Returned:</span>
+                                                    <span className="value">
+                                                        {new Date(
+                                                            reservation.dateReturned
+                                                        ).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                                <div className="info-row">
+                                                    <span className="label">Duration:</span>
+                                                    <span className="value">{duration} days</span>
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             );

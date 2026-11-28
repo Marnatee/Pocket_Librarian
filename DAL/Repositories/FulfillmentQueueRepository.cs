@@ -5,6 +5,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Pocket_Librarian.BLL.Interfaces;
 using Pocket_Librarian.BLL.Models;
+using Pocket_Librarian.DAL;
 
 namespace Pocket_Librarian.DAL.Repositories;
 
@@ -21,9 +22,11 @@ public class FulfillmentQueueRepository : IFulfillmentQueueRepository
     public void SetManualConnectionString(string connectionString)
     {
         _manualConnectionString = connectionString;
+        DatabaseConnectionState.SetManualConnectionString(connectionString);
     }
 
-    private string GetActiveConnectionString() => _manualConnectionString ?? _configuredConnectionString;
+    private string GetActiveConnectionString() => DatabaseConnectionState.GetActiveConnectionString(
+        _manualConnectionString ?? _configuredConnectionString);
 
     public Task<List<FulfillmentTask>> GetAllPendingTasksAsync()
     {
@@ -139,24 +142,47 @@ public class FulfillmentQueueRepository : IFulfillmentQueueRepository
         try
         {
             const string reservationQuery = @"
-                SELECT ReservationID
-                FROM dbo.FulfillmentTasks WITH (UPDLOCK, ROWLOCK)
-                WHERE FulfillmentTaskID = @FulfillmentTaskId
-                  AND AssignedStaffID = @StaffId
-                  AND Status IN ('Pending', 'InProgress')";
+                SELECT task.ReservationID, task.UserID, task.BookTitle
+                FROM dbo.FulfillmentTasks AS task WITH (UPDLOCK, ROWLOCK)
+                WHERE task.FulfillmentTaskID = @FulfillmentTaskId
+                  AND task.AssignedStaffID = @StaffId
+                  AND task.Status IN ('Pending', 'InProgress')";
 
             int reservationId;
+            int userId;
+            string bookTitle;
             await using (SqlCommand reservationCommand = new(reservationQuery, connection, transaction))
             {
                 reservationCommand.Parameters.AddWithValue("@FulfillmentTaskId", fulfillmentTaskId);
                 reservationCommand.Parameters.AddWithValue("@StaffId", staffId);
-                object? result = await reservationCommand.ExecuteScalarAsync();
-                if (result is null || result == DBNull.Value)
+                await using SqlDataReader reader = await reservationCommand.ExecuteReaderAsync();
+                if (!await reader.ReadAsync())
                 {
                     return null;
                 }
 
-                reservationId = Convert.ToInt32(result);
+                reservationId = reader.GetInt32(0);
+                userId = reader.GetInt32(1);
+                bookTitle = reader.GetString(2);
+            }
+
+            const string reservationStatusQuery = @"
+                UPDATE dbo.Reservations
+                SET ReservationStatus = 'ReadyForPickup'
+                WHERE ReservationID = @ReservationId
+                  AND UserID = @UserId
+                  AND DateReturned IS NULL
+                  AND ReservationStatus = 'Pending'";
+
+            await using (SqlCommand statusCommand = new(reservationStatusQuery, connection, transaction))
+            {
+                statusCommand.Parameters.AddWithValue("@ReservationId", reservationId);
+                statusCommand.Parameters.AddWithValue("@UserId", userId);
+                if (await statusCommand.ExecuteNonQueryAsync() != 1)
+                {
+                    throw new InvalidOperationException(
+                        "The fulfillment task was not linked to a pending reservation.");
+                }
             }
 
             const string taskQuery = @"
@@ -177,19 +203,50 @@ public class FulfillmentQueueRepository : IFulfillmentQueueRepository
                 }
             }
 
-            const string reservationStatusQuery = @"
-                UPDATE dbo.Reservations
-                SET ReservationStatus = 'Fulfilled'
-                WHERE ReservationID = @ReservationId
-                  AND DateReturned IS NULL";
+            const string notificationQuery = @"
+                IF OBJECT_ID(N'dbo.Notifications', N'U') IS NULL
+                BEGIN
+                    CREATE TABLE dbo.Notifications
+                    (
+                        NotificationID INT IDENTITY(1,1) NOT NULL
+                            CONSTRAINT PK_Notifications PRIMARY KEY,
+                        UserID INT NOT NULL,
+                        Title NVARCHAR(200) NOT NULL,
+                        MessageText NVARCHAR(1000) NOT NULL,
+                        CreatedDate DATETIME2 NOT NULL
+                            CONSTRAINT DF_Notifications_CreatedDate
+                            DEFAULT SYSUTCDATETIME(),
+                        IsRead BIT NOT NULL
+                            CONSTRAINT DF_Notifications_IsRead
+                            DEFAULT 0,
+                        CONSTRAINT FK_Notifications_Users
+                            FOREIGN KEY (UserID) REFERENCES dbo.Users(UserID)
+                    );
 
-            await using (SqlCommand statusCommand = new(reservationStatusQuery, connection, transaction))
+                    CREATE INDEX IX_Notifications_UserID_CreatedDate
+                        ON dbo.Notifications(UserID, CreatedDate DESC);
+                END;
+
+                INSERT INTO dbo.Notifications (UserID, Title, MessageText)
+                SELECT @UserId, N'Book ready for pickup', @MessageText
+                FROM dbo.Users
+                WHERE UserID = @UserId;
+
+                SELECT @@ROWCOUNT;";
+
+            await using (SqlCommand notificationCommand = new(notificationQuery, connection, transaction))
             {
-                statusCommand.Parameters.AddWithValue("@ReservationId", reservationId);
-                if (await statusCommand.ExecuteNonQueryAsync() != 1)
+                notificationCommand.Parameters.AddWithValue("@UserId", userId);
+                notificationCommand.Parameters.AddWithValue(
+                    "@MessageText",
+                    $"{bookTitle} has been located and is ready for you to pick up.");
+
+                int notificationCount = Convert.ToInt32(
+                    await notificationCommand.ExecuteScalarAsync());
+                if (notificationCount != 1)
                 {
                     throw new InvalidOperationException(
-                        "The fulfillment task was not linked to an active reservation.");
+                        "The member notification could not be created, so the fulfillment was not completed.");
                 }
             }
 

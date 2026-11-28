@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Pocket_Librarian.BLL.Interfaces;
 using Pocket_Librarian.BLL.Models;
+using Pocket_Librarian.DAL;
 
 namespace Pocket_Librarian.DAL.Repositories;
 
@@ -26,7 +27,8 @@ public sealed class DonationRepository : IDonationRepository
 
     public async Task<Donation?> GetDonationByIdAsync(int donationId)
     {
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(
+            DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
         return await ReadDonationAsync(connection, null, donationId);
     }
@@ -49,7 +51,8 @@ public sealed class DonationRepository : IDonationRepository
             );
             """;
 
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(
+            DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
         await using var command = new SqlCommand(sql, connection);
         AddDonationParameters(command, donation);
@@ -75,7 +78,8 @@ public sealed class DonationRepository : IDonationRepository
               AND VerificationStatus IN ('Pending', 'Verified');
             """;
 
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(
+            DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.Add("@DonationID", SqlDbType.Int).Value = donation.DonationId;
@@ -101,7 +105,8 @@ public sealed class DonationRepository : IDonationRepository
               AND VerificationStatus IN ('Pending', 'Verified');
             """;
 
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(
+            DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.Add("@DisplayStatus", SqlDbType.NVarChar, 50).Value = DisplayStatus(status);
@@ -118,7 +123,8 @@ public sealed class DonationRepository : IDonationRepository
         int staffId,
         string? notes = null)
     {
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(
+            DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
         await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync();
 
@@ -177,7 +183,8 @@ public sealed class DonationRepository : IDonationRepository
             WHERE DonationID = @DonationID
               AND VerificationStatus <> 'Approved';
             """;
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(
+            DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.Add("@DonationID", SqlDbType.Int).Value = donationId;
@@ -198,7 +205,8 @@ public sealed class DonationRepository : IDonationRepository
                   AND (@ExcludeID IS NULL OR DonationID <> @ExcludeID)
             ) THEN 1 ELSE 0 END;
             """;
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(
+            DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.Add("@ISBN", SqlDbType.NVarChar, 20).Value = isbn.Trim();
@@ -218,7 +226,8 @@ public sealed class DonationRepository : IDonationRepository
             WHERE DonationID = @DonationID
               AND VerificationStatus <> 'Approved';
             """;
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(
+            DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
         await using var command = new SqlCommand(sql, connection);
         command.Parameters.Add("@DisplayStatus", SqlDbType.NVarChar, 50).Value = DisplayStatus(status);
@@ -244,7 +253,8 @@ public sealed class DonationRepository : IDonationRepository
             WHERE d.VerificationStatus IN ({string.Join(", ", parameterNames)})
             ORDER BY d.SubmittedAt ASC;
             """;
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new SqlConnection(
+            DatabaseConnectionState.GetActiveConnectionString(_connectionString));
         await connection.OpenAsync();
         await using var command = new SqlCommand(sql, connection);
         for (int i = 0; i < statuses.Length; i++)
