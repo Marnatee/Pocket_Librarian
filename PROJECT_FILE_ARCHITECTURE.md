@@ -52,7 +52,8 @@ DAL implementations through dependency injection.
 
 - `Client/Client.esproj` - Visual Studio JavaScript project definition.
 - `Client/src/` - React application code, pages, and components.
-- `Client/public/` - Browser assets and book-cover images.
+- `Client/public/` - Browser assets and book-cover images. Curated catalogue
+  covers use `featured-books/book-{BookID}.jpg`.
 - `Client/vite.config.js` - Vite development server and API proxy.
 - `Client/package.json` and `Client/package-lock.json` - Node package definitions.
 

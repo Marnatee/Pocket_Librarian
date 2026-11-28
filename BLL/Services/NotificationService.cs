@@ -36,6 +36,24 @@ public sealed class NotificationService
             notificationId);
     }
 
+    public Task<bool> DeleteForUserAsync(
+        int userId,
+        int notificationId)
+    {
+        ValidateUserId(userId);
+
+        if (notificationId <= 0)
+        {
+            throw new ArgumentException(
+                "Notification ID must be greater than zero.",
+                nameof(notificationId));
+        }
+
+        return _repository.DeleteForUserAsync(
+            userId,
+            notificationId);
+    }
+
     public Task<bool> CreateForUserAsync(
         int userId,
         CreateNotificationRequest request)

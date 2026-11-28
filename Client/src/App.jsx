@@ -7,7 +7,9 @@ import "./App.css";
 import AppBanner from "./components/AppBanner";
 import HomePage from "./pages/HomePage";
 import MemberPage from "./pages/MemberPage";
+import NotificationsPage from "./pages/NotificationsPage";
 import PipelinePage from "./pages/PipelinePage";
+import SignUpPage from "./pages/SignUpPage";
 import StaffPage from "./pages/StaffPage";
 
 const BACKEND_HEALTH_TIMEOUT_MS = 3000;
@@ -98,11 +100,17 @@ function App() {
 
         const data = await response.json().catch(() => ({}));
 
-        setAuthMessage(
-            response.ok
-                ? "Account created. Sign in with your email and password."
-                : data.message || "Account registration failed."
-        );
+        const message = response.ok
+            ? "Account created. Sign in with your email and password."
+            : data.message || "Account registration failed.";
+
+        setAuthMessage(message);
+
+        if (response.ok) {
+            setCurrentPage("home");
+        }
+
+        return response.ok;
     }, []);
 
     const signOut = useCallback(async () => {
@@ -359,11 +367,29 @@ function App() {
                 return currentUser ? (
                     <MemberPage
                         currentUser={currentUser}
+                        onOpenNotifications={() => setCurrentPage("notifications")}
                         onProfileUpdated={(profile) => {
                             setCurrentUser((user) => ({ ...user, ...profile }));
                         }}
                     />
                 ) : <HomePage />;
+            case "notifications":
+                return currentUser ? (
+                    <NotificationsPage
+                        onBack={() => setCurrentPage("member")}
+                    />
+                ) : <HomePage />;
+            case "signup":
+                return (
+                    <SignUpPage
+                        message={authMessage}
+                        onSubmit={signUp}
+                        onBack={() => {
+                            setAuthMessage("");
+                            setCurrentPage("home");
+                        }}
+                    />
+                );
             case "staff":
                 return currentUser?.role === "Staff"
                     ? <StaffPage currentUser={currentUser} />
@@ -396,7 +422,10 @@ function App() {
                 currentUser={currentUser}
                 authMessage={authMessage}
                 onSignIn={signIn}
-                onSignUp={signUp}
+                onOpenSignUp={() => {
+                    setAuthMessage("");
+                    setCurrentPage("signup");
+                }}
                 onSignOut={signOut}
                 onOpenPipeline={() => setCurrentPage("pipeline")}
                 statuses={statuses}

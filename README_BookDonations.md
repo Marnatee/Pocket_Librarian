@@ -17,7 +17,7 @@ The number of copies defaults to 1. Author, ISBN, genre, publication year,
 description, condition, cover image, and donation comments are optional.
 
 New submissions are stored as Pending Verification and retain the submitting
-submitting user's UserID.
+user's UserID.
 
 ## Staff behavior
 

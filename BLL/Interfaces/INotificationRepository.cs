@@ -13,4 +13,8 @@ public interface INotificationRepository
     Task<bool> MarkAsReadAsync(
         int userId,
         int notificationId);
+
+    Task<bool> DeleteForUserAsync(
+        int userId,
+        int notificationId);
 }

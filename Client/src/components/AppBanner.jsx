@@ -10,7 +10,7 @@ function AppBanner({
     currentUser,
     authMessage,
     onSignIn,
-    onSignUp,
+    onOpenSignUp,
     onSignOut,
     onOpenPipeline,
     statuses,
@@ -19,18 +19,12 @@ function AppBanner({
     onRefresh,
     onManualDatabaseConnect,
 }) {
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     function handleSignIn(event) {
         event.preventDefault();
         onSignIn({ email, password });
-    }
-
-    function handleSignUp() {
-        onSignUp({ firstName, lastName, email, password });
     }
 
     return (
@@ -73,24 +67,6 @@ function AppBanner({
                     {currentUser ? `${currentUser.email} (${currentUser.role})` : "Staff / member login"}
                 </p>
                 {!currentUser && <div className="login-fields">
-                    <label htmlFor="account-first-name">
-                        First name
-                        <input
-                            id="account-first-name"
-                            type="text"
-                            value={firstName}
-                            onChange={(event) => setFirstName(event.target.value)}
-                        />
-                    </label>
-                    <label htmlFor="account-last-name">
-                        Last name
-                        <input
-                            id="account-last-name"
-                            type="text"
-                            value={lastName}
-                            onChange={(event) => setLastName(event.target.value)}
-                        />
-                    </label>
                     <label htmlFor="account-email">
                         Email
                         <input
@@ -120,7 +96,7 @@ function AppBanner({
                             <button className="login-button" type="submit">
                                 Sign in
                             </button>
-                            <button className="login-button" type="button" onClick={handleSignUp}>
+                            <button className="login-button" type="button" onClick={onOpenSignUp}>
                                 Sign up
                             </button>
                         </>

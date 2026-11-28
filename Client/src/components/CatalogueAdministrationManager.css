@@ -33,6 +33,12 @@
     align-items: center;
 }
 
+.catalogue-admin-toolbar label {
+    display: inline-flex;
+    align-items: center;
+    gap: .65rem;
+}
+
 .catalogue-admin-heading {
     justify-content: space-between;
     align-items: flex-start;
@@ -122,6 +128,22 @@
 
 .catalogue-admin-form-grid textarea {
     min-height: 4rem;
+}
+
+.catalogue-admin-cover-note {
+    margin: 0;
+    padding: .7rem .8rem;
+    border: 1px dashed #9fb4c0;
+    border-radius: .35rem;
+    background: #f6fafc;
+    color: #526571;
+    font-size: .88rem;
+    line-height: 1.45;
+}
+
+.catalogue-admin-cover-note code {
+    color: #244b62;
+    font-size: .82rem;
 }
 
 .catalogue-admin-actions {

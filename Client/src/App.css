@@ -282,6 +282,7 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: 8px;
+    margin-top: 10px;
 }
 
 .dashboard-pipeline-button {
@@ -498,7 +499,7 @@
 
 .feature-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 20px;
 }
 
@@ -692,9 +693,27 @@
 }
 
 .member-donation-feature {
-    min-height: 180px;
+    min-height: 150px;
     align-items: flex-start;
+    justify-content: space-between;
+    padding: 24px;
     text-align: left;
+}
+
+.member-donation-feature h3 {
+    margin: 0 0 10px;
+}
+
+.member-donation-feature p {
+    max-width: 620px;
+    line-height: 1.5;
+}
+
+.member-feature-link {
+    margin-top: 18px;
+    color: #1d4ed8;
+    font-size: 0.86rem;
+    font-weight: 800;
 }
 
 .member-feature-card {
@@ -980,6 +999,10 @@
     background: #fffaf0;
 }
 
+.notification-card > div:first-child {
+    min-width: 0;
+}
+
 .notification-card.is-read {
     border-left-color: #b7c9d4;
     background: #f7fafb;
@@ -1001,6 +1024,117 @@
 .notification-card time {
     color: #6b7c85;
     font-size: 0.7rem;
+}
+
+.notification-card-heading {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.notification-status {
+    color: #6b7c85;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.notification-actions {
+    display: flex;
+    flex-shrink: 0;
+    align-items: flex-start;
+    gap: 7px;
+}
+
+.member-danger-button {
+    padding: 8px 11px;
+    border: 1px solid #b42318;
+    border-radius: 7px;
+    background: #fff3f1;
+    color: #a52b2b;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.member-danger-button:hover {
+    background: #fde1dd;
+}
+
+.notification-history-link-wrap {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #e2e9ed;
+    text-align: right;
+}
+
+.notification-history-link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #1d4ed8;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+.notification-history-link:hover {
+    color: #17384d;
+    text-decoration: underline;
+}
+
+.auth-card {
+    max-width: 760px;
+}
+
+.auth-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.auth-form-grid label {
+    display: grid;
+    gap: 6px;
+    color: #244b62;
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+.auth-form-grid input {
+    min-width: 0;
+    padding: 10px 11px;
+    border: 1px solid #bdcbd4;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #20313d;
+    font: inherit;
+}
+
+.auth-form-grid input:focus {
+    border-color: #2563eb;
+    outline: 3px solid rgba(37, 99, 235, 0.16);
+}
+
+.auth-form-message {
+    margin: 16px 0 0;
+    color: #244b62;
+    font-size: 0.88rem;
+}
+
+.auth-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.auth-form-actions .member-secondary-button,
+.auth-form-actions .member-primary-button {
+    width: auto;
 }
 
 .pipeline-test h2 {
@@ -1091,6 +1225,12 @@ button:focus-visible {
     }
 }
 
+@media (max-width: 900px) {
+    .feature-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
 @media (max-width: 680px) {
     .app-banner {
         grid-template-columns: 1fr;
@@ -1116,6 +1256,10 @@ button:focus-visible {
     }
 
     .login-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-form-grid {
         grid-template-columns: 1fr;
     }
 
@@ -1155,6 +1299,14 @@ button:focus-visible {
     .profile-details div {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .notification-actions {
+        width: 100%;
+    }
+
+    .notification-actions button {
+        flex: 1;
     }
 
     .profile-details dd {

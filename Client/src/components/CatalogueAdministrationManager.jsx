@@ -14,7 +14,6 @@ const blankBook = {
     totalCopies: 0,
     copiesAvailable: 0,
     sourceType: "Library acquisition",
-    coverImage: null,
 };
 
 function CatalogueAdministrationManager() {
@@ -154,8 +153,6 @@ function CatalogueAdministrationManager() {
     async function updateBook(book, event) {
         event.preventDefault();
         const form = new FormData(event.currentTarget);
-        const file = event.currentTarget.coverImage.files?.[0];
-        if (file) form.set("coverImage", file);
         await runAction(
             () => request("/api/catalogue-admin/books/" + book.bookId, { method: "PUT", body: form }),
             "Catalogue record updated.",
@@ -268,7 +265,10 @@ function CatalogueAdministrationManager() {
                         <label>Available copies<input name="copiesAvailable" type="number" min="0" max={bookForm.totalCopies} value={bookForm.copiesAvailable} onChange={(event) => setBookForm({ ...bookForm, copiesAvailable: event.target.value })} /></label>
                         <label>Source type<select value={bookForm.sourceType} onChange={(event) => setBookForm({ ...bookForm, sourceType: event.target.value })}>{sourceTypes.map((value) => <option key={value}>{value}</option>)}</select></label>
                         <label className="wide">Description<textarea value={bookForm.description} onChange={(event) => setBookForm({ ...bookForm, description: event.target.value })} /></label>
-                        <label className="wide">Cover image<input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => setBookForm({ ...bookForm, coverImage: event.target.files?.[0] || null })} /></label>
+                        <p className="wide catalogue-admin-cover-note">
+                            Covers use the static <code>Client/public/featured-books/book-BookID.jpg</code> convention.
+                            Create the catalogue record first, then place the matching image in that folder.
+                        </p>
                         <div className="catalogue-admin-actions wide"><button className="primary" type="submit">Add record</button></div>
                     </form>
                     <div className="catalogue-admin-list">
@@ -285,7 +285,9 @@ function CatalogueAdministrationManager() {
                                     <label>Available copies<input name="copiesAvailable" type="number" min="0" max={book.totalCopies} defaultValue={book.copiesAvailable} /></label>
                                     <label>Source type<select name="sourceType" defaultValue={book.sourceType || "Library acquisition"}>{sourceTypes.map((value) => <option key={value}>{value}</option>)}</select></label>
                                     <label className="wide">Description<textarea name="description" defaultValue={book.description || ""} /></label>
-                                    <label className="wide">Replace cover image<input name="coverImage" type="file" accept="image/jpeg,image/png,image/webp" /></label>
+                                    <p className="wide catalogue-admin-cover-note">
+                                        Static cover path: <code>Client/public/featured-books/book-{book.bookId}.jpg</code>
+                                    </p>
                                     <div className="catalogue-admin-actions wide">
                                         <button className="primary" type="submit">Save record</button>
                                         <button type="button" className="danger" onClick={() => deleteBook(book)}>Delete record</button>
